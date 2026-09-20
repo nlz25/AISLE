@@ -31,16 +31,31 @@
       background: #000;
       box-shadow: 0 10px 34px rgba(0, 0, 0, 0.14);
     }
+    .fig-label {
+      margin-top: 32px;
+      font-size: 13px;
+      letter-spacing: 4px;
+      opacity: 0.5;
+    }
+    a.fig { display: block; margin-top: 10px; }
+    a.fig img {
+      width: 100%;
+      border-radius: 12px;
+      box-shadow: 0 10px 34px rgba(0, 0, 0, 0.14);
+    }
     footer { margin-top: 16px; font-size: 12px; opacity: 0.45; }
   </style>
 </head>
 <body>
   <main>
-    <!-- ✏️ 改这里：标题，以及你的姓名和求职岗位 -->
     <h1>项目作品演示</h1>
-    <p class="sub">你的名字 · 求职岗位</p>
 
     <video src="demo.mp4" controls playsinline preload="metadata" controlslist="nodownload"></video>
+
+    <p class="fig-label">框 架 图</p>
+    <a class="fig" href="framework.png" target="_blank" rel="noopener" title="点击查看原图">
+      <img src="framework.png" alt="框架图" loading="lazy" />
+    </a>
 
     <footer>© 2026</footer>
   </main>
