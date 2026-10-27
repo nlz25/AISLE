@@ -37,7 +37,7 @@ def header(page):
     language_url = '../' + page if lang == 'zh' else 'zh/' + page
     return f'''<a class="skip" href="#main">{t('Skip to content', '跳转到正文')}</a>
     <header class="site-header"><div class="wrap header-inner">
-      <a class="brand" href="index.html" aria-label="AISLE home"><span class="wordmark">AISLE</span><span class="brand-caption">AI Scientists’<br>Last Exam</span></a>
+      <a class="brand" href="index.html" aria-label="AISLE home"><span class="brand-full">AI Scientists' Last Exam</span></a>
       <nav class="nav-links" id="main-navigation" aria-label="{t('Main navigation', '主导航')}">{nav}</nav>
       <div class="nav-side"><a class="language" href="{language_url}" lang="{t('zh-CN','en')}">{t('CN','EN')}</a>
       <button class="menu-toggle" aria-controls="main-navigation" aria-expanded="false">{t('Menu +','菜单 +')}</button></div>
@@ -48,7 +48,7 @@ def footer():
     return f'''<footer class="site-footer"><div class="wrap"><div class="footer-top">
       <div><a href="index.html" class="wordmark">AISLE</a><p>AI Scientists’ Last Exam</p></div>
       <div class="footer-links"><a href="leaderboard.html">{t('Leaderboard','排行榜')}</a><a href="tasks.html">{t('Tasks','任务')}</a></div>
-      </div><div class="footer-bottom"><span>© 2026 AISLE · AI Scientists’ Last Exam</span><span>{t('Website snapshot: 27 Oct 2026','网站快照：2026 年 10 月 27 日')}</span></div></div></footer>'''
+      </div><div class="footer-bottom"><span>© 2026 AISLE · AI Scientists’ Last Exam</span></div></div></footer>'''
 
 
 def results_data():
@@ -82,7 +82,7 @@ def table(cohort, preview=False):
     rows = ''
     for rank, m in enumerate(models, 1):
         attrs = ' '.join(f'data-{k}="{m[k]}"' for k in [cohort] + keys)
-        scores = ''.join(f'<td>{m[k]:.2f}</td>' if m[k] is not None else '<td class="na">N/A</td>' for k in keys)
+        scores = ''.join(f'<td data-metric="{k}">{m[k]:.2f}</td>' if m[k] is not None else f'<td class="na" data-metric="{k}">N/A</td>' for k in keys)
         rows += f'''<tr {attrs} data-name="{esc(m['name'])}" data-profile="{m['id']}" data-cohort="{cohort}"><td>{rank:02}</td><th scope="row" class="model-name"><button class="model-button" aria-expanded="false" aria-controls="model-details-{cohort}" aria-label="{t('View details for','查看模型详情：')} {esc(m['name'])}">{logo(m)}{esc(m['name'])}<span aria-hidden="true">↗</span></button><small>{esc(m['organization'])}</small></th>
         <td class="score-cell"><span class="score-number">{m[cohort]:.2f}</span><div class="score-track" aria-hidden="true"><div class="score-fill" style="width:{m[cohort]}%"></div></div></td>{scores}</tr>'''
     return f'''<div class="table-scroll" tabindex="0" role="region" aria-label="{t('Scrollable results table','可横向滚动的成绩表')}"><table class="results-table" id="table-{cohort}{'-preview' if preview else ''}">
@@ -111,7 +111,7 @@ def chart(cohort):
     legend=f'<button type="button" data-chart-metric="{cohort}" aria-pressed="true">{t("Overall","综合")}</button>'+''.join(f'<button type="button" data-chart-metric="{k}" aria-pressed="false"><i style="background:{CATEGORY_COLORS[k]}"></i>{names[k]}</button>' for k in names)
     rows=''
     for rank,m in enumerate(models,1):
-        segments=''.join(f'<span class="stack-segment" style="width:{m[k]/len(keys):.4f}%;background:{CATEGORY_COLORS[k]}" title="{esc(names[k])}: {m[k]:.2f} / 100 · {t("Contribution","贡献")}: {m[k]/len(keys):.2f}"></span>' for k in keys)
+        segments=''.join(f'<span class="stack-segment" data-metric="{k}" style="width:{m[k]/len(keys):.4f}%;background:{CATEGORY_COLORS[k]}"></span>' for k in keys)
         values='; '.join(f'{names[k]} {m[k]:.2f}' for k in keys)
         rows+=f'<button class="stack-row" data-profile="{m["id"]}" data-cohort="{cohort}" aria-expanded="false" aria-controls="model-details-{cohort}" aria-label="{esc(m["name"])} · {t("Overall","综合分")} {m[cohort]:.2f}. {esc(values)}"><span class="stack-rank">{rank}</span><span class="stack-model">{logo(m)}<span><strong>{esc(m["name"])}</strong><small>{esc(m["organization"])}</small></span></span><strong class="stack-score">{m[cohort]:.2f}</strong><span class="stack-track" aria-hidden="true">{segments}</span></button>'
     return f'''<div class="leaderboard-card stacked-board" data-chart-cohort="{cohort}"><div class="stack-header"><span>AISLE · {len(models)} {t('models','个模型')}</span><div class="stack-legend" role="group" aria-label="{t('View scores by category','按类别查看分数')}">{legend}</div></div><div class="stack-columns"><span>#</span><span>{t('Model','模型')}</span><span data-score-heading>{t('Overall','综合分')}</span><span data-bar-heading>{t('Category contributions','各类别得分贡献')}</span></div><div class="stack-rows">{rows}</div><div class="stack-scale"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div><p class="stack-note" role="status">{t('Equal category weights. Select a category above or a model for details.','类别等权。点击上方类别切换分数，点击模型查看详情。')}</p><section class="model-details" id="model-details-{cohort}" aria-label="{t('Model details','模型详情')}" hidden></section></div>'''
@@ -188,7 +188,7 @@ def home():
       <p class="intro">{t('A benchmark for evaluating AI scientists on experimental tasks.','面向实验任务的 AI 科学家评测基准。')}</p>
       <button class="motion-toggle" type="button" aria-pressed="false" aria-label="{t('Pause background animation','暂停背景动画')}" hidden>Ⅱ</button>
       </section>
-      <div class="stats"><div class="stat"><strong>4,079</strong><span>{t('Physical experiments','真实实验')}</span></div><div class="stat"><strong>02</strong><span>{t('Laboratories','实验室')}</span></div><div class="stat"><strong>07</strong><span>{t('Models evaluated','已评测模型')}</span></div><div class="stat"><strong>04</strong><span>{t('Task categories','任务类别')}</span></div></div>
+      <div class="stats"><div class="stat"><strong><span data-count="4079" data-count-digits="1" aria-hidden="true">4,079</span><span class="sr-only">4,079</span></strong><span>{t('Physical experiments','真实实验')}</span></div><div class="stat"><strong><span data-count="2" data-count-digits="2" aria-hidden="true">02</span><span class="sr-only">02</span></strong><span>{t('Laboratories','实验室')}</span></div><div class="stat"><strong><span data-count="7" data-count-digits="2" aria-hidden="true">07</span><span class="sr-only">07</span></strong><span>{t('Models evaluated','已评测模型')}</span></div><div class="stat"><strong><span data-count="4" data-count-digits="2" aria-hidden="true">04</span><span class="sr-only">04</span></strong><span>{t('Task categories','任务类别')}</span></div></div>
       <p class="scope-note">{t('AISLE includes physical experiments and simulated tasks.','AISLE 包含真实实验与模拟任务。')}</p>
       <section class="section home-leaderboard" id="results"><div class="section-head"><h2>Leaderboard</h2>{link(t('Full leaderboard','完整排行榜'),'leaderboard.html')}</div>{chart_tabs()}</section>
       <section class="section" id="experiments"><div class="section-head"><div><div class="eyebrow">AISLE</div><h2>{t('Task Breakdown','任务分项')}</h2></div></div><div data-tabs><div class="tabs" role="tablist" aria-label="{t('Task categories','任务类别')}">{tabs}</div>{panels}</div></section>

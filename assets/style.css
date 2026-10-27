@@ -153,3 +153,17 @@
 
 .nav-side .language{border-left:0;padding-left:0}
 .institution-grid{flex-wrap:nowrap}
+
+/* Full project name in the navigation, with a compact mobile treatment. */
+.brand-full{font:600 23px/1.2 var(--sans);letter-spacing:-.7px;white-space:nowrap}
+.header-inner{gap:24px}
+.stat strong [data-count]{font:inherit;color:inherit;line-height:inherit;margin:0;display:inline;font-variant-numeric:tabular-nums}
+.score-tooltip{position:fixed;z-index:70;width:260px;max-width:calc(100vw - 24px);padding:16px 18px;background:#fff;border:1px solid #dce2eb;border-radius:12px;box-shadow:0 12px 36px #0f172a1c;font-size:12px;line-height:1.5;color:var(--ink)}
+.tip-model{display:block;font-size:14px;font-weight:650}.tip-org{display:block;color:var(--muted);font-size:10px;margin-top:2px}
+.tip-primary{display:flex;justify-content:space-between;align-items:center;gap:18px;margin-top:12px;padding-top:10px;border-top:1px solid var(--line)}
+.tip-primary>span{color:var(--muted);font-size:11px}.tip-primary>strong{font-size:20px;font-variant-numeric:tabular-nums}.tip-primary small{font-size:10px;font-weight:400;color:var(--muted)}
+.score-tooltip p{font-size:11px;color:var(--muted);margin:8px 0 0}.score-tooltip dl{margin:9px 0 0}.score-tooltip dl>div{display:flex;justify-content:space-between;gap:12px;padding:3px 0}.score-tooltip dt{color:var(--muted)}.score-tooltip dd{margin:0;font-weight:600;font-variant-numeric:tabular-nums}.tip-hint{display:block;margin-top:12px;font-size:10px;color:#64748b}
+.stack-segment.is-inspected{filter:brightness(1.12);outline:2px solid #334155;outline-offset:-2px}
+@media(max-width:1100px){.brand-full{font-size:20px;letter-spacing:-.5px}.header-inner{gap:20px}}
+@media(max-width:780px){.brand-full{font-size:17px;letter-spacing:-.5px;white-space:normal;max-width:240px}.brand{min-width:0;flex-shrink:1}.header-inner{gap:12px}.nav-side{flex-shrink:0}}
+@media(max-width:390px){.brand-full{font-size:16px;max-width:200px}}

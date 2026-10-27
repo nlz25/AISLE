@@ -58,3 +58,5 @@ The homepage hero uses a small original canvas animation. It pauses offscreen or
 Institution logos use a continuous horizontal strip with edge fades and pause-on-hover/control. The duplicated academic list is hidden from assistive technology. With only one industry member, GreenDynamics moves gently side to side without duplicating companies. Reduced-motion preferences stop both animations and leave the academic strip manually scrollable.
 
 Public-facing branding is AISLE throughout. Repository and GitHub Issues links remain hidden until the project repository is ready. Language controls use CN / EN. Both institution groups remain single horizontal rows on every viewport.
+
+The header uses the full project name. Footer snapshot text is hidden. Leaderboard rows and category segments show non-modal hover/focus previews; touch/click still opens inline details. Aggregate segments distinguish category scores from their weighted contribution. Homepage statistics count once to the unchanged final values over 1.1 seconds, with static accessible values and a reduced-motion fallback.

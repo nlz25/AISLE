@@ -62,6 +62,60 @@ if (resultData) {
   const panels = [...document.querySelectorAll('.model-details')];
   const openers = new Map();
 
+  // One compact tooltip for model rows, category segments and detailed score cells.
+  const tooltip = document.createElement('div');
+  tooltip.id='score-tooltip';tooltip.className='score-tooltip';tooltip.role='tooltip';tooltip.hidden=true;
+  document.body.append(tooltip);
+  let tipRow=null, tipTimer;
+  const hideTip = () => {
+    clearTimeout(tipTimer);tooltip.hidden=true;
+    tipRow?.querySelector('.is-inspected')?.classList.remove('is-inspected');
+    tipRow?.removeAttribute('aria-describedby');tipRow=null;
+  };
+  const scheduleHideTip = () => {clearTimeout(tipTimer);tipTimer=setTimeout(hideTip,120);};
+  const showTip = (row,target) => {
+    clearTimeout(tipTimer);
+    const model=study.models.find(m=>m.id===row.dataset.profile);
+    if(!model) return;
+    const cohort=row.dataset.cohort;
+    const metric=target.closest('[data-metric]')?.dataset.metric;
+    const board=row.closest('[data-chart-cohort]');
+    const active=board?.querySelector('[data-chart-metric][aria-pressed=true]')?.dataset.chartMetric;
+    const inOverall=active===cohort;
+    tipRow?.querySelector('.is-inspected')?.classList.remove('is-inspected');
+    tipRow?.removeAttribute('aria-describedby');tipRow=row;
+    row.setAttribute('aria-describedby',tooltip.id);
+    target.closest('.stack-segment')?.classList.add('is-inspected');
+    let body;
+    if(metric) {
+      const label=categories.find(([key])=>key===metric)?.[1];
+      const value=model[metric];
+      const n=cohort==='full'?4:3;
+      body=`<div class="tip-primary"><span>${label}</span><strong>${value==null?'N/A':value.toFixed(2)}<small>${value==null?'':' / 100'}</small></strong></div><p>${value==null?tr('Not evaluated','未评测'):inOverall?`${tr('Overall contribution','综合分贡献')}: <b>${(value/n).toFixed(2)}</b> · ${tr('Weight','权重')} 1/${n}`:tr('Category score','类别汇总分')}</p>`;
+    } else {
+      body=`<div class="tip-primary"><span>${tr('Overall','综合分')}</span><strong>${model[cohort].toFixed(2)}<small> / 100</small></strong></div><dl>${categories.map(([key,label])=>`<div><dt>${label}</dt><dd>${model[key]==null?'N/A':model[key].toFixed(2)}</dd></div>`).join('')}</dl>`;
+    }
+    tooltip.innerHTML=`<strong class="tip-model">${safe(model.name)}</strong><span class="tip-org">${safe(model.organization)}</span>${body}<span class="tip-hint">${tr('Click the model for details','点击模型查看详情')}</span>`;
+    tooltip.hidden=false;
+    const anchor=(metric?target:row).getBoundingClientRect();
+    const rect=tooltip.getBoundingClientRect();
+    tooltip.style.left=`${Math.max(12,Math.min(anchor.left+anchor.width/2-rect.width/2,window.innerWidth-rect.width-12))}px`;
+    const top=anchor.top-rect.height-10;
+    tooltip.style.top=`${Math.max(12,Math.min(top>=96?top:anchor.bottom+10,window.innerHeight-rect.height-12))}px`;
+  };
+  document.querySelectorAll('.stack-row,tr[data-profile]').forEach(row=>{
+    row.addEventListener('pointerover',event=>{if(event.pointerType!=='touch')showTip(row,event.target);});
+    row.addEventListener('pointerleave',scheduleHideTip);
+    row.addEventListener('focusin',()=>showTip(row,row));
+    row.addEventListener('focusout',scheduleHideTip);
+    row.addEventListener('click',hideTip);
+  });
+  tooltip.addEventListener('pointerenter',()=>clearTimeout(tipTimer));
+  tooltip.addEventListener('pointerleave',scheduleHideTip);
+  document.addEventListener('keydown',event=>{if(event.key==='Escape')hideTip();});
+  window.addEventListener('scroll',hideTip,{passive:true,capture:true});
+  window.addEventListener('resize',hideTip);
+
   // Keep the cohort fixed while changing the score and ranking being inspected.
   const colors = {optimization:'#6485c6',safety:'#d2a45b',robustness:'#57a7a3',multimodal:'#a18ac6'};
   document.querySelectorAll('[data-chart-cohort]').forEach(board => {
@@ -75,6 +129,7 @@ if (resultData) {
     const note = board.querySelector('.stack-note');
     const initialNote = note.textContent;
     controls.forEach(control => control.addEventListener('click', () => {
+      hideTip();
       const key = control.dataset.chartMetric;
       const overall = key === cohort;
       const label = overall ? tr('Overall','综合分') : categories.find(([k]) => k === key)[1];
@@ -90,7 +145,7 @@ if (resultData) {
         const value = score == null ? 'N/A' : score.toFixed(2);
         row.querySelector('.stack-rank').textContent = score == null ? '—' : 1 + scores.filter(s => s.model[key] != null && s.model[key] > score).length;
         row.querySelector('.stack-score').textContent = value;
-        row.querySelector('.stack-track').innerHTML = overall ? originals.get(row).bar : score == null ? '' : `<span class="stack-segment" style="width:${score}%;background:${colors[key]}" title="${label}: ${value} / 100"></span>`;
+        row.querySelector('.stack-track').innerHTML = overall ? originals.get(row).bar : score == null ? '' : `<span class="stack-segment" data-metric="${key}" style="width:${score}%;background:${colors[key]}"></span>`;
         row.setAttribute('aria-label',overall ? originals.get(row).label : `${model.name} · ${label} ${value} / 100`);
         board.querySelector('.stack-rows').append(row);
       });
@@ -218,4 +273,32 @@ if (institutionsSection) {
     institutionsSection.dataset.paused=String(paused);
     control.textContent=paused?(zh?'播放 ▷':'Play ▷'):(zh?'暂停 Ⅱ':'Pause Ⅱ');
   });
+}
+
+// Count once on first entry; the final values remain in HTML and accessible text.
+const statistics=document.querySelector('.stats');
+if(statistics && window.requestAnimationFrame && window.matchMedia) {
+  const numbers=[...statistics.querySelectorAll('[data-count]')];
+  const reduced=window.matchMedia('(prefers-reduced-motion: reduce)');
+  let started=false, animation=0;
+  const format=(node,value)=>value.toLocaleString('en-US',{minimumIntegerDigits:Number(node.dataset.countDigits)||1});
+  const finish=()=>{cancelAnimationFrame(animation);numbers.forEach(node=>node.textContent=format(node,Number(node.dataset.count)));};
+  const start=()=>{
+    if(started)return;started=true;
+    if(reduced.matches){finish();return;}
+    numbers.forEach(node=>node.textContent=format(node,0));
+    const beginning=performance.now();
+    const tick=now=>{
+      const progress=Math.min(1,(now-beginning)/1100);
+      const eased=1-Math.pow(1-progress,3);
+      numbers.forEach(node=>node.textContent=format(node,Math.floor(Number(node.dataset.count)*eased)));
+      if(progress<1)animation=requestAnimationFrame(tick);else finish();
+    };
+    animation=requestAnimationFrame(tick);
+  };
+  reduced.addEventListener('change',()=>{if(reduced.matches)finish();});
+  if(window.IntersectionObserver){
+    const observer=new IntersectionObserver(entries=>{if(entries.some(entry=>entry.isIntersecting)){start();observer.disconnect();}},{threshold:.2});
+    observer.observe(statistics);
+  }else start();
 }
