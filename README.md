@@ -1,5 +1,32 @@
-# 项目演示
+# AISLE — AI Scientists’ Last Exam
 
-包含演示视频与框架图的展示页面，通过 GitHub Pages 访问：
+A research website for experimental evaluation of AI scientists, presenting the first-stage **PSI-Bench** study and the developing scientific task network.
 
-> https://nlz25.github.io/demo/
+**Website:** https://nlz25.github.io/AISLE/
+**中文:** https://nlz25.github.io/AISLE/zh/
+
+The first release contains a research homepage, separate shared/full-coverage results, clickable model profiles with score contributions and task details, task and method descriptions, original laboratory footage, and a collaboration form through GitHub Issues. English and Chinese pages share the same source and data.
+
+## Local development
+
+No application packages or build service are required. Use Python 3.9+ to regenerate static pages:
+
+```sh
+python3 scripts/build_site.py
+python3 scripts/check_site.py
+node --check assets/site.js
+python3 -m http.server 4173
+```
+
+Open http://localhost:4173/. GitHub Pages serves the committed files from the root of `main`.
+
+## Content
+
+- [Three-stage roadmap](docs/roadmap.md)
+- [Content and update guide](docs/content-guide.md)
+- [Result provenance and interpretation](docs/data-provenance.md)
+- [Editable results](data/results.json)
+
+The website snapshot describes an evaluated research cohort, not a live ranking of current models. Development directions are explicitly labeled and excluded from first-stage scores. This website repository is separate from the experimental evaluation package and its eventual data/code release.
+
+The original `demo.mp4` and `framework.png` are retained from the previous demonstration page. Copyright and permissions for research media remain with their respective owners; this repository does not grant a blanket license to third-party media.

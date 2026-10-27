@@ -1,0 +1,37 @@
+name: Collaborate with AISLE
+description: Discuss a laboratory, scientific task, or agent evaluation.
+title: "[Collaboration] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for your interest in AISLE. This is an initial collaboration discussion, not an automatic evaluation submission.
+        GitHub issues are public. Please describe your project without credentials, unpublished test answers, or private contact information.
+  - type: dropdown
+    id: contribution
+    attributes:
+      label: Collaboration type
+      options:
+        - Laboratory platform
+        - Scientific task
+        - Agent evaluation
+        - Research or other collaboration
+    validations:
+      required: true
+  - type: textarea
+    id: summary
+    attributes:
+      label: Scientific question and proposed contribution
+      description: Describe the goal, your available platform or system, and what you would like to evaluate.
+    validations:
+      required: true
+  - type: textarea
+    id: readiness
+    attributes:
+      label: Current readiness
+      description: If applicable, describe the available actions, measurements, data, evaluation rules, and experimental budget.
+  - type: textarea
+    id: links
+    attributes:
+      label: Public resources
+      description: Optional links to your project, documentation, or paper.
