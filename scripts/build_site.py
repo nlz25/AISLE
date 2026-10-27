@@ -109,13 +109,22 @@ def chart(cohort):
     models=sorted([m for m in MODELS if m[cohort] is not None],key=lambda m:-m[cohort])
     keys=['optimization','safety','robustness']+(['multimodal'] if cohort=='full' else [])
     names=category_names()
-    legend=''.join(f'<span><i style="background:{CATEGORY_COLORS[k]}"></i>{names[k]}</span>' for k in keys)
+    legend=f'<button type="button" data-chart-metric="{cohort}" aria-pressed="true">{t("Overall","综合")}</button>'+''.join(f'<button type="button" data-chart-metric="{k}" aria-pressed="false"><i style="background:{CATEGORY_COLORS[k]}"></i>{names[k]}</button>' for k in names)
     rows=''
     for rank,m in enumerate(models,1):
         segments=''.join(f'<span class="stack-segment" style="width:{m[k]/len(keys):.4f}%;background:{CATEGORY_COLORS[k]}" title="{esc(names[k])}: {m[k]:.2f} / 100 · {t("Contribution","贡献")}: {m[k]/len(keys):.2f}"></span>' for k in keys)
         values='; '.join(f'{names[k]} {m[k]:.2f}' for k in keys)
         rows+=f'<button class="stack-row" data-profile="{m["id"]}" data-cohort="{cohort}" aria-expanded="false" aria-controls="model-details-{cohort}" aria-label="{esc(m["name"])} · {t("Overall","综合分")} {m[cohort]:.2f}. {esc(values)}"><span class="stack-rank">{rank}</span><span class="stack-model">{logo(m)}<span><strong>{esc(m["name"])}</strong><small>{esc(m["organization"])}</small></span></span><strong class="stack-score">{m[cohort]:.2f}</strong><span class="stack-track" aria-hidden="true">{segments}</span></button>'
-    return f'''<div class="leaderboard-card stacked-board"><div class="stack-header"><span>PSI-Bench · {len(models)} {t('models','个模型')}</span><div class="stack-legend">{legend}</div></div><div class="stack-columns"><span>#</span><span>{t('Model','模型')}</span><span>{t('Overall','综合分')}</span><span>{t('Category contributions','各类别得分贡献')}</span></div>{rows}<div class="stack-scale"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div><p class="stack-note">{t('Equal category weights. Full bar width = 100 points. Select a model for scores.','类别等权，完整条宽为 100 分。点击模型查看得分。')}</p><section class="model-details" id="model-details-{cohort}" aria-label="{t('Model details','模型详情')}" hidden></section></div>'''
+    return f'''<div class="leaderboard-card stacked-board" data-chart-cohort="{cohort}"><div class="stack-header"><span>PSI-Bench · {len(models)} {t('models','个模型')}</span><div class="stack-legend" role="group" aria-label="{t('View scores by category','按类别查看分数')}">{legend}</div></div><div class="stack-columns"><span>#</span><span>{t('Model','模型')}</span><span data-score-heading>{t('Overall','综合分')}</span><span data-bar-heading>{t('Category contributions','各类别得分贡献')}</span></div><div class="stack-rows">{rows}</div><div class="stack-scale"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div><p class="stack-note" role="status">{t('Equal category weights. Select a category above or a model for details.','类别等权。点击上方类别切换分数，点击模型查看详情。')}</p><section class="model-details" id="model-details-{cohort}" aria-label="{t('Model details','模型详情')}" hidden></section></div>'''
+
+
+def institutions():
+    data=json.loads((ROOT/'data/institutions.json').read_text())
+    groups=''
+    for key,en,zh in [('academic','Academic Institutions','学术机构'),('industry','Industry','工业界')]:
+        cards=''.join(f'<li class="institution {esc(item["shape"])}"><div class="institution-logo"><img src="{root("assets/institutions/"+item["logo"])}" alt="{esc(item["en"])}" loading="lazy" decoding="async"></div><span>{esc(t(item["en"],item["zh"]))}</span></li>' for item in data[key])
+        groups+=f'<div class="institution-group"><h3>{t(en,zh)}</h3><ul class="institution-grid {key}">{cards}</ul></div>'
+    return f'<section class="section institutions" id="institutions"><div class="section-head"><h2>{t("Institutions","参与机构")}</h2></div>{groups}</section>'
 
 
 def category_ranking(key):
@@ -173,15 +182,17 @@ def home():
     panels = ''.join(f'<div class="task-panel task-breakdown" id="panel-{k}" role="tabpanel" aria-labelledby="tab-{k}" {"hidden" if i else ""}><div class="task-brief"><span class="badge">{badge}</span><h3>{heading}</h3><p class="task-summary">{summary}</p>{specs(rows)}{link(t("Task details","任务详情"),"tasks.html#"+k)}</div>{category_ranking(k)}</div>' for i,(k,name,heading,summary,badge,rows) in enumerate(categories))
     return f'''<main id="main">
     <div class="wrap"><section class="hero hero-centered">
+      <canvas class="hero-field" aria-hidden="true"></canvas>
       <h1>AI Scientists' Last Exam</h1>
       <p class="intro">{t('A benchmark for evaluating AI scientists on experimental tasks.','面向实验任务的 AI 科学家评测基准。')}</p>
-      <div class="actions">{link(t('Leaderboard','排行榜'),'#results','btn primary')}{link(t('Tasks','评测任务'),'#experiments','btn')}</div>
       <p class="hero-small">{t('Current results: PSI-Bench.','当前结果来自 PSI-Bench。')}</p>
+      <button class="motion-toggle" type="button" aria-pressed="false" aria-label="{t('Pause background animation','暂停背景动画')}" hidden>Ⅱ</button>
       </section>
       <div class="stats"><div class="stat"><strong>4,079</strong><span>{t('Physical experiments','真实实验')}</span></div><div class="stat"><strong>02</strong><span>{t('Laboratories','实验室')}</span></div><div class="stat"><strong>07</strong><span>{t('Models evaluated','已评测模型')}</span></div><div class="stat"><strong>04</strong><span>{t('Task categories','任务类别')}</span></div></div>
       <p class="scope-note">{t('PSI-Bench includes physical experiments and simulated tasks.','PSI-Bench 包含真实实验与模拟任务。')}</p>
       <section class="section home-leaderboard" id="results"><div class="section-head"><h2>Leaderboard</h2>{link(t('Full leaderboard','完整排行榜'),'leaderboard.html')}</div>{chart_tabs()}</section>
       <section class="section" id="experiments"><div class="section-head"><div><div class="eyebrow">{t('First-stage study / PSI-Bench','第一阶段研究 / PSI-Bench')}</div><h2>{t('Task Breakdown','任务分项')}</h2></div></div><div data-tabs><div class="tabs" role="tablist" aria-label="{t('Task categories','任务类别')}">{tabs}</div>{panels}</div></section>
+      {institutions()}
       <section class="section contribute-mvp" id="collaborate"><div><h2>{t('Contribute','参与贡献')}</h2><p>{t('Propose a task or discuss an evaluation through GitHub Issues.','通过 GitHub Issues 提议任务或讨论评测。')}</p></div>{link(t('Open an issue','发起讨论'),REPO+'/issues/new?template=collaboration.yml','btn')}</section></div>
     </main>'''
 

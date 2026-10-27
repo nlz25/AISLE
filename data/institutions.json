@@ -1,0 +1,72 @@
+{
+  "academic": [
+    {
+      "logo": "SZLAB.png",
+      "en": "Suzhou National Laboratory",
+      "zh": "苏州国家实验室",
+      "shape": "wide"
+    },
+    {
+      "logo": "USTC.png",
+      "en": "USTC",
+      "zh": "中国科学技术大学",
+      "shape": ""
+    },
+    {
+      "logo": "BEARS.png",
+      "en": "BEARS",
+      "zh": "BEARS",
+      "shape": ""
+    },
+    {
+      "logo": "UNSW.png",
+      "en": "UNSW Sydney",
+      "zh": "新南威尔士大学",
+      "shape": ""
+    },
+    {
+      "logo": "EPFL.png",
+      "en": "EPFL",
+      "zh": "洛桑联邦理工学院",
+      "shape": "wide"
+    },
+    {
+      "logo": "CSU.png",
+      "en": "Central South University",
+      "zh": "中南大学",
+      "shape": ""
+    },
+    {
+      "logo": "SZU.png",
+      "en": "Shenzhen University",
+      "zh": "深圳大学",
+      "shape": ""
+    },
+    {
+      "logo": "NTU.png",
+      "en": "Nanyang Technological University",
+      "zh": "南洋理工大学",
+      "shape": ""
+    },
+    {
+      "logo": "UCBerkeley.png",
+      "en": "UC Berkeley",
+      "zh": "加州大学伯克利分校",
+      "shape": ""
+    },
+    {
+      "logo": "UofT.png",
+      "en": "University of Toronto",
+      "zh": "多伦多大学",
+      "shape": ""
+    }
+  ],
+  "industry": [
+    {
+      "logo": "GreenDynamics.png",
+      "en": "GreenDynamics",
+      "zh": "GreenDynamics",
+      "shape": "wide"
+    }
+  ]
+}

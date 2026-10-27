@@ -46,3 +46,11 @@ Home → introductory hero → Leaderboard → Tasks → contribution links. `ta
 Laboratory footage is temporarily removed from the website UI, including its entry button, player and social preview. Preserve the original assets until the resource presentation is decided.
 
 Keep homepage copy factual and concise: benchmark purpose, evaluated coverage, named tasks and results. Model details expand within the leaderboard, without an overlay, scroll lock or automatic page jump.
+
+## Institutions and score filters
+
+`data/institutions.json` defines the two homepage groups (Academic Institutions and Industry), bilingual display names and logo filenames. Original supplied PNGs are kept in `assets/institutions/`. The combined logo strip and PowerPoint file are not published; each institution uses its individual asset. BEARS is currently retained as a separate supplied label.
+
+Leaderboard header buttons switch between the existing aggregate and individual category scores, reordering the same cohort. Ties share a rank; missing results remain N/A and sort last. Category views use the category score itself on a 0–100 scale, while Overall retains equal-weight contributions. These are category aggregates, not new per-experiment or environment-specific scores.
+
+The homepage hero uses a small original canvas animation. It pauses offscreen or in background tabs, honors reduced-motion preferences and has a pause control. The cream background, centered title and early leaderboard remain unchanged.
