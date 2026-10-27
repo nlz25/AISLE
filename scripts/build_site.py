@@ -183,10 +183,8 @@ def home():
     panels = ''.join(f'<div class="task-panel task-breakdown" id="panel-{k}" role="tabpanel" aria-labelledby="tab-{k}" {"hidden" if i else ""}><div class="task-brief"><span class="badge">{badge}</span><h3>{heading}</h3><p class="task-summary">{summary}</p>{specs(rows)}{link(t("Task details","任务详情"),"tasks.html#"+k)}</div>{category_ranking(k)}</div>' for i,(k,name,heading,summary,badge,rows) in enumerate(categories))
     return f'''<main id="main">
     <div class="wrap"><section class="hero hero-centered">
-      <canvas class="hero-field" aria-hidden="true"></canvas>
       <h1>AI Scientists' Last Exam</h1>
       <p class="intro">{t('A benchmark for evaluating AI scientists on experimental tasks.','面向实验任务的 AI 科学家评测基准。')}</p>
-      <button class="motion-toggle" type="button" aria-pressed="false" aria-label="{t('Pause background animation','暂停背景动画')}" hidden>Ⅱ</button>
       </section>
       <div class="stats"><div class="stat"><strong><span data-count="4079" data-count-digits="1" aria-hidden="true">4,079</span><span class="sr-only">4,079</span></strong><span>{t('Physical experiments','真实实验')}</span></div><div class="stat"><strong><span data-count="2" data-count-digits="2" aria-hidden="true">02</span><span class="sr-only">02</span></strong><span>{t('Laboratories','实验室')}</span></div><div class="stat"><strong><span data-count="7" data-count-digits="2" aria-hidden="true">07</span><span class="sr-only">07</span></strong><span>{t('Models evaluated','已评测模型')}</span></div><div class="stat"><strong><span data-count="4" data-count-digits="2" aria-hidden="true">04</span><span class="sr-only">04</span></strong><span>{t('Task categories','任务类别')}</span></div></div>
       <p class="scope-note">{t('AISLE includes physical experiments and simulated tasks.','AISLE 包含真实实验与模拟任务。')}</p>
