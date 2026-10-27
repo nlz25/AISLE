@@ -3,9 +3,9 @@
 ## Where to edit
 
 - `data/results.json`: first-stage category and aggregate scores, scope and snapshot date.
-- `scripts/build_site.py`: English/Chinese copy, task specifications and scientific direction states.
+- `scripts/build_site.py`: English/Chinese copy, task specifications and chart rendering.
 - `assets/style.css`: shared visual system and responsive layouts.
-- `assets/site.js`: mobile navigation, accessible tabs, sorting and on-demand video.
+- `assets/site.js`: mobile navigation, accessible tabs, sorting, model details and on-demand video.
 - `assets/lab-demo.mp4`: lighter viewing copy of the original `demo.mp4`.
 - `assets/lab-poster.jpg`: a frame from the original laboratory recording; the homepage viewport displays the laboratory region without replacing equipment.
 - `framework.png`: the original framework already present in the repository.
@@ -38,3 +38,7 @@ python3 -m http.server 4173
 ```
 
 Preview the site in desktop and mobile browsers. Check the two language versions, mobile navigation, keyboard tabs, cohort switching, category ordering, model detail panels, N/A states and video playback. Pages are hosted from `main` at `https://nlz25.github.io/AISLE/`.
+
+## MVP structure
+
+Home → introductory hero → Leaderboard → Tasks → contribution links. `tasks.html` contains task protocols and scoring, replacing the standalone Methodology page. Preserve model logos from `assets/logos/`. The x-axis is categorical; no release dates or harness settings are inferred.
