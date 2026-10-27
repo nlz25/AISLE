@@ -53,3 +53,11 @@
 .mobile-demo{display:none}
 @media(max-width:1050px) and (min-width:781px){.chart-layout{grid-template-columns:1fr}.rank-summary{border-left:0;border-top:1px solid #e5e7eb;padding:22px 0 0}}
 @media(max-width:780px){.mobile-demo{display:inline-flex}.plot-inner{min-width:0;padding-right:0;padding-left:25px}.plot-point{width:32px;height:32px;padding:5px}.plot-value{font-size:10px;top:-23px}.plot-labels span{font-size:8px}.plot-labels{margin-top:16px}.chart-layout{padding:18px}.axis-title{margin-left:25px}}
+
+/* Full-width project title, centered as the homepage's primary heading. */
+.hero.hero-centered{display:flex;flex-direction:column;align-items:center;text-align:center;gap:0;padding:64px 0 42px}
+.hero.hero-centered h1,.zh .hero.hero-centered h1{font-family:var(--sans);font-size:clamp(32px,4.6vw,64px);font-weight:700;line-height:1.14;letter-spacing:-1.8px;margin:0 0 24px;max-width:100%;text-wrap:balance}
+.hero.hero-centered .intro{max-width:760px;font-size:16px;line-height:1.8;margin:0 auto}
+.hero.hero-centered .actions{justify-content:center;margin-top:25px}
+.hero.hero-centered .hero-small{margin:20px 0 0}
+@media(max-width:780px){.hero.hero-centered{padding:40px 0 28px}.hero.hero-centered h1,.zh .hero.hero-centered h1{letter-spacing:-.8px;margin-bottom:18px}.hero.hero-centered .intro{font-size:14px}.hero.hero-centered .actions{gap:8px;margin-top:20px}.hero-centered .btn{padding:11px 14px;gap:12px}}

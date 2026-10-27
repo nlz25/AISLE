@@ -149,15 +149,12 @@ def home():
     tabs = ''.join(f'<button class="tab" role="tab" id="tab-{k}" aria-controls="panel-{k}" aria-selected="{str(i==0).lower()}" tabindex="{0 if i==0 else -1}">{name}</button>' for i,(k,name,*_) in enumerate(categories))
     panels = ''.join(f'<div class="task-panel" id="panel-{k}" role="tabpanel" aria-labelledby="tab-{k}" {"hidden" if i else ""}><div><span class="badge">{badge}</span><h3>{heading}</h3><p class="task-summary">{summary}</p>{link(t("Read the task protocol","查看任务协议"),"tasks.html#"+k)}</div>{specs(rows)}</div>' for i,(k,name,heading,summary,badge,rows) in enumerate(categories))
     return f'''<main id="main">
-    <div class="wrap"><section class="hero"><div><div class="eyebrow">{t('Scientific intelligence, put to the test','让科学智能接受实验检验')}</div>
-      <h1>{t('The next exam<br>is <em>in the lab.</em>','把 AI 科学家的考场，<br>搬进<em>真实实验室。</em>')}</h1>
-      <p class="full-name">AI Scientists’ Last Exam</p><p class="intro">{t('Evaluating how AI scientists act, learn from measurements, and adapt — through experimental feedback and a growing laboratory network.','通过真实实验反馈与不断拓展的实验室网络，检验 AI 科学家如何行动、利用测量，并在变化中调整决策。')}</p>
-      <div class="actions">{link(t('Leaderboard','排行榜'),'#results','btn primary')}{link(t('Tasks','评测任务'),'#experiments','btn')}<button class="btn mobile-demo" data-open-video>{t('Watch demo','实验演示')}</button></div>
-      <p class="hero-small">{t('Explore PSI-Bench, our first-stage experimental study.','查看第一阶段实验研究 PSI-Bench 的任务与结果。')}</p></div>
-      <div><div class="media-frame"><div class="media-label"><span>01 / {t('SUZHOU LAB','苏州实验站点')}</span><span>{t('EXPERIMENT RECORDING','实验记录')}</span></div>
-      <div class="lab-crop"><img src="{root('assets/lab-poster.jpg')}" alt="{t('Original recording of the Suzhou robotic liquid-handling setup','苏州机械臂与自动化移液装置的原始实验录像画面')}" width="3836" height="2060" fetchpriority="high"></div>
-      <div class="media-caption"><p>{t('From a model’s proposal to a physical result.','从模型提出方案，到设备返回实测结果。')}<br><small>{t('Watch the original laboratory demonstration','观看原始实验演示')}</small></p><button class="play-button" data-open-video aria-label="{t('Play laboratory video','播放实验视频')}">▶</button></div></div>
-      <p class="media-footnote">{t('Actual laboratory footage · Original equipment and measurements','真实实验画面 · 原始设备与测量记录')}</p></div></section>
+    <div class="wrap"><section class="hero hero-centered">
+      <h1>AI SCIENTISTS' LAST EXAM</h1>
+      <p class="intro">{t('Evaluating how AI scientists act, learn from measurements, and adapt — through experimental feedback and a growing laboratory network.','通过真实实验反馈与不断拓展的实验室网络，检验 AI 科学家如何行动、利用测量，并在变化中调整决策。')}</p>
+      <div class="actions">{link(t('Leaderboard','排行榜'),'#results','btn primary')}{link(t('Tasks','评测任务'),'#experiments','btn')}<button class="btn" data-open-video>{t('Watch demo','观看实验演示')} <span aria-hidden="true">▷</span></button></div>
+      <p class="hero-small">{t('Explore PSI-Bench, our first-stage experimental study.','查看第一阶段实验研究 PSI-Bench 的任务与结果。')}</p>
+      </section>
       <div class="stats"><div class="stat"><strong>4,079</strong><span>{t('Physical experiments executed','已执行真实实验')}</span></div><div class="stat"><strong>02</strong><span>{t('Evaluated laboratory sites','已完成评测站点')}</span></div><div class="stat"><strong>07</strong><span>{t('Models evaluated','已评测模型')}</span></div><div class="stat"><strong>04</strong><span>{t('Complementary capability categories','互补能力类别')}</span></div></div>
       <p class="scope-note">{t('Scope: first-stage PSI-Bench study. Includes separate physical and simulated evaluations. Website snapshot: 27 Oct 2026.','范围：PSI-Bench 第一阶段研究；真实实验与模拟评测分别报告。网站快照：2026 年 10 月 27 日。')}</p>
       <section class="section home-leaderboard" id="results"><div class="section-head"><h2>Leaderboard</h2>{link(t('Full leaderboard','完整排行榜'),'leaderboard.html')}</div>{chart_tabs()}</section>
