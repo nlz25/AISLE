@@ -10,7 +10,7 @@
 - `assets/lab-poster.jpg`: a frame from the original laboratory recording, retained for future use.
 - `framework.png`: the original framework already present in the repository.
 
-Run `python3 scripts/build_site.py` after changing data or page copy. The generated HTML files are committed so GitHub Pages needs no build dependencies. Results are explored through the clickable leaderboard and model detail panel; the website has no CSV download interface.
+Run `python3 scripts/build_site.py` after changing data or page copy. The generated HTML files are committed so GitHub Pages needs no build dependencies. Results are explored through the clickable leaderboard and inline score details; the website has no CSV download interface.
 
 ## Before adding a task
 
@@ -44,3 +44,5 @@ Preview the site in desktop and mobile browsers. Check the two language versions
 Home → introductory hero → Leaderboard → Tasks → contribution links. `tasks.html` contains task protocols and scoring, replacing the standalone Methodology page. Preserve model logos from `assets/logos/`. The x-axis is categorical; no release dates or harness settings are inferred.
 
 Laboratory footage is temporarily removed from the website UI, including its entry button, player and social preview. Preserve the original assets until the resource presentation is decided.
+
+Keep homepage copy factual and concise: benchmark purpose, evaluated coverage, named tasks and results. Model details expand within the leaderboard, without an overlay, scroll lock or automatic page jump.

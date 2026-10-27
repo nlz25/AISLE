@@ -10,4 +10,4 @@ Snapshot assembled for this website on **2026-10-27**. This date is not an exper
 - The shared-task and full-task aggregate scores use different coverage. They are not directly comparable. Missing multimodal scores are not zero.
 - Reported scientific directions under development have no score in this snapshot.
 
-The interactive score tables and model detail panels expose category scores, contributions and coverage. They are not a raw-data archive or a complete reproducibility release. Exact run configurations, full trajectory release, formal paper links and citation metadata require their own versioned release.
+The interactive score tables and inline model details expose category scores and coverage. They are not a raw-data archive or a complete reproducibility release. Exact run configurations, full trajectory release, formal paper links and citation metadata require their own versioned release.

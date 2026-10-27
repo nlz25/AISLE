@@ -47,15 +47,14 @@ def header(page):
 
 def footer():
     return f'''<footer class="site-footer"><div class="wrap"><div class="footer-top">
-      <div><a href="index.html" class="wordmark">AISLE</a><p>AI Scientists’ Last Exam<br>{t('Scientific decisions. Experimental evidence.', '科学决策，实验验证。')}</p></div>
+      <div><a href="index.html" class="wordmark">AISLE</a><p>AI Scientists’ Last Exam</p></div>
       <div class="footer-links"><a href="leaderboard.html">{t('Leaderboard','排行榜')}</a><a href="tasks.html">{t('Tasks','任务')}</a><a href="{REPO}">GitHub ↗</a></div>
       </div><div class="footer-bottom"><span>© 2026 AISLE · AI Scientists’ Last Exam</span><span>{t('First-stage study: PSI-Bench · Website snapshot: 27 Oct 2026','第一阶段研究：PSI-Bench · 网站快照：2026 年 10 月 27 日')}</span></div></div></footer>'''
 
 
-def model_dialog():
+def results_data():
     payload = json.dumps(DATA, ensure_ascii=False).replace('<', '\\u003c')
-    return f'''<script type="application/json" id="results-data">{payload}</script>
-    <dialog class="profile-dialog" aria-labelledby="profile-title"><div class="profile-header"><span class="eyebrow">{t('Inside the result','深入查看结果')}</span><button class="profile-close" aria-label="{t('Close model details','关闭模型详情')}">{t('Close ×','关闭 ×')}</button></div><div id="profile-content"></div></dialog>'''
+    return f'<script type="application/json" id="results-data">{payload}</script>'
 
 
 def shell(page, title, description, body):
@@ -67,7 +66,7 @@ def shell(page, title, description, body):
 <meta name="twitter:card" content="summary">
 <link rel="canonical" href="{url}"><link rel="alternate" hreflang="en" href="https://nlz25.github.io/AISLE/{page}"><link rel="alternate" hreflang="zh-CN" href="https://nlz25.github.io/AISLE/zh/{page}">
 <link rel="stylesheet" href="{root('assets/style.css')}?v={ASSET_VERSION}"><script defer src="{root('assets/site.js')}?v={ASSET_VERSION}"></script></head>
-<body class="{lang}">{header(page)}{body}{model_dialog() if page != 'tasks.html' else ''}{footer()}</body></html>'''
+<body class="{lang}">{header(page)}{body}{results_data() if page != 'tasks.html' else ''}{footer()}</body></html>'''
 
 
 def specs(items):
@@ -78,14 +77,14 @@ def table(cohort, preview=False):
     models = sorted([m for m in MODELS if m[cohort] is not None], key=lambda m: -m[cohort])
     if preview:
         models = models[:4]
-    keys = ['optimization', 'safety', 'robustness'] + (['multimodal'] if cohort == 'full' else [])
+    keys = ['optimization', 'safety', 'robustness', 'multimodal']
     names = {'optimization': t('Optimization','优化'), 'safety': t('Safety','安全'), 'robustness': t('Robustness','鲁棒性'), 'multimodal': t('Multimodal','多模态')}
     heads = ''.join(f'<th scope="col">{names[k]}</th>' for k in keys)
     rows = ''
     for rank, m in enumerate(models, 1):
         attrs = ' '.join(f'data-{k}="{m[k]}"' for k in [cohort] + keys)
-        scores = ''.join(f'<td>{m[k]:.2f}</td>' for k in keys)
-        rows += f'''<tr {attrs} data-name="{esc(m['name'])}" data-profile="{m['id']}" data-cohort="{cohort}"><td>{rank:02}</td><th scope="row" class="model-name"><button class="model-button" aria-haspopup="dialog" aria-label="{t('View details for','查看模型详情：')} {esc(m['name'])}">{logo(m)}{esc(m['name'])}<span aria-hidden="true">↗</span></button><small>{esc(m['organization'])}</small></th>
+        scores = ''.join(f'<td>{m[k]:.2f}</td>' if m[k] is not None else '<td class="na">N/A</td>' for k in keys)
+        rows += f'''<tr {attrs} data-name="{esc(m['name'])}" data-profile="{m['id']}" data-cohort="{cohort}"><td>{rank:02}</td><th scope="row" class="model-name"><button class="model-button" aria-expanded="false" aria-controls="model-details-{cohort}" aria-label="{t('View details for','查看模型详情：')} {esc(m['name'])}">{logo(m)}{esc(m['name'])}<span aria-hidden="true">↗</span></button><small>{esc(m['organization'])}</small></th>
         <td class="score-cell"><span class="score-number">{m[cohort]:.2f}</span><div class="score-track" aria-hidden="true"><div class="score-fill" style="width:{m[cohort]}%"></div></div></td>{scores}</tr>'''
     return f'''<div class="table-scroll" tabindex="0" role="region" aria-label="{t('Scrollable results table','可横向滚动的成绩表')}"><table class="results-table" id="table-{cohort}{'-preview' if preview else ''}">
     <caption class="sr-only">{t('Study scores from 0 to 100. Rank refers to the aggregate score.','研究得分范围 0–100；排名依据综合得分。')}</caption>
@@ -99,20 +98,44 @@ def logo(m):
     return f'<img src="{root("assets/logos/"+LOGOS[m["id"]]+".png")}" alt="{esc(LOGOS[m["id"]])} logo" width="32" height="32">'
 
 
+CATEGORY_COLORS={'optimization':'#6485c6','safety':'#d2a45b','robustness':'#57a7a3','multimodal':'#a18ac6'}
+
+
+def category_names():
+    return {'optimization':t('Optimization','优化'),'safety':t('Safety','安全'),'robustness':t('Robustness','鲁棒性'),'multimodal':t('Multimodal','多模态')}
+
+
 def chart(cohort):
     models=sorted([m for m in MODELS if m[cohort] is not None],key=lambda m:-m[cohort])
-    # Categorical x axis: release dates were not recorded in the study.
-    points=''; labels=''; ranking=''
-    for i,m in enumerate(models):
-        x=8+i*84/(len(models)-1)
-        y=100-m[cohort]/60*100
-        points+=f'<button class="plot-point" style="left:{x}%;top:{y}%" data-profile="{m["id"]}" data-cohort="{cohort}" aria-haspopup="dialog" aria-label="{esc(m["name"])}: {m[cohort]:.2f} / 100">{logo(m)}<span class="plot-value">{m[cohort]:.2f}</span></button>'
-        labels+=f'<span style="left:{x}%">{esc(LOGOS[m["id"]])}</span>'
-        if i<5:
-            ranking+=f'<button class="rank-row" data-profile="{m["id"]}" data-cohort="{cohort}" aria-haspopup="dialog"><span class="rank-position">{i+1}</span><span class="rank-logo">{logo(m)}</span><span class="rank-model"><strong>{esc(m["name"])}</strong><small>{esc(m["organization"])}</small></span><strong class="rank-score">{m[cohort]:.2f}</strong></button>'
-    grid=''.join(f'<div class="plot-gridline" style="top:{100-v/60*100}%"><span>{v}</span></div>' for v in range(60,-1,-10))
-    coverage=t('3 categories · 7 models','3 类能力 · 7 个模型') if cohort=='shared' else t('4 categories · 5 models','4 类能力 · 5 个模型')
-    return f'''<div class="leaderboard-card"><div class="chart-header"><div><span class="mini-head">{t('Current leaderboard','当前排行榜')}</span><h2>{t('Benchmark results','基准评测结果')}</h2><p>PSI-Bench · {coverage} · {t('Equal category weights','类别等权')}</p></div><div class="rank-count"><strong>{len(models)}</strong><span>{t('RANKED','已排名')}</span></div></div><div class="chart-layout"><div class="chart-column"><p class="axis-title">{t('Overall score (0–100)','综合得分（0–100）')}</p><div class="plot-scroll"><div class="plot-inner"><div class="logo-plot">{grid}{points}</div><div class="plot-labels">{labels}</div></div></div><p class="chart-hint">{t('Select a model logo to explore category scores and task coverage.','点击模型 Logo，查看分类得分与任务覆盖。')}</p></div><div class="rank-summary"><div class="rank-heading"><strong>OVERALL</strong><span>{t('Mean score','平均得分')}</span></div>{ranking}<p>{t('Top 5 shown','展示前 5 名')} · {len(models)} {t('ranked models','个已排名模型')}</p></div></div></div>'''
+    keys=['optimization','safety','robustness']+(['multimodal'] if cohort=='full' else [])
+    names=category_names()
+    legend=''.join(f'<span><i style="background:{CATEGORY_COLORS[k]}"></i>{names[k]}</span>' for k in keys)
+    rows=''
+    for rank,m in enumerate(models,1):
+        segments=''.join(f'<span class="stack-segment" style="width:{m[k]/len(keys):.4f}%;background:{CATEGORY_COLORS[k]}" title="{esc(names[k])}: {m[k]:.2f} / 100 · {t("Contribution","贡献")}: {m[k]/len(keys):.2f}"></span>' for k in keys)
+        values='; '.join(f'{names[k]} {m[k]:.2f}' for k in keys)
+        rows+=f'<button class="stack-row" data-profile="{m["id"]}" data-cohort="{cohort}" aria-expanded="false" aria-controls="model-details-{cohort}" aria-label="{esc(m["name"])} · {t("Overall","综合分")} {m[cohort]:.2f}. {esc(values)}"><span class="stack-rank">{rank}</span><span class="stack-model">{logo(m)}<span><strong>{esc(m["name"])}</strong><small>{esc(m["organization"])}</small></span></span><strong class="stack-score">{m[cohort]:.2f}</strong><span class="stack-track" aria-hidden="true">{segments}</span></button>'
+    return f'''<div class="leaderboard-card stacked-board"><div class="stack-header"><span>PSI-Bench · {len(models)} {t('models','个模型')}</span><div class="stack-legend">{legend}</div></div><div class="stack-columns"><span>#</span><span>{t('Model','模型')}</span><span>{t('Overall','综合分')}</span><span>{t('Category contributions','各类别得分贡献')}</span></div>{rows}<div class="stack-scale"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div><p class="stack-note">{t('Equal category weights. Full bar width = 100 points. Select a model for scores.','类别等权，完整条宽为 100 分。点击模型查看得分。')}</p><section class="model-details" id="model-details-{cohort}" aria-label="{t('Model details','模型详情')}" hidden></section></div>'''
+
+
+def category_ranking(key):
+    models=sorted(MODELS,key=lambda m: -(m[key] if m[key] is not None else -1))
+    rows=''
+    for m in models:
+        score=m[key]
+        rank=str(1+sum(x[key] is not None and x[key]>score for x in models)) if score is not None else '—'
+        value=f'{score:.2f}' if score is not None else 'N/A'
+        bar=f'<span style="width:{score}%;background:{CATEGORY_COLORS[key]}"></span>' if score is not None else ''
+        rows+=f'<li class="category-row"><span class="category-rank">{rank}</span><span class="category-model">{logo(m)}<span>{esc(m["name"])}</span></span><span class="category-track" aria-hidden="true">{bar}</span><strong>{value}</strong></li>'
+    return f'<div class="category-results"><div class="category-results-head"><h4>{t("Category ranking","类别排名")}</h4><span>{t("Score / 100","得分 / 100")}</span></div><ol class="category-ranks">{rows}</ol><p class="category-note">{t("Scores are aggregated within this category. N/A = not evaluated.","得分按当前类别汇总。N/A = 未评测。")}</p></div>'
+
+
+def score_breakdown(cohort):
+    names={'optimization':t('Optimization','优化'),'safety':t('Safety','安全'),'robustness':t('Robustness','鲁棒性')}
+    if cohort=='full': names['multimodal']=t('Multimodal','多模态')
+    options=f'<option value="{cohort}">{t("Overall","综合得分")}</option>'+''.join(f'<option value="{key}">{label}</option>' for key,label in names.items())
+    note=t('Overall averages optimization, safety and robustness. Multimodal is shown separately; N/A means not evaluated.','综合分为优化、安全和鲁棒性的均值。多模态单独展示；N/A 表示未评测。') if cohort=='shared' else t('Overall averages all four categories.','综合分为四类能力的均值。')
+    return f'<div class="board-controls"><h3>{t("Category scores","分类得分")}</h3><label>{t("Sort by","排序")} <select data-sort-board="table-{cohort}" data-status="sort-status-{cohort}">{options}</select></label></div><div class="board">{table(cohort)}<p class="board-note">{note}</p></div><span class="sr-only" role="status" id="sort-status-{cohort}"></span>'
 
 
 def chart_tabs():
@@ -120,49 +143,46 @@ def chart_tabs():
     for i,cohort in enumerate(['shared','full']):
         label=t('Shared tasks · 7 models','共享任务 · 7 模型') if cohort=='shared' else t('Full tasks · 5 models','完整任务 · 5 模型')
         tabs+=f'<button class="tab" role="tab" id="home-tab-{cohort}" aria-controls="home-{cohort}" aria-selected="{str(i==0).lower()}" tabindex="{0 if i==0 else -1}">{label}</button>'
-        panels+=f'<div role="tabpanel" id="home-{cohort}" aria-labelledby="home-tab-{cohort}" {"hidden" if i else ""}>{chart(cohort)}</div>'
+        panels+=f'<div role="tabpanel" id="home-{cohort}" aria-labelledby="home-tab-{cohort}" {"hidden" if i else ""}>{chart(cohort)}<details class="score-details"><summary>{t("Detailed scores","分类得分明细")}</summary>{score_breakdown(cohort)}</details></div>'
     return f'<div data-tabs><div class="tabs" role="tablist" aria-label="{t("Evaluation coverage","评测覆盖范围")}">{tabs}</div>{panels}</div>'
 
 
 def home():
     categories = [
-      ('optimization',t('Optimization','实验优化'),t('Can it improve the experiment?','能否持续改进实验结果？'),t('Colour-matching tasks test how models use measurements and historical observations to search for better formulations.','通过颜色匹配，检验模型能否利用测量与历史观测，逐步找到更好的配方。'),t('Physical + simulated','真实实验 + 模拟'),[
+      ('optimization',t('Optimization','实验优化'),t('Colour matching','颜色匹配'),t('Optimize formulations using experimental feedback.','依据实验反馈优化配方。'),t('Physical + simulated','真实实验 + 模拟'),[
           (t('Tasks','任务'),t('4-component and 8-component colour matching','四组分与八组分颜色匹配')),
           (t('Decisions','决策'),t('Formulation volumes; use of prior observations','配方体积；对已有实验信息的利用')),
           (t('Budget','预算'),t('12 scored experiments per run','每次运行 12 轮计分实验')),
           (t('Evidence','证据'),t('Colour error, attainment, efficiency and repeat stability','色差、达标情况、效率与重复稳定性'))]),
-      ('safety',t('Safety','实验安全'),t('Can it succeed within constraints?','能否在约束内完成目标？'),t('Constrained colour mixing tests whether progress is maintained without entering a forbidden outcome region.','受约束的调色任务，检验模型能否在避免结果落入禁区的同时推进目标。'),t('Simulated constraint task','模拟约束任务'),[
+      ('safety',t('Safety','实验安全'),t('Constrained colour matching','约束下的颜色匹配'),t('Reach the colour target while avoiding forbidden regions.','在避开禁止区间的同时达到颜色目标。'),t('Simulated constraint task','模拟约束任务'),[
           (t('Tasks','任务'),t('Colour matching with six forbidden-band conditions','六种禁止区间条件下的颜色匹配')),
           (t('Decisions','决策'),t('Balance target improvement with constraint adherence','平衡接近目标与遵守约束')),
           (t('Coverage','范围'),t('126 runs across seven models','七个模型，共 126 条运行')),
           (t('Evidence','证据'),t('Safe completion and consistency across repeats','全程安全达标与跨重复一致性'))]),
-      ('robustness',t('Robustness','自适应鲁棒性'),t('Can it recover when conditions change?','条件变化后，能否恢复表现？'),t('Hidden pipetting drift and viscous resin transfer expose the gap between noticing an error and correcting it.','隐藏移液漂移与黏性树脂转移，检验模型发现偏差后能否采取有效补偿。'),t('Physical experiments','真实物理实验'),[
+      ('robustness',t('Robustness','自适应鲁棒性'),t('Drift recovery & resin transfer','漂移恢复与树脂转移'),t('Correct pipetting errors using measurement feedback.','依据测量反馈补偿移液误差。'),t('Physical experiments','真实物理实验'),[
           (t('Tasks','任务'),t('Hidden drift; resin transfer at three viscosities','隐藏移液漂移；三种黏度的树脂转移')),
           (t('Decisions','决策'),t('Update formulations or aspiration volumes from feedback','根据反馈调整配方或吸液体积')),
           (t('Target','目标'),t('Drift recovery; transferred volume of 500 ± 10 μL','漂移后恢复；实际转移体积 500 ± 10 μL')),
           (t('Evidence','证据'),t('Recovery, all-round compliance and repeat consistency','恢复、全轮次合格率与重复一致性'))]),
-      ('multimodal',t('Multimodal','多模态光谱推理'),t('Can it turn spectra into decisions?','能否从光谱走向有效决策？'),t('Spectral matching and active pKa inference test the use of measurement information to choose actions and infer scientific properties.','光谱匹配与主动 pKa 推断，检验模型如何解读测量信息、选择后续操作并推断科学参数。'),t('Wet measurements + measured-data queries','湿实验测量 + 实测数据查询'),[
+      ('multimodal',t('Multimodal','多模态光谱推理'),t('Spectral matching & pKa inference','光谱匹配与 pKa 推断'),t('Use measured spectra to adjust formulations and estimate pKa.','利用实测光谱调整配方并估计 pKa。'),t('Wet measurements + measured-data queries','湿实验测量 + 实测数据查询'),[
           (t('Tasks','任务'),t('Spectral matching; active pKa inference','光谱匹配；主动 pKa 推断')),
           (t('Feedback','反馈'),t('Spectrum images or queries to measured spectra','光谱图像或对实测光谱库的查询')),
           (t('Coverage','范围'),t('Five evaluated image-input models','五个参与评测的图像输入模型')),
           (t('Evidence','证据'),t('Spectral error, inference accuracy and query efficiency','光谱误差、参数推断精度与查询效率'))])]
     tabs = ''.join(f'<button class="tab" role="tab" id="tab-{k}" aria-controls="panel-{k}" aria-selected="{str(i==0).lower()}" tabindex="{0 if i==0 else -1}">{name}</button>' for i,(k,name,*_) in enumerate(categories))
-    panels = ''.join(f'<div class="task-panel" id="panel-{k}" role="tabpanel" aria-labelledby="tab-{k}" {"hidden" if i else ""}><div><span class="badge">{badge}</span><h3>{heading}</h3><p class="task-summary">{summary}</p>{link(t("Read the task protocol","查看任务协议"),"tasks.html#"+k)}</div>{specs(rows)}</div>' for i,(k,name,heading,summary,badge,rows) in enumerate(categories))
+    panels = ''.join(f'<div class="task-panel task-breakdown" id="panel-{k}" role="tabpanel" aria-labelledby="tab-{k}" {"hidden" if i else ""}><div class="task-brief"><span class="badge">{badge}</span><h3>{heading}</h3><p class="task-summary">{summary}</p>{specs(rows)}{link(t("Task details","任务详情"),"tasks.html#"+k)}</div>{category_ranking(k)}</div>' for i,(k,name,heading,summary,badge,rows) in enumerate(categories))
     return f'''<main id="main">
     <div class="wrap"><section class="hero hero-centered">
-      <h1>AI SCIENTISTS' LAST EXAM</h1>
-      <p class="intro">{t('Evaluating how AI scientists act, learn from measurements, and adapt — through experimental feedback and a growing laboratory network.','通过真实实验反馈与不断拓展的实验室网络，检验 AI 科学家如何行动、利用测量，并在变化中调整决策。')}</p>
+      <h1>AI Scientists' Last Exam</h1>
+      <p class="intro">{t('A benchmark for evaluating AI scientists on experimental tasks.','面向实验任务的 AI 科学家评测基准。')}</p>
       <div class="actions">{link(t('Leaderboard','排行榜'),'#results','btn primary')}{link(t('Tasks','评测任务'),'#experiments','btn')}</div>
-      <p class="hero-small">{t('Explore PSI-Bench, our first-stage experimental study.','查看第一阶段实验研究 PSI-Bench 的任务与结果。')}</p>
+      <p class="hero-small">{t('Current results: PSI-Bench.','当前结果来自 PSI-Bench。')}</p>
       </section>
-      <div class="stats"><div class="stat"><strong>4,079</strong><span>{t('Physical experiments executed','已执行真实实验')}</span></div><div class="stat"><strong>02</strong><span>{t('Evaluated laboratory sites','已完成评测站点')}</span></div><div class="stat"><strong>07</strong><span>{t('Models evaluated','已评测模型')}</span></div><div class="stat"><strong>04</strong><span>{t('Complementary capability categories','互补能力类别')}</span></div></div>
-      <p class="scope-note">{t('Scope: first-stage PSI-Bench study. Includes separate physical and simulated evaluations. Website snapshot: 27 Oct 2026.','范围：PSI-Bench 第一阶段研究；真实实验与模拟评测分别报告。网站快照：2026 年 10 月 27 日。')}</p>
+      <div class="stats"><div class="stat"><strong>4,079</strong><span>{t('Physical experiments','真实实验')}</span></div><div class="stat"><strong>02</strong><span>{t('Laboratories','实验室')}</span></div><div class="stat"><strong>07</strong><span>{t('Models evaluated','已评测模型')}</span></div><div class="stat"><strong>04</strong><span>{t('Task categories','任务类别')}</span></div></div>
+      <p class="scope-note">{t('PSI-Bench includes physical experiments and simulated tasks.','PSI-Bench 包含真实实验与模拟任务。')}</p>
       <section class="section home-leaderboard" id="results"><div class="section-head"><h2>Leaderboard</h2>{link(t('Full leaderboard','完整排行榜'),'leaderboard.html')}</div>{chart_tabs()}</section>
-      <section class="section" id="experiments"><div class="section-head"><div><div class="eyebrow">{t('First-stage study / PSI-Bench','第一阶段研究 / PSI-Bench')}</div><h2>{t('Tasks','评测任务')}</h2></div><p>{t('Four complementary perspectives on improvement, constraints, adaptation and spectral reasoning.','从优化、约束、自适应与光谱推理四个互补视角，理解模型在实验中的表现。')}</p></div><div data-tabs><div class="tabs" role="tablist" aria-label="{t('Task categories','任务类别')}">{tabs}</div>{panels}</div></section>
-      <section class="section collaborate" id="collaborate"><div><div class="eyebrow">{t('Build the next exam with us','一起建设下一场考试')}</div><h2 class="big-heading">{t('Contribute','参与贡献')}</h2><p class="intro">{t('We welcome discussions about experimental tasks, laboratory platforms and AI systems. Initial contributions are coordinated through the project repository.','欢迎实验任务、实验平台与 AI 系统方向的合作讨论。初期合作通过项目仓库协调。')}</p></div><div class="join-list">
-      <a href="{REPO}/issues/new?template=collaboration.yml&amp;title=Laboratory%20collaboration"><div><strong>{t('Connect a laboratory','接入实验平台')}</strong><small>{t('Equipment, operations and measurement feedback','设备、可执行操作与测量反馈')}</small></div>{arrow()}</a>
-      <a href="{REPO}/issues/new?template=collaboration.yml&amp;title=Task%20contribution"><div><strong>{t('Contribute a scientific task','贡献科学任务')}</strong><small>{t('A question, a protocol and verifiable outcomes','科学问题、实验协议与可验证结果')}</small></div>{arrow()}</a>
-      <a href="{REPO}/issues/new?template=collaboration.yml&amp;title=Agent%20evaluation"><div><strong>{t('Discuss an agent evaluation','讨论智能体评测')}</strong><small>{t('Your system, configuration and evaluation needs','系统、配置与评测需求')}</small></div>{arrow()}</a></div></section></div>
+      <section class="section" id="experiments"><div class="section-head"><div><div class="eyebrow">{t('First-stage study / PSI-Bench','第一阶段研究 / PSI-Bench')}</div><h2>{t('Task Breakdown','任务分项')}</h2></div></div><div data-tabs><div class="tabs" role="tablist" aria-label="{t('Task categories','任务类别')}">{tabs}</div>{panels}</div></section>
+      <section class="section contribute-mvp" id="collaborate"><div><h2>{t('Contribute','参与贡献')}</h2><p>{t('Propose a task or discuss an evaluation through GitHub Issues.','通过 GitHub Issues 提议任务或讨论评测。')}</p></div>{link(t('Open an issue','发起讨论'),REPO+'/issues/new?template=collaboration.yml','btn')}</section></div>
     </main>'''
 
 
@@ -175,9 +195,9 @@ def leaderboard():
         options=f'<option value="{cohort}">{t("Overall score","综合得分")}</option>'+''.join(f'<option value="{k}">{names[k]}</option>' for k in keys)
         intro=t('Equal weight across optimization, safety and adaptive robustness.','优化、安全与自适应鲁棒性等权平均。') if cohort=='shared' else t('Equal weight across all four categories, restricted to five models with full coverage.','四类能力等权平均，仅纳入完成全部评测的五个模型。')
         boards+=f'''<section id="cohort-{cohort}" role="tabpanel" aria-labelledby="cohort-tab-{cohort}" {"hidden" if i else ""}>
-        {chart(cohort)}<details class="score-details"><summary>{t("Detailed scores", "分类得分明细")}</summary><div class="board-controls"><label>{t('Order rows by','排序依据')} <select data-sort-board="table-{cohort}" data-status="sort-status-{cohort}" aria-label="{t('Order rows by metric','按指标排序')}">{options}</select></label><span class="interaction-hint">{t('Select a model to explore its results ↗','点击模型，查看得分与任务详情 ↗')}</span></div>
-        <div class="board"><div class="board-top"><div><h2>{t('Shared-task index','共享任务指数') if cohort=='shared' else t('Full-task index','完整任务指数')}</h2><p>{intro}</p></div><span class="badge">0–100</span></div>{table(cohort)}<p class="board-note">{t('Rank always refers to the overall index; sorting a category changes row order only. N/A is not zero.','排名始终依据综合指数；按分类指标排序只改变行顺序。N/A 不按零分处理。')}</p></div><span class="sr-only" role="status" id="sort-status-{cohort}"></span></details></section>'''
-    return f'''<main id="main" class="wrap"><section class="page-hero"><div class="eyebrow">{t('PSI-Bench / First-stage study','PSI-Bench / 第一阶段研究')}</div><h1>{t('Leaderboard','排行榜')}</h1><p>{t('Compare models on the same task coverage. Explore complementary capabilities alongside the aggregate score.','在相同任务覆盖范围内比较模型，同时查看综合得分与各项能力表现。')}</p><div class="page-meta"><span>{t('Score range: 0–100','得分范围：0–100')}</span><span>{t('Website snapshot: 27 Oct 2026','网站快照：2026-10-27')}</span><span>{t('Source: first-stage manuscript results','来源：第一阶段稿件结果')}</span></div></section>
+        {chart(cohort)}<details class="score-details"><summary>{t("Detailed scores", "分类得分明细")}</summary><div class="board-controls"><label>{t('Order rows by','排序依据')} <select data-sort-board="table-{cohort}" data-status="sort-status-{cohort}" aria-label="{t('Order rows by metric','按指标排序')}">{options}</select></label><span class="interaction-hint">{t('Select a model to view category scores.','点击模型查看分类得分。')}</span></div>
+        <div class="board"><div class="board-top"><div><h2>{t('Shared-task index','共享任务指数') if cohort=='shared' else t('Full-task index','完整任务指数')}</h2><p>{intro}</p></div><span class="badge">0–100</span></div>{table(cohort)}<p class="board-note">{t('Rank uses the overall score. In shared tasks, multimodal is displayed but excluded from the overall score. N/A means not evaluated.','排名依据综合分；共享任务榜的多模态成绩仅展示，不计入综合分。N/A 表示未评测。')}</p></div><span class="sr-only" role="status" id="sort-status-{cohort}"></span></details></section>'''
+    return f'''<main id="main" class="wrap"><section class="page-hero"><div class="eyebrow">{t('PSI-Bench / First-stage study','PSI-Bench / 第一阶段研究')}</div><h1>{t('Leaderboard','排行榜')}</h1><p>{t('Overall and category scores for the PSI-Bench evaluation.','PSI-Bench 评测的综合得分与分类得分。')}</p><div class="page-meta"><span>{t('Score range: 0–100','得分范围：0–100')}</span><span>{t('Website snapshot: 27 Oct 2026','网站快照：2026-10-27')}</span><span>{t('Source: first-stage manuscript results','来源：第一阶段稿件结果')}</span></div></section>
       <div class="notice">{t('These are results from a fixed research cohort, not a live ranking of today’s models. The two indices use different task sets and must not be compared directly.','这里展示固定研究队列的结果，并非当前所有模型的实时排名。两张榜单任务集不同，综合得分不能直接比较。')}</div>
       <div data-tabs class="section" style="padding-top:22px"><div class="tabs" role="tablist" aria-label="{t('Evaluation coverage','评测覆盖范围')}">{tabs}</div>{boards}
       <noscript><style>[role=tabpanel][hidden]{{display:block!important}}.model-button{{pointer-events:none}}</style><p class="no-script">{t('Both result tables are shown. Enable JavaScript for model details and sorting.','已显示两张结果表；启用 JavaScript 后可查看模型详情与交互排序。')}</p></noscript>
