@@ -57,13 +57,13 @@ def results_data():
 
 
 def shell(page, title, description, body):
-    url = f'https://nlz25.github.io/AISLE/{"zh/" if lang == "zh" else ""}{page}'
+    url = f'https://aisle.science/{"zh/" if lang == "zh" else ""}{page}'
     return f'''<!doctype html>
 <html lang="{t('en','zh-CN')}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{esc(title)} · AISLE</title><meta name="description" content="{esc(description)}">
 <meta name="theme-color" content="#f7f5f2"><meta property="og:type" content="website"><meta property="og:title" content="{esc(title)} · AISLE"><meta property="og:description" content="{esc(description)}"><meta property="og:url" content="{url}">
 <meta name="twitter:card" content="summary">
-<link rel="canonical" href="{url}"><link rel="alternate" hreflang="en" href="https://nlz25.github.io/AISLE/{page}"><link rel="alternate" hreflang="zh-CN" href="https://nlz25.github.io/AISLE/zh/{page}">
+<link rel="canonical" href="{url}"><link rel="alternate" hreflang="en" href="https://aisle.science/{page}"><link rel="alternate" hreflang="zh-CN" href="https://aisle.science/zh/{page}">
 <link rel="stylesheet" href="{root('assets/style.css')}?v={ASSET_VERSION}"><script defer src="{root('assets/site.js')}?v={ASSET_VERSION}"></script></head>
 <body class="{lang}">{header(page)}{body}{results_data() if page != 'tasks.html' else ''}{footer()}</body></html>'''
 

@@ -2,8 +2,8 @@
 
 A research website for experimental evaluation of AI scientists, presenting **AISLE** results and evaluated tasks.
 
-**Website:** https://nlz25.github.io/AISLE/
-**中文:** https://nlz25.github.io/AISLE/zh/
+**Website:** https://aisle.science/
+**中文:** https://aisle.science/zh/
 
 The first release contains a research homepage, separate shared/full-coverage results, inline model details with category scores, task protocols, and academic/industry institution strips. English and Chinese pages share the same source and data.
 
