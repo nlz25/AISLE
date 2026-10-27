@@ -8,7 +8,6 @@ ROOT = Path(__file__).resolve().parents[1]
 DATA = json.loads((ROOT / 'data/results.json').read_text())
 MODELS = DATA['models']
 ASSET_VERSION = hashlib.sha256((ROOT/'assets/style.css').read_bytes() + (ROOT/'assets/site.js').read_bytes()).hexdigest()[:12]
-REPO = 'https://github.com/nlz25/AISLE'
 lang = 'en'
 
 
@@ -40,7 +39,7 @@ def header(page):
     <header class="site-header"><div class="wrap header-inner">
       <a class="brand" href="index.html" aria-label="AISLE home"><span class="wordmark">AISLE</span><span class="brand-caption">AI Scientists’<br>Last Exam</span></a>
       <nav class="nav-links" id="main-navigation" aria-label="{t('Main navigation', '主导航')}">{nav}</nav>
-      <div class="nav-side"><a class="repo-link" href="{REPO}">GitHub ↗</a><a class="language" href="{language_url}" lang="{t('zh-CN','en')}">{t('中文','EN')}</a>
+      <div class="nav-side"><a class="language" href="{language_url}" lang="{t('zh-CN','en')}">{t('CN','EN')}</a>
       <button class="menu-toggle" aria-controls="main-navigation" aria-expanded="false">{t('Menu +','菜单 +')}</button></div>
     </div></header>'''
 
@@ -48,8 +47,8 @@ def header(page):
 def footer():
     return f'''<footer class="site-footer"><div class="wrap"><div class="footer-top">
       <div><a href="index.html" class="wordmark">AISLE</a><p>AI Scientists’ Last Exam</p></div>
-      <div class="footer-links"><a href="leaderboard.html">{t('Leaderboard','排行榜')}</a><a href="tasks.html">{t('Tasks','任务')}</a><a href="{REPO}">GitHub ↗</a></div>
-      </div><div class="footer-bottom"><span>© 2026 AISLE · AI Scientists’ Last Exam</span><span>{t('First-stage study: PSI-Bench · Website snapshot: 27 Oct 2026','第一阶段研究：PSI-Bench · 网站快照：2026 年 10 月 27 日')}</span></div></div></footer>'''
+      <div class="footer-links"><a href="leaderboard.html">{t('Leaderboard','排行榜')}</a><a href="tasks.html">{t('Tasks','任务')}</a></div>
+      </div><div class="footer-bottom"><span>© 2026 AISLE · AI Scientists’ Last Exam</span><span>{t('Website snapshot: 27 Oct 2026','网站快照：2026 年 10 月 27 日')}</span></div></div></footer>'''
 
 
 def results_data():
@@ -115,7 +114,7 @@ def chart(cohort):
         segments=''.join(f'<span class="stack-segment" style="width:{m[k]/len(keys):.4f}%;background:{CATEGORY_COLORS[k]}" title="{esc(names[k])}: {m[k]:.2f} / 100 · {t("Contribution","贡献")}: {m[k]/len(keys):.2f}"></span>' for k in keys)
         values='; '.join(f'{names[k]} {m[k]:.2f}' for k in keys)
         rows+=f'<button class="stack-row" data-profile="{m["id"]}" data-cohort="{cohort}" aria-expanded="false" aria-controls="model-details-{cohort}" aria-label="{esc(m["name"])} · {t("Overall","综合分")} {m[cohort]:.2f}. {esc(values)}"><span class="stack-rank">{rank}</span><span class="stack-model">{logo(m)}<span><strong>{esc(m["name"])}</strong><small>{esc(m["organization"])}</small></span></span><strong class="stack-score">{m[cohort]:.2f}</strong><span class="stack-track" aria-hidden="true">{segments}</span></button>'
-    return f'''<div class="leaderboard-card stacked-board" data-chart-cohort="{cohort}"><div class="stack-header"><span>PSI-Bench · {len(models)} {t('models','个模型')}</span><div class="stack-legend" role="group" aria-label="{t('View scores by category','按类别查看分数')}">{legend}</div></div><div class="stack-columns"><span>#</span><span>{t('Model','模型')}</span><span data-score-heading>{t('Overall','综合分')}</span><span data-bar-heading>{t('Category contributions','各类别得分贡献')}</span></div><div class="stack-rows">{rows}</div><div class="stack-scale"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div><p class="stack-note" role="status">{t('Equal category weights. Select a category above or a model for details.','类别等权。点击上方类别切换分数，点击模型查看详情。')}</p><section class="model-details" id="model-details-{cohort}" aria-label="{t('Model details','模型详情')}" hidden></section></div>'''
+    return f'''<div class="leaderboard-card stacked-board" data-chart-cohort="{cohort}"><div class="stack-header"><span>AISLE · {len(models)} {t('models','个模型')}</span><div class="stack-legend" role="group" aria-label="{t('View scores by category','按类别查看分数')}">{legend}</div></div><div class="stack-columns"><span>#</span><span>{t('Model','模型')}</span><span data-score-heading>{t('Overall','综合分')}</span><span data-bar-heading>{t('Category contributions','各类别得分贡献')}</span></div><div class="stack-rows">{rows}</div><div class="stack-scale"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div><p class="stack-note" role="status">{t('Equal category weights. Select a category above or a model for details.','类别等权。点击上方类别切换分数，点击模型查看详情。')}</p><section class="model-details" id="model-details-{cohort}" aria-label="{t('Model details','模型详情')}" hidden></section></div>'''
 
 
 def institutions():
@@ -190,11 +189,11 @@ def home():
       <button class="motion-toggle" type="button" aria-pressed="false" aria-label="{t('Pause background animation','暂停背景动画')}" hidden>Ⅱ</button>
       </section>
       <div class="stats"><div class="stat"><strong>4,079</strong><span>{t('Physical experiments','真实实验')}</span></div><div class="stat"><strong>02</strong><span>{t('Laboratories','实验室')}</span></div><div class="stat"><strong>07</strong><span>{t('Models evaluated','已评测模型')}</span></div><div class="stat"><strong>04</strong><span>{t('Task categories','任务类别')}</span></div></div>
-      <p class="scope-note">{t('PSI-Bench includes physical experiments and simulated tasks.','PSI-Bench 包含真实实验与模拟任务。')}</p>
+      <p class="scope-note">{t('AISLE includes physical experiments and simulated tasks.','AISLE 包含真实实验与模拟任务。')}</p>
       <section class="section home-leaderboard" id="results"><div class="section-head"><h2>Leaderboard</h2>{link(t('Full leaderboard','完整排行榜'),'leaderboard.html')}</div>{chart_tabs()}</section>
-      <section class="section" id="experiments"><div class="section-head"><div><div class="eyebrow">{t('First-stage study / PSI-Bench','第一阶段研究 / PSI-Bench')}</div><h2>{t('Task Breakdown','任务分项')}</h2></div></div><div data-tabs><div class="tabs" role="tablist" aria-label="{t('Task categories','任务类别')}">{tabs}</div>{panels}</div></section>
+      <section class="section" id="experiments"><div class="section-head"><div><div class="eyebrow">AISLE</div><h2>{t('Task Breakdown','任务分项')}</h2></div></div><div data-tabs><div class="tabs" role="tablist" aria-label="{t('Task categories','任务类别')}">{tabs}</div>{panels}</div></section>
       {institutions()}
-      <section class="section contribute-mvp" id="collaborate"><div><h2>{t('Contribute','参与贡献')}</h2><p>{t('Propose a task or discuss an evaluation through GitHub Issues.','通过 GitHub Issues 提议任务或讨论评测。')}</p></div>{link(t('Open an issue','发起讨论'),REPO+'/issues/new?template=collaboration.yml','btn')}</section></div>
+</div>
     </main>'''
 
 
@@ -209,7 +208,7 @@ def leaderboard():
         boards+=f'''<section id="cohort-{cohort}" role="tabpanel" aria-labelledby="cohort-tab-{cohort}" {"hidden" if i else ""}>
         {chart(cohort)}<details class="score-details"><summary>{t("Detailed scores", "分类得分明细")}</summary><div class="board-controls"><label>{t('Order rows by','排序依据')} <select data-sort-board="table-{cohort}" data-status="sort-status-{cohort}" aria-label="{t('Order rows by metric','按指标排序')}">{options}</select></label><span class="interaction-hint">{t('Select a model to view category scores.','点击模型查看分类得分。')}</span></div>
         <div class="board"><div class="board-top"><div><h2>{t('Shared-task index','共享任务指数') if cohort=='shared' else t('Full-task index','完整任务指数')}</h2><p>{intro}</p></div><span class="badge">0–100</span></div>{table(cohort)}<p class="board-note">{t('Rank uses the overall score. In shared tasks, multimodal is displayed but excluded from the overall score. N/A means not evaluated.','排名依据综合分；共享任务榜的多模态成绩仅展示，不计入综合分。N/A 表示未评测。')}</p></div><span class="sr-only" role="status" id="sort-status-{cohort}"></span></details></section>'''
-    return f'''<main id="main" class="wrap"><section class="page-hero"><div class="eyebrow">{t('PSI-Bench / First-stage study','PSI-Bench / 第一阶段研究')}</div><h1>{t('Leaderboard','排行榜')}</h1><p>{t('Overall and category scores for the PSI-Bench evaluation.','PSI-Bench 评测的综合得分与分类得分。')}</p><div class="page-meta"><span>{t('Score range: 0–100','得分范围：0–100')}</span><span>{t('Website snapshot: 27 Oct 2026','网站快照：2026-10-27')}</span><span>{t('Source: first-stage manuscript results','来源：第一阶段稿件结果')}</span></div></section>
+    return f'''<main id="main" class="wrap"><section class="page-hero"><div class="eyebrow">AISLE</div><h1>{t('Leaderboard','排行榜')}</h1><p>{t('Overall and category scores for the AISLE evaluation.','AISLE 评测的综合得分与分类得分。')}</p><div class="page-meta"><span>{t('Score range: 0–100','得分范围：0–100')}</span><span>{t('Website snapshot: 27 Oct 2026','网站快照：2026-10-27')}</span></div></section>
       <div class="notice">{t('These are results from a fixed research cohort, not a live ranking of today’s models. The two indices use different task sets and must not be compared directly.','这里展示固定研究队列的结果，并非当前所有模型的实时排名。两张榜单任务集不同，综合得分不能直接比较。')}</div>
       <div data-tabs class="section" style="padding-top:22px"><div class="tabs" role="tablist" aria-label="{t('Evaluation coverage','评测覆盖范围')}">{tabs}</div>{boards}
       <noscript><style>[role=tabpanel][hidden]{{display:block!important}}.model-button{{pointer-events:none}}</style><p class="no-script">{t('Both result tables are shown. Enable JavaScript for model details and sorting.','已显示两张结果表；启用 JavaScript 后可查看模型详情与交互排序。')}</p></noscript>
@@ -244,7 +243,7 @@ def tasks():
       <p>{t('Seven models share the first three categories. Five have full four-category coverage. Unmeasured multimodal results are N/A; they are neither zero-filled nor mixed into averages over different subsets. Bayesian optimization is a task-level baseline and is excluded from these indices.','七个模型共享前三类任务，五个模型具有四类完整覆盖。未测多模态结果为 N/A，不填零，也不混合不同任务子集的均值。贝叶斯优化作为任务级基线，不进入这些指数。')}</p>
       <p>{t('Within applicable task groups, targets receive equal weight. Displayed values are rounded; manuscript aggregate scores are preserved from the original calculation. Select a model in the results page to explore the score composition and task coverage.','在适用任务组内，目标等权。显示值经过舍入，综合指数保留原始计算结果。可在结果页点击模型，交互查看得分组成与任务覆盖。')}</p>''')
     nav=''.join(f'<a href="#{key}">{title}</a>' for key,title,_ in sections)
-    return f'''<main id="main" class="wrap"><section class="page-hero"><div class="eyebrow">{'PSI-Bench'}</div><h1>{t('Tasks','评测任务')}</h1><p>{t('An accessible guide to the first-stage study, its experimental conditions and the meaning of its scores.','第一阶段研究的任务、实验条件与得分含义。')}</p></section><div class="doc-layout"><nav class="doc-nav" aria-label="{t('On this page','本页目录')}">{nav}</nav><div>{''.join(s[2] for s in sections)}</div></div></main>'''
+    return f'''<main id="main" class="wrap"><section class="page-hero"><div class="eyebrow">{'AISLE'}</div><h1>{t('Tasks','评测任务')}</h1><p>{t('Tasks, experimental conditions and scoring.','任务、实验条件与评分规则。')}</p></section><div class="doc-layout"><nav class="doc-nav" aria-label="{t('On this page','本页目录')}">{nav}</nav><div>{''.join(s[2] for s in sections)}</div></div></main>'''
 
 
 def main():
@@ -254,7 +253,7 @@ def main():
         folder.mkdir(exist_ok=True)
         pages=[('index.html',t('AI Scientists’ Last Exam','AI 科学家的最后一场考试'),home),('leaderboard.html',t('Experimental results','实验评测结果'),leaderboard),('tasks.html',t('Tasks','任务'),tasks)]
         for page,title,render in pages:
-            description=t('AISLE evaluates scientific decisions through experimental feedback. Explore PSI-Bench first-stage results, laboratory tasks and evaluation methods.','AISLE 通过实验反馈检验科学决策。查看 PSI-Bench 第一阶段结果、实验任务与评测方法。')
+            description=t('AISLE evaluates scientific decisions through experimental feedback. Explore benchmark results, experimental tasks and scoring.','AISLE 通过实验反馈检验科学决策。查看评测结果、实验任务与评分规则。')
             (folder/page).write_text(shell(page,title,description,render()),encoding='utf-8')
     print('Built 6 pages with interactive model profiles.')
 

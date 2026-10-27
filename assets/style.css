@@ -150,3 +150,6 @@
 @media(max-width:780px){.hero.hero-centered{padding-block:48px 38px}.institutions .section-head h2{font-size:26px}.institution-grid{gap:16px;padding-right:16px}.institution{width:140px}.institution-track.loop{animation-duration:44s}.institutions-motion{position:static}.institutions .section-head{flex-direction:row;justify-content:space-between}}
 @media(prefers-reduced-motion:reduce){.institution-window{overflow-x:auto;mask-image:none}.institution-track.loop{animation:none;transform:none}.institution-track.single{animation:none}.institution-grid[aria-hidden=true]{display:none}.institutions-motion{display:none}}
 @media(max-width:600px){.stack-header{padding:13px 17px;gap:10px}.stack-header>span{padding-top:0}.stack-legend{gap:4px}.stack-legend button{font-size:10px;padding:7px 8px}.institution{padding:12px 8px}.institution-logo{height:58px}.institution img{max-height:58px}.institution>span{font-size:10px}}
+
+.nav-side .language{border-left:0;padding-left:0}
+.institution-grid{flex-wrap:nowrap}

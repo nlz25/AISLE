@@ -10,7 +10,7 @@ The website grows in three stages. These are development priorities; future capa
 
 ## First-stage scope
 
-The current pages present **PSI-Bench**, the first-stage study. The 4,079 physical experiments, two evaluated sites and seven models refer only to that study. Research directions under development are not added to its results or task-coverage denominators.
+The current pages present **AISLE**, the first-stage study. The 4,079 physical experiments, two evaluated sites and seven models refer only to that study. Research directions under development are not added to its results or task-coverage denominators.
 
 The current website source is available in this repository. This is separate from the experimental evaluation code, complete data archive and paper release.
 
