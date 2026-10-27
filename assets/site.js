@@ -35,20 +35,6 @@ document.querySelectorAll('[data-tabs]').forEach(group => {
   });
 });
 
-const dialog = document.querySelector('.video-dialog');
-const video = dialog?.querySelector('video');
-let videoOpener;
-document.querySelectorAll('[data-open-video]').forEach(button => button.addEventListener('click', () => {
-  if (!dialog || !video) return;
-  videoOpener = button;
-  if (!video.src) video.src = video.dataset.src;
-  dialog.showModal();
-  video.play().catch(() => {});
-}));
-dialog?.querySelector('.dialog-close').addEventListener('click', () => dialog.close());
-dialog?.addEventListener('click', event => { if (event.target === dialog) dialog.close(); });
-dialog?.addEventListener('close', () => { video.pause(); videoOpener?.focus(); });
-
 document.querySelectorAll('[data-sort-board]').forEach(select => select.addEventListener('change', () => {
   const table = document.getElementById(select.dataset.sortBoard);
   const rows = [...table.tBodies[0].rows];

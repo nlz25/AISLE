@@ -5,9 +5,9 @@
 - `data/results.json`: first-stage category and aggregate scores, scope and snapshot date.
 - `scripts/build_site.py`: English/Chinese copy, task specifications and chart rendering.
 - `assets/style.css`: shared visual system and responsive layouts.
-- `assets/site.js`: mobile navigation, accessible tabs, sorting, model details and on-demand video.
+- `assets/site.js`: mobile navigation, accessible tabs, sorting and model details.
 - `assets/lab-demo.mp4`: lighter viewing copy of the original `demo.mp4`.
-- `assets/lab-poster.jpg`: a frame from the original laboratory recording; the homepage viewport displays the laboratory region without replacing equipment.
+- `assets/lab-poster.jpg`: a frame from the original laboratory recording, retained for future use.
 - `framework.png`: the original framework already present in the repository.
 
 Run `python3 scripts/build_site.py` after changing data or page copy. The generated HTML files are committed so GitHub Pages needs no build dependencies. Results are explored through the clickable leaderboard and model detail panel; the website has no CSV download interface.
@@ -37,8 +37,10 @@ node --check assets/site.js
 python3 -m http.server 4173
 ```
 
-Preview the site in desktop and mobile browsers. Check the two language versions, mobile navigation, keyboard tabs, cohort switching, category ordering, model detail panels, N/A states and video playback. Pages are hosted from `main` at `https://nlz25.github.io/AISLE/`.
+Preview the site in desktop and mobile browsers. Check the two language versions, mobile navigation, keyboard tabs, cohort switching, category ordering, model detail panels, and N/A states. Pages are hosted from `main` at `https://nlz25.github.io/AISLE/`.
 
 ## MVP structure
 
 Home → introductory hero → Leaderboard → Tasks → contribution links. `tasks.html` contains task protocols and scoring, replacing the standalone Methodology page. Preserve model logos from `assets/logos/`. The x-axis is categorical; no release dates or harness settings are inferred.
+
+Laboratory footage is temporarily removed from the website UI, including its entry button, player and social preview. Preserve the original assets until the resource presentation is decided.

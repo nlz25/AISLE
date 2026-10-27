@@ -64,7 +64,7 @@ def shell(page, title, description, body):
 <html lang="{t('en','zh-CN')}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{esc(title)} · AISLE</title><meta name="description" content="{esc(description)}">
 <meta name="theme-color" content="#f7f5f2"><meta property="og:type" content="website"><meta property="og:title" content="{esc(title)} · AISLE"><meta property="og:description" content="{esc(description)}"><meta property="og:url" content="{url}">
-<meta property="og:image" content="https://nlz25.github.io/AISLE/assets/lab-poster.jpg"><meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:card" content="summary">
 <link rel="canonical" href="{url}"><link rel="alternate" hreflang="en" href="https://nlz25.github.io/AISLE/{page}"><link rel="alternate" hreflang="zh-CN" href="https://nlz25.github.io/AISLE/zh/{page}">
 <link rel="stylesheet" href="{root('assets/style.css')}?v={ASSET_VERSION}"><script defer src="{root('assets/site.js')}?v={ASSET_VERSION}"></script></head>
 <body class="{lang}">{header(page)}{body}{model_dialog() if page != 'tasks.html' else ''}{footer()}</body></html>'''
@@ -152,7 +152,7 @@ def home():
     <div class="wrap"><section class="hero hero-centered">
       <h1>AI SCIENTISTS' LAST EXAM</h1>
       <p class="intro">{t('Evaluating how AI scientists act, learn from measurements, and adapt — through experimental feedback and a growing laboratory network.','通过真实实验反馈与不断拓展的实验室网络，检验 AI 科学家如何行动、利用测量，并在变化中调整决策。')}</p>
-      <div class="actions">{link(t('Leaderboard','排行榜'),'#results','btn primary')}{link(t('Tasks','评测任务'),'#experiments','btn')}<button class="btn" data-open-video>{t('Watch demo','观看实验演示')} <span aria-hidden="true">▷</span></button></div>
+      <div class="actions">{link(t('Leaderboard','排行榜'),'#results','btn primary')}{link(t('Tasks','评测任务'),'#experiments','btn')}</div>
       <p class="hero-small">{t('Explore PSI-Bench, our first-stage experimental study.','查看第一阶段实验研究 PSI-Bench 的任务与结果。')}</p>
       </section>
       <div class="stats"><div class="stat"><strong>4,079</strong><span>{t('Physical experiments executed','已执行真实实验')}</span></div><div class="stat"><strong>02</strong><span>{t('Evaluated laboratory sites','已完成评测站点')}</span></div><div class="stat"><strong>07</strong><span>{t('Models evaluated','已评测模型')}</span></div><div class="stat"><strong>04</strong><span>{t('Complementary capability categories','互补能力类别')}</span></div></div>
@@ -163,7 +163,7 @@ def home():
       <a href="{REPO}/issues/new?template=collaboration.yml&amp;title=Laboratory%20collaboration"><div><strong>{t('Connect a laboratory','接入实验平台')}</strong><small>{t('Equipment, operations and measurement feedback','设备、可执行操作与测量反馈')}</small></div>{arrow()}</a>
       <a href="{REPO}/issues/new?template=collaboration.yml&amp;title=Task%20contribution"><div><strong>{t('Contribute a scientific task','贡献科学任务')}</strong><small>{t('A question, a protocol and verifiable outcomes','科学问题、实验协议与可验证结果')}</small></div>{arrow()}</a>
       <a href="{REPO}/issues/new?template=collaboration.yml&amp;title=Agent%20evaluation"><div><strong>{t('Discuss an agent evaluation','讨论智能体评测')}</strong><small>{t('Your system, configuration and evaluation needs','系统、配置与评测需求')}</small></div>{arrow()}</a></div></section></div>
-    </main><dialog class="video-dialog" aria-labelledby="video-title"><div class="dialog-header"><span id="video-title">{t('PSI-Bench · Original laboratory demonstration','PSI-Bench · 原始实验演示')}</span><button class="dialog-close">{t('Close ×','关闭 ×')}</button></div><video controls playsinline preload="none" data-src="{root('assets/lab-demo.mp4')}" poster="{root('assets/lab-poster.jpg')}"></video><p class="dialog-caption">{t('Model outputs and the corresponding laboratory execution. Video is loaded only when opened.','模型输出与对应的实验执行过程。点击后加载视频。')} <a href="{root('demo.mp4')}">{t('Original recording ↗','原始录像 ↗')}</a></p></dialog>'''
+    </main>'''
 
 
 def leaderboard():
