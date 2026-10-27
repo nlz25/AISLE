@@ -205,3 +205,17 @@ if (field && window.matchMedia && window.IntersectionObserver) {
     resize();syncToggle();
   }
 }
+
+// Logo strips pause on hover, via their control, or under reduced-motion preferences.
+const institutionsSection = document.querySelector('.institutions');
+if (institutionsSection) {
+  const control=institutionsSection.querySelector('.institutions-motion');
+  const zh=document.documentElement.lang.startsWith('zh');
+  control.hidden=false;
+  control.addEventListener('click',() => {
+    const paused=control.getAttribute('aria-pressed')!=='true';
+    control.setAttribute('aria-pressed',String(paused));
+    institutionsSection.dataset.paused=String(paused);
+    control.textContent=paused?(zh?'播放 ▷':'Play ▷'):(zh?'暂停 Ⅱ':'Pause Ⅱ');
+  });
+}

@@ -122,9 +122,11 @@ def institutions():
     data=json.loads((ROOT/'data/institutions.json').read_text())
     groups=''
     for key,en,zh in [('academic','Academic Institutions','学术机构'),('industry','Industry','工业界')]:
-        cards=''.join(f'<li class="institution {esc(item["shape"])}"><div class="institution-logo"><img src="{root("assets/institutions/"+item["logo"])}" alt="{esc(item["en"])}" loading="lazy" decoding="async"></div><span>{esc(t(item["en"],item["zh"]))}</span></li>' for item in data[key])
-        groups+=f'<div class="institution-group"><h3>{t(en,zh)}</h3><ul class="institution-grid {key}">{cards}</ul></div>'
-    return f'<section class="section institutions" id="institutions"><div class="section-head"><h2>{t("Institutions","参与机构")}</h2></div>{groups}</section>'
+        cards=''.join(f'<li class="institution {esc(item["shape"])}"><div class="institution-logo"><img src="{root("assets/institutions/"+item["logo"])}" alt="{esc(item["en"])}" loading="eager" decoding="async"></div><span>{esc(t(item["en"],item["zh"]))}</span></li>' for item in data[key])
+        single=len(data[key])==1
+        duplicate='' if single else f'<ul class="institution-grid {key}" aria-hidden="true">{cards}</ul>'
+        groups+=f'<div class="institution-group"><h3>{t(en,zh)}</h3><div class="institution-window"><div class="institution-track {"single" if single else "loop"}"><ul class="institution-grid {key}">{cards}</ul>{duplicate}</div></div></div>'
+    return f'<section class="section institutions" id="institutions"><div class="section-head"><h2>{t("Institutions","参与机构")}</h2><button class="institutions-motion" type="button" aria-pressed="false" hidden>{t("Pause","暂停")} Ⅱ</button></div>{groups}</section>'
 
 
 def category_ranking(key):
@@ -185,7 +187,6 @@ def home():
       <canvas class="hero-field" aria-hidden="true"></canvas>
       <h1>AI Scientists' Last Exam</h1>
       <p class="intro">{t('A benchmark for evaluating AI scientists on experimental tasks.','面向实验任务的 AI 科学家评测基准。')}</p>
-      <p class="hero-small">{t('Current results: PSI-Bench.','当前结果来自 PSI-Bench。')}</p>
       <button class="motion-toggle" type="button" aria-pressed="false" aria-label="{t('Pause background animation','暂停背景动画')}" hidden>Ⅱ</button>
       </section>
       <div class="stats"><div class="stat"><strong>4,079</strong><span>{t('Physical experiments','真实实验')}</span></div><div class="stat"><strong>02</strong><span>{t('Laboratories','实验室')}</span></div><div class="stat"><strong>07</strong><span>{t('Models evaluated','已评测模型')}</span></div><div class="stat"><strong>04</strong><span>{t('Task categories','任务类别')}</span></div></div>

@@ -126,19 +126,27 @@
 .hero-field{position:absolute;inset:0;width:100%;height:100%;z-index:-2;pointer-events:none;mask-image:linear-gradient(to bottom,transparent,#000 18%,#000 80%,transparent)}
 .hero.hero-centered:after{content:'';position:absolute;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(ellipse at center,rgba(247,245,242,.98) 0%,rgba(247,245,242,.94) 35%,rgba(247,245,242,.1) 70%)}
 .motion-toggle{position:absolute;bottom:12px;right:6px;font-size:13px;line-height:1;width:27px;height:27px;border:1px solid #dce0e6;border-radius:50%;background:var(--paper);color:#64748b}
-.institutions .section-head{margin-bottom:30px}
-.institutions .section-head h2{font:600 28px/1.3 var(--sans);letter-spacing:-.6px}
-.institution-group+.institution-group{margin-top:32px;padding-top:26px;border-top:1px solid var(--line)}
-.institution-group h3{font-size:12px;letter-spacing:.7px;font-weight:500;color:var(--muted);margin:0 0 22px}
-.institution-grid{list-style:none;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:20px 24px;margin:0;padding:0}
-.institution{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:13px;padding:18px 12px;min-width:0;border-radius:10px;transition:background .2s,transform .2s}
-.institution:hover{background:#fff9;transform:translateY(-3px)}
-.institution-logo{height:66px;width:100%;display:flex;align-items:center;justify-content:center}
-.institution img{max-width:85%;max-height:66px;object-fit:contain}
-.institution.wide img{max-width:100%;max-height:58px}
-.institution>span{font-size:11px;color:var(--muted);line-height:1.4;min-height:30px;display:flex;align-items:center}
-.institution-grid.industry{grid-template-columns:repeat(4,minmax(0,1fr))}
-.institution-grid.industry .institution{align-items:flex-start;padding-left:0}
-.institution-grid.industry .institution-logo{justify-content:flex-start}
-@media(max-width:780px){.hero.hero-centered{padding-block:48px 38px}.institution-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.institution-grid.industry{grid-template-columns:repeat(2,minmax(0,1fr))}.institutions .section-head h2{font-size:26px}}
-@media(max-width:600px){.stack-header{padding:13px 17px;gap:10px}.stack-header>span{padding-top:0}.stack-legend{gap:4px}.stack-legend button{font-size:10px;padding:7px 8px}.institution-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.institution{padding:12px 8px}.institution-logo{height:58px}.institution img{max-height:58px}.institution>span{font-size:10px}.institution-grid.industry{grid-template-columns:repeat(2,minmax(0,1fr))}}
+/* ALE-style continuous academic logo strip, with a compact single-company row. */
+.institutions .section-head{margin-bottom:24px;align-items:center;justify-content:center;position:relative}
+.institutions .section-head h2{font:600 28px/1.3 var(--sans);letter-spacing:-.6px;margin:0}
+.institutions-motion{position:absolute;right:0;border:0;background:none;color:var(--muted);font-size:11px;padding:8px}
+.institution-group+.institution-group{margin-top:24px;padding-top:22px;border-top:1px solid var(--line)}
+.institution-group h3{text-align:center;font-size:12px;letter-spacing:.7px;font-weight:500;color:var(--muted);margin:0 0 16px}
+.institution-window{overflow:hidden;mask-image:linear-gradient(to right,transparent,#000 7%,#000 93%,transparent)}
+.institution-track{display:flex;width:max-content;will-change:transform}
+.institution-track.loop{animation:institution-scroll 48s linear infinite}
+.institution-grid{list-style:none;display:flex;align-items:center;flex-shrink:0;gap:24px;margin:0;padding:0 24px 0 0}
+.institution{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:12px;padding:12px 8px;width:164px;flex-shrink:0;min-width:0}
+.institution-logo{height:58px;width:100%;display:flex;align-items:center;justify-content:center}
+.institution img{max-width:90%;max-height:58px;object-fit:contain}
+.institution.wide img{max-width:100%;max-height:52px}
+.institution>span{font-size:11px;color:var(--muted);line-height:1.4;min-height:31px;display:flex;align-items:center}
+.institution-track.single{width:100%;justify-content:center;animation:institution-drift 12s ease-in-out infinite alternate}
+.institution-grid.industry{padding:0}
+.institution-grid.industry .institution{width:260px}
+.institution-window:hover .institution-track,.institutions[data-paused=true] .institution-track{animation-play-state:paused}
+@keyframes institution-scroll{to{transform:translateX(-50%)}}
+@keyframes institution-drift{from{transform:translateX(-5%)}to{transform:translateX(5%)}}
+@media(max-width:780px){.hero.hero-centered{padding-block:48px 38px}.institutions .section-head h2{font-size:26px}.institution-grid{gap:16px;padding-right:16px}.institution{width:140px}.institution-track.loop{animation-duration:44s}.institutions-motion{position:static}.institutions .section-head{flex-direction:row;justify-content:space-between}}
+@media(prefers-reduced-motion:reduce){.institution-window{overflow-x:auto;mask-image:none}.institution-track.loop{animation:none;transform:none}.institution-track.single{animation:none}.institution-grid[aria-hidden=true]{display:none}.institutions-motion{display:none}}
+@media(max-width:600px){.stack-header{padding:13px 17px;gap:10px}.stack-header>span{padding-top:0}.stack-legend{gap:4px}.stack-legend button{font-size:10px;padding:7px 8px}.institution{padding:12px 8px}.institution-logo{height:58px}.institution img{max-height:58px}.institution>span{font-size:10px}}
