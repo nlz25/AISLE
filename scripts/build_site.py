@@ -125,7 +125,7 @@ def institutions():
         single=len(data[key])==1
         duplicate='' if single else f'<ul class="institution-grid {key}" aria-hidden="true">{cards}</ul>'
         groups+=f'<div class="institution-group"><h3>{t(en,zh)}</h3><div class="institution-window"><div class="institution-track {"single" if single else "loop"}"><ul class="institution-grid {key}">{cards}</ul>{duplicate}</div></div></div>'
-    return f'<section class="section institutions" id="institutions"><div class="section-head"><h2>{t("Institutions","参与机构")}</h2><button class="institutions-motion" type="button" aria-pressed="false" hidden>{t("Pause","暂停")} Ⅱ</button></div>{groups}</section>'
+    return f'<section class="section institutions" id="institutions"><div class="section-head"><h2>{t("Institutions","参与机构")}</h2></div>{groups}</section>'
 
 
 def category_ranking(key):
