@@ -1,11 +1,13 @@
 """Render AISLE's bilingual, static GitHub Pages site. Python standard library only."""
 import html
+import hashlib
 import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = json.loads((ROOT / 'data/results.json').read_text())
 MODELS = DATA['models']
+ASSET_VERSION = hashlib.sha256((ROOT/'assets/style.css').read_bytes() + (ROOT/'assets/site.js').read_bytes()).hexdigest()[:12]
 REPO = 'https://github.com/nlz25/AISLE'
 lang = 'en'
 
@@ -64,7 +66,7 @@ def shell(page, title, description, body):
 <meta name="theme-color" content="#f7f5f2"><meta property="og:type" content="website"><meta property="og:title" content="{esc(title)} · AISLE"><meta property="og:description" content="{esc(description)}"><meta property="og:url" content="{url}">
 <meta property="og:image" content="https://nlz25.github.io/AISLE/assets/lab-poster.jpg"><meta name="twitter:card" content="summary_large_image">
 <link rel="canonical" href="{url}"><link rel="alternate" hreflang="en" href="https://nlz25.github.io/AISLE/{page}"><link rel="alternate" hreflang="zh-CN" href="https://nlz25.github.io/AISLE/zh/{page}">
-<link rel="stylesheet" href="{root('assets/style.css')}"><script defer src="{root('assets/site.js')}"></script></head>
+<link rel="stylesheet" href="{root('assets/style.css')}?v={ASSET_VERSION}"><script defer src="{root('assets/site.js')}?v={ASSET_VERSION}"></script></head>
 <body class="{lang}">{header(page)}{body}{model_dialog() if page != 'tasks.html' else ''}{footer()}</body></html>'''
 
 
