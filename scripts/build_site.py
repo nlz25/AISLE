@@ -3,11 +3,12 @@ import html
 import hashlib
 import json
 from pathlib import Path
+from network import network_hero
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = json.loads((ROOT / 'data/results.json').read_text())
 MODELS = DATA['models']
-ASSET_VERSION = hashlib.sha256((ROOT/'assets/style.css').read_bytes() + (ROOT/'assets/site.js').read_bytes()).hexdigest()[:12]
+ASSET_VERSION = hashlib.sha256((ROOT/'assets/style.css').read_bytes() + (ROOT/'assets/site.js').read_bytes() + (ROOT/'assets/observatory.css').read_bytes() + (ROOT/'assets/network.js').read_bytes()).hexdigest()[:12]
 lang = 'en'
 
 
@@ -60,10 +61,10 @@ def shell(page, title, description, body):
     return f'''<!doctype html>
 <html lang="{t('en','zh-CN')}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{esc(title)} · AISLE</title><meta name="description" content="{esc(description)}">
-<meta name="theme-color" content="#f7f5f2"><meta property="og:type" content="website"><meta property="og:title" content="{esc(title)} · AISLE"><meta property="og:description" content="{esc(description)}"><meta property="og:url" content="{url}">
+<meta name="theme-color" content="#10131a"><meta property="og:type" content="website"><meta property="og:title" content="{esc(title)} · AISLE"><meta property="og:description" content="{esc(description)}"><meta property="og:url" content="{url}">
 <meta name="twitter:card" content="summary">
 <link rel="canonical" href="{url}"><link rel="alternate" hreflang="en" href="https://aisle.science/{page}"><link rel="alternate" hreflang="zh-CN" href="https://aisle.science/zh/{page}">
-<link rel="stylesheet" href="{root('assets/style.css')}?v={ASSET_VERSION}"><script defer src="{root('assets/site.js')}?v={ASSET_VERSION}"></script></head>
+<link rel="stylesheet" href="{root('assets/style.css')}?v={ASSET_VERSION}"><link rel="stylesheet" href="{root('assets/observatory.css')}?v={ASSET_VERSION}"><script defer src="{root('assets/site.js')}?v={ASSET_VERSION}"></script>{f'<script defer src="{root("assets/network.js")}?v={ASSET_VERSION}"></script>' if page == "index.html" else ""}</head>
 <body class="{lang}">{header(page)}{body}{results_data() if page != 'tasks.html' else ''}{footer()}</body></html>'''
 
 
@@ -181,10 +182,8 @@ def home():
     tabs = ''.join(f'<button class="tab" role="tab" id="tab-{k}" aria-controls="panel-{k}" aria-selected="{str(i==0).lower()}" tabindex="{0 if i==0 else -1}">{name}</button>' for i,(k,name,*_) in enumerate(categories))
     panels = ''.join(f'<div class="task-panel task-breakdown" id="panel-{k}" role="tabpanel" aria-labelledby="tab-{k}" {"hidden" if i else ""}><div class="task-brief"><span class="badge">{badge}</span><h3>{heading}</h3><p class="task-summary">{summary}</p>{specs(rows)}{link(t("Task details","任务详情"),"tasks.html#"+k)}</div>{category_ranking(k)}</div>' for i,(k,name,heading,summary,badge,rows) in enumerate(categories))
     return f'''<main id="main">
-    <div class="wrap"><section class="hero hero-centered">
-      <h1>AI Scientists' Last Exam</h1>
-      <p class="intro">Nature as the Verifier</p>
-      </section>
+    {network_hero(lang)}
+    <div class="wrap">
       <div class="stats"><div class="stat"><strong><span data-count="4079" data-count-digits="1" aria-hidden="true">4,079</span><span class="sr-only">4,079</span></strong><span>{t('Physical experiments','真实实验')}</span></div><div class="stat"><strong><span data-count="2" data-count-digits="2" aria-hidden="true">02</span><span class="sr-only">02</span></strong><span>{t('Laboratories','实验室')}</span></div><div class="stat"><strong><span data-count="7" data-count-digits="2" aria-hidden="true">07</span><span class="sr-only">07</span></strong><span>{t('Models evaluated','已评测模型')}</span></div><div class="stat"><strong><span data-count="4" data-count-digits="2" aria-hidden="true">04</span><span class="sr-only">04</span></strong><span>{t('Task categories','任务类别')}</span></div></div>
       <p class="scope-note">{t('AISLE includes physical experiments and simulated tasks.','AISLE 包含真实实验与模拟任务。')}</p>
       <section class="section home-leaderboard" id="results"><div class="section-head"><h2>Leaderboard</h2>{link(t('Full leaderboard','完整排行榜'),'leaderboard.html')}</div>{chart_tabs()}</section>

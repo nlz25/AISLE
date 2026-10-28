@@ -28,7 +28,7 @@ class Page(HTMLParser):
         for key in ['aria-controls','data-sort-board','data-status']:
             if a.get(key): self.controls.append(a[key])
         if a.get('data-profile'): self.profiles.append((a['data-profile'],a['data-cohort']))
-        if tag == 'img' and not a.get('alt'): errors.append(f'{self.path}: image missing alt')
+        if tag == 'img' and 'alt' not in a: errors.append(f'{self.path}: image missing alt')
 
 
 pages = {p.resolve(): Page(p) for p in list(ROOT.glob('*.html'))+list((ROOT/'zh').glob('*.html'))}
@@ -68,11 +68,34 @@ for m in models.values():
         expected = sum(m[k] for k in keys)/len(keys)
         if abs(m[cohort]-expected)>0.011: errors.append(f'Aggregate/rounding mismatch: {m["id"]}/{cohort}')
 
-for path in [*ROOT.glob('*.html'),*(ROOT/'zh').glob('*.html'),ROOT/'assets/site.js']:
+network = json.loads((ROOT/'data/network.json').read_text())
+institutions = {item['id']: item for item in network['institutions']}
+countries = {country['id']: country for country in network['countries']}
+if len(institutions) != len(network['institutions']): errors.append('Duplicate network institution id')
+if len(countries) != len(network['countries']): errors.append('Duplicate network country id')
+members = []
+for country in countries.values():
+    if not (-60 <= country['lat'] <= 85 and -180 <= country['lon'] <= 180):
+        errors.append(f'Invalid map coordinates: {country["id"]}')
+    for institution_id in country['institutions']:
+        members.append(institution_id)
+        if institution_id not in institutions or institutions[institution_id]['country'] != country['id']:
+            errors.append(f'Network membership mismatch: {institution_id}/{country["id"]}')
+if sorted(members) != sorted(institutions): errors.append('Each institution must occur in exactly one country group')
+for item in institutions.values():
+    assets = ['institutions/'+item['logo']]
+    if item.get('video'):
+        assets += ['experiments/'+item['video']+suffix for suffix in ['.mp4','.jpg']]
+        for field in ['topic','topicZh','description','descriptionZh','duration']:
+            if not item.get(field): errors.append(f'Missing film metadata: {item["id"]}/{field}')
+    for asset in assets:
+        if not (ROOT/'assets'/asset).is_file(): errors.append(f'Missing network asset: {asset}')
+
+for path in [*ROOT.glob('*.html'),*(ROOT/'zh').glob('*.html'),ROOT/'assets/site.js',ROOT/'assets/network.js',ROOT/'data/network.json']:
     source=path.read_text()
     if re.search(r'(app\.notion\.com|/Users/|gh[op]_[A-Za-z0-9]{20})', source):
         errors.append(f'{path}: internal source detail in public page')
 
 if errors:
     raise SystemExit('\n'.join(errors))
-print(f'PASS: {len(pages)} pages; internal links, anchors, interactive bindings, cohort coverage and rounded scores.')
+print(f'PASS: {len(pages)} pages; links, bindings, cohort scores, {len(countries)} map locations and {len(institutions)} institution/media records.')
