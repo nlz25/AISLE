@@ -151,7 +151,10 @@
 .nav-side .language{border-left:0;padding-left:0}
 .institution-grid{flex-wrap:nowrap}
 
-/* Full project name in the navigation, with a compact mobile treatment. */
+/* Project logo and full name, with a compact mobile treatment. */
+.brand{gap:8px}
+.brand-logo{width:48px;height:48px;object-fit:contain;flex:none}
+.brand-full{min-width:0}
 .brand-full{font:600 23px/1.2 var(--sans);letter-spacing:-.7px;white-space:nowrap}
 .header-inner{gap:24px}
 .stat strong [data-count]{font:inherit;color:inherit;line-height:inherit;margin:0;display:inline;font-variant-numeric:tabular-nums}
@@ -164,3 +167,6 @@
 @media(max-width:1100px){.brand-full{font-size:20px;letter-spacing:-.5px}.header-inner{gap:20px}}
 @media(max-width:780px){.brand-full{font-size:17px;letter-spacing:-.5px;white-space:normal;max-width:240px}.brand{min-width:0;flex-shrink:1}.header-inner{gap:12px}.nav-side{flex-shrink:0}}
 @media(max-width:390px){.brand-full{font-size:16px;max-width:200px}}
+
+@media(max-width:780px){.brand-logo{width:40px;height:40px}.brand{gap:6px}}
+@media(max-width:390px){.brand-logo{width:36px;height:36px}}

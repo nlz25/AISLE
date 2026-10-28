@@ -34,12 +34,11 @@ def link(label, href, cls='text-link'):
 def header(page):
     items = [('index.html', 'Home'), ('leaderboard.html', 'Leaderboard'), ('tasks.html', 'Tasks')]
     nav = ''.join(f'<a href="{url}"{chr(32) + "aria-current=page" if url == page else ""}>{label}</a>' for url, label in items)
-    language_url = '../' + page if lang == 'zh' else 'zh/' + page
     return f'''<a class="skip" href="#main">{t('Skip to content', '跳转到正文')}</a>
     <header class="site-header"><div class="wrap header-inner">
-      <a class="brand" href="index.html" aria-label="AISLE home"><span class="brand-full">AI Scientists' Last Exam</span></a>
+      <a class="brand" href="index.html" aria-label="AISLE home"><img class="brand-logo" src="{root("assets/brand/aisle-a-pivot-symmetric.png")}" alt="AISLE logo" width="48" height="48"><span class="brand-full">AI Scientists' Last Exam</span></a>
       <nav class="nav-links" id="main-navigation" aria-label="{t('Main navigation', '主导航')}">{nav}</nav>
-      <div class="nav-side"><a class="language" href="{language_url}" lang="{t('zh-CN','en')}">{t('CN','EN')}</a>
+      <div class="nav-side">
       <button class="menu-toggle" aria-controls="main-navigation" aria-expanded="false">{t('Menu +','菜单 +')}</button></div>
     </div></header>'''
 
