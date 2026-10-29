@@ -1,9 +1,9 @@
 @font-face {
-  font-family: 'Syne';
+  font-family: 'Space Grotesk';
   font-style: normal;
-  font-weight: 800;
+  font-weight: 300 700;
   font-display: swap;
-  src: url(fonts/syne-800.ttf) format('truetype');
+  src: url(fonts/space-grotesk.ttf) format('truetype');
 }
 /* AISLE observatory — AItonomy's blue-charcoal palette, with a geographic first screen. */
 :root{color-scheme:dark;--paper:#10131a;--white:#171c26;--ink:#e9eae4;--muted:#a4afc0;--line:#e9eae41f;--green:#a0b9ff;--mint:#ffffff07;--blue:#86a5ff;--gold:#deb47d;--surface:#171c26}
@@ -15,8 +15,8 @@ body{background:radial-gradient(ellipse at 85% 3%,#29446116,transparent 32%),rad
 .network-hero{position:relative;isolation:isolate;overflow:clip;padding:25px 0 24px;background:radial-gradient(ellipse at 53% 48%,#29466b24,transparent 65%),radial-gradient(ellipse at 9% 74%,#82634412,transparent 40%),linear-gradient(#10131a,#10151e 65%,#10131a)}
 .network-aurora{position:absolute;inset:-20%;z-index:-2;pointer-events:none;background:radial-gradient(ellipse at 62% 40%,#688bd51e,transparent 40%),radial-gradient(ellipse at 30% 63%,#547b9e17,transparent 35%),radial-gradient(ellipse at 75% 85%,#bd8d4910,transparent 34%);filter:blur(50px);animation:aurora-drift 24s ease-in-out infinite alternate}
 .network-grain{position:absolute;inset:0;z-index:4;pointer-events:none;opacity:.035;mix-blend-mode:overlay;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Cpath fill='%23fff' filter='url(%23n)' d='M0 0h160v160H0z'/%3E%3C/svg%3E")}
-.network-heading{position:relative;z-index:2;text-align:center}.network-eyebrow{font-size:10px;letter-spacing:2.6px;color:#a9b5cb;text-transform:uppercase;margin:0 0 18px}.network-heading h1{font:800 clamp(84px,8vw,116px)/.98 'Syne',var(--sans);letter-spacing:-.045em;margin:0;color:#f5f9ff;text-shadow:0 0 42px #86a5ff14}
-.network-title-line{display:block;white-space:nowrap}.network-title-line:first-child{font-size:.82em;margin-bottom:.04em}.network-title-emphasis{background:linear-gradient(180deg,#ffffff 25%,#d2e4ff 100%);-webkit-background-clip:text;background-clip:text;color:transparent}.network-heading .intro{font:400 clamp(18px,2vw,25px)/1.4 var(--serif);letter-spacing:.3px;color:#b4c6e7;margin:19px 0 0}
+.network-heading{position:relative;z-index:2;text-align:center}.network-eyebrow{font-size:10px;letter-spacing:2.6px;color:#a9b5cb;text-transform:uppercase;margin:0 0 18px}.network-heading h1{font:400 clamp(72px,8.6vw,100px)/1.08 'Space Grotesk',var(--sans);letter-spacing:-.035em;margin:0;color:#f5f9ff;text-shadow:0 0 42px #86a5ff14}
+.network-title-line{display:block;white-space:nowrap}.network-title-line:first-child{font-size:.94em;margin-bottom:.03em}.network-title-emphasis{background:linear-gradient(180deg,#ffffff 25%,#d2e4ff 100%);-webkit-background-clip:text;background-clip:text;color:transparent}.network-heading .intro{font:400 clamp(18px,2vw,25px)/1.4 var(--serif);letter-spacing:.3px;color:#b4c6e7;margin:19px 0 0}
 .network-shell{position:relative;z-index:2}.network-stage{position:relative;height:clamp(400px,calc(100svh - 320px),560px);margin-top:18px;min-height:0}
 .world-map,.map-markers{position:absolute;inset:0}.world-map{pointer-events:none;mask-image:linear-gradient(to bottom,#000 90%,transparent)}.world-map>img{width:100%;height:100%;object-fit:fill;opacity:.82;filter:drop-shadow(0 16px 20px #0005)}
 .world-map:after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 53% 50%,transparent 30%,#10131a66 85%);pointer-events:none}
