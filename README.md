@@ -1,39 +1,54 @@
-# AISLE — AI Scientists’ Last Exam
+# AISLE — AI Scientists' Last Exam
 
-A research website for experimental evaluation of AI scientists, presenting **AISLE** results and evaluated tasks.
+[aisle.science](https://aisle.science/) presents the experimental evaluation of AI scientists. The site is English only, with an interactive research network, experimental films, fixed-cohort leaderboards and task protocols.
 
-**Website:** https://aisle.science/
-**中文:** https://aisle.science/zh/
+## Develop
 
-The first release contains a research homepage, separate shared/full-coverage results, inline model details with category scores, task protocols, an interactive world map with institution profiles and experiment films, and academic/industry institution strips. English and Chinese pages share the same source and data.
-
-## Local development
-
-No application packages or build service are required. Use Python 3.9+ to regenerate static pages:
+Requires Python **3.12+**. Node 22+ is used only for JavaScript syntax checks. The website has no client framework or third-party JavaScript runtime.
 
 ```sh
-python3 scripts/build_site.py
-python3 scripts/check_site.py
-node --check assets/site.js
-node --check assets/network.js
-python3 -m http.server 4173
+make check     # build, validate links/data/media, check JavaScript
+make serve     # serve dist/ at http://127.0.0.1:4173
 ```
 
-Open http://localhost:4173/. GitHub Pages serves the committed files from the root of `main`.
+If your default Python is older, use `make check PYTHON=/path/to/python3.12` (and the same for `make serve`).
 
-## Content
+## Project structure
 
-- [Three-stage roadmap](docs/roadmap.md)
-- [Content and update guide](docs/content-guide.md)
-- [Result provenance and interpretation](docs/data-provenance.md)
-- [Editable results](data/results.json)
+```text
+src/
+  sitegen/
+    pages/          # home, leaderboard and tasks
+    components/     # layout, portal, map, result tables, institutions
+    context.py      # build paths, study data and HTML escaping
+  styles/           # base components, dark theme, entrance
+  scripts/          # navigation, view loading, portal, globe, research, map
+public/             # files copied into the deployed website
+  assets/           # optimized artwork, fonts, logos, map, films
+  CNAME             # aisle.science
+  favicon.png
+  apple-touch-icon.png
+data/               # study scores and research-network metadata
+scripts/            # build, validation and optional asset tools
+design/             # original artwork, map source and archived demo files
+docs/               # architecture, content and media provenance
+.github/workflows/  # validation and GitHub Pages deployment
+dist/               # generated output; ignored by Git
+```
 
-The website snapshot describes an evaluated research cohort, not a live ranking of current models. Only evaluated tasks are featured in the MVP. This website repository is separate from the experimental evaluation package and its eventual data/code release.
+Edit `src/`, `public/` and `data/`. Never edit `dist/`. Every build starts from a clean output directory; only that output is deployed. Original media and design experiments are excluded from publication.
 
-The original `demo.mp4` and `framework.png` are retained from the previous demonstration page. Copyright and permissions for research media remain with their respective owners; this repository does not grant a blanket license to third-party media.
+## Publication
 
-The navigation uses Home, Leaderboard and Tasks. The homepage opens with a dark world map in AItonomy’s blue-charcoal palette (`#10131a`). Select a country and institution to view its identity and available experiment film; the ranked model rows follow the map and study statistics. Existing category scores and evaluated cohorts are unchanged. English and Chinese pages remain available at their direct URLs without a language toggle.
+Push to `main` to run `.github/workflows/pages.yml`: build → validate → upload `dist/` → deploy to GitHub Pages. Pull requests run the same checks without publishing. Pages is configured to use GitHub Actions; the custom domain remains `aisle.science`.
 
-The map is generated from Natural Earth’s public-domain land polygons, without political borders. [Network and film metadata](data/network.json) is independent of the evaluated model/experiment data. The current map contains ten academic institutions in six countries; four institutions have supplied films. These counts describe the presented research network, not the coverage of the scored benchmark.
+## Documentation
 
-Original logos and laboratory footage are retained. Optimized H.264 viewing copies and frame-extracted posters live in `assets/experiments/`; video is fetched only when a visitor opens the player. See [media provenance and update instructions](docs/network-media.md).
+- [Architecture and performance](docs/architecture.md)
+- [Editing content](docs/content-guide.md)
+- [Score provenance](docs/data-provenance.md)
+- [Research films](docs/network-media.md)
+- [Entrance artwork](docs/portal-art.md)
+- [Roadmap](docs/roadmap.md)
+
+Scores describe an evaluated research cohort, not a live ranking of current models. The research network's six countries and ten institutions do not describe coverage of the scored benchmark. Original logos and laboratory footage retain their respective owners' rights.

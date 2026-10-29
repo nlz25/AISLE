@@ -2,17 +2,90 @@
   "study": "AISLE",
   "snapshotDate": "2026-10-27",
   "evaluationDate": null,
-  "scoreRange": [0, 100],
+  "scoreRange": [
+    0,
+    100
+  ],
   "physicalExperiments": 4079,
   "evaluatedLabSites": 2,
   "notes": "Study snapshot, not a continuously updated frontier-model ranking. Displayed category scores are rounded; aggregate scores retain the manuscript values computed before rounding. N/A means not evaluated. Evaluation dates and inference settings are not inferred from defaults.",
   "models": [
-    {"id":"gpt","name":"GPT 5.5","organization":"OpenAI","optimization":25.95,"safety":33.33,"robustness":74.92,"multimodal":33.86,"shared":44.73,"full":42.02},
-    {"id":"glm","name":"GLM 5.1","organization":"Z.ai","optimization":23.80,"safety":4.44,"robustness":68.57,"multimodal":null,"shared":32.27,"full":null},
-    {"id":"qwen","name":"Qwen 3.6 Plus","organization":"Qwen","optimization":26.13,"safety":4.44,"robustness":65.16,"multimodal":17.71,"shared":31.91,"full":28.36},
-    {"id":"claude","name":"Claude Sonnet 4.6","organization":"Anthropic","optimization":10.27,"safety":8.89,"robustness":52.58,"multimodal":25.27,"shared":23.91,"full":24.25},
-    {"id":"gemini","name":"Gemini 3.1 Pro Preview","organization":"Google","optimization":28.47,"safety":0,"robustness":29.28,"multimodal":20.42,"shared":19.25,"full":19.54},
-    {"id":"deepseek","name":"DeepSeek V4 Pro","organization":"DeepSeek","optimization":13.83,"safety":0,"robustness":37.32,"multimodal":null,"shared":17.05,"full":null},
-    {"id":"kimi","name":"Kimi K2.6","organization":"Moonshot AI","optimization":7,"safety":0,"robustness":34.73,"multimodal":22.62,"shared":13.91,"full":16.09}
+    {
+      "id": "gpt",
+      "name": "GPT 5.5",
+      "organization": "OpenAI",
+      "optimization": 25.95,
+      "safety": 33.33,
+      "robustness": 74.92,
+      "multimodal": 33.86,
+      "shared": 44.73,
+      "full": 42.02
+    },
+    {
+      "id": "glm",
+      "name": "GLM 5.1",
+      "organization": "Z.ai",
+      "optimization": 23.8,
+      "safety": 4.44,
+      "robustness": 68.57,
+      "multimodal": null,
+      "shared": 32.27,
+      "full": null
+    },
+    {
+      "id": "qwen",
+      "name": "Qwen 3.6 Plus",
+      "organization": "Qwen",
+      "optimization": 26.13,
+      "safety": 4.44,
+      "robustness": 65.16,
+      "multimodal": 17.71,
+      "shared": 31.91,
+      "full": 28.36
+    },
+    {
+      "id": "claude",
+      "name": "Claude Sonnet 4.6",
+      "organization": "Anthropic",
+      "optimization": 10.27,
+      "safety": 8.89,
+      "robustness": 52.58,
+      "multimodal": 25.27,
+      "shared": 23.91,
+      "full": 24.25
+    },
+    {
+      "id": "gemini",
+      "name": "Gemini 3.1 Pro Preview",
+      "organization": "Google",
+      "optimization": 28.47,
+      "safety": 0,
+      "robustness": 29.28,
+      "multimodal": 20.42,
+      "shared": 19.25,
+      "full": 19.54
+    },
+    {
+      "id": "deepseek",
+      "name": "DeepSeek V4 Pro",
+      "organization": "DeepSeek",
+      "optimization": 13.83,
+      "safety": 0,
+      "robustness": 37.32,
+      "multimodal": null,
+      "shared": 17.05,
+      "full": null
+    },
+    {
+      "id": "kimi",
+      "name": "Kimi K2.6",
+      "organization": "Moonshot AI",
+      "optimization": 7,
+      "safety": 0,
+      "robustness": 34.73,
+      "multimodal": 22.62,
+      "shared": 13.91,
+      "full": 16.09
+    }
   ]
 }

@@ -3,7 +3,7 @@
 The entrance is a conceptual illustration, not footage or a photograph of participating laboratories. Institution logos, experiment footage, scores and locations are unchanged.
 
 - Mode: built-in `image_gen`, transparent background.
-- Asset: `assets/portal/robot-earth.png` (1672 × 941, RGBA; original generated alpha preserved).
+- Asset: `design/originals/assets/portal/robot-earth.png` (1672 × 941, RGBA; original generated alpha preserved).
 - The original generated image is retained separately. No API/CLI generation or raster repainting was used.
 - HTML supplies all text and the ENTER link. CSS supplies light, grain and slow motion. The generated illustration supplies the robot, clipped in layout without modifying the original raster. Its Earth remains the static fallback.
 
@@ -13,13 +13,13 @@ The live Earth is a WebGL sphere with locally hosted NASA Blue Marble surface, c
 
 Source: [NASA Earth Observatory — The Blue Marble (2002)](https://science.nasa.gov/earth/earth-observatory/the-blue-marble-true-color-global-imagery-at-1km-resolution/). Imagery credit: NASA Goddard Space Flight Center; Reto Stöckli and Robert Simmon. These historical textures are illustrative, not live satellite/weather information or an institutional affiliation.
 
-- `assets/portal/earth-surface.jpg`: original 2048 × 1024 [surface texture](https://assets.science.nasa.gov/content/dam/science/esd/eo/content-feature/bluemarble/images/land_ocean_ice_2048.jpg).
-- `assets/portal/earth-clouds.jpg`: original 2048 × 1024 [cloud texture](https://assets.science.nasa.gov/content/dam/science/esd/eo/content-feature/bluemarble/images/cloud_combined_2048.jpg).
+- `design/originals/assets/portal/earth-surface.jpg`: original 2048 × 1024 [surface texture](https://assets.science.nasa.gov/content/dam/science/esd/eo/content-feature/bluemarble/images/land_ocean_ice_2048.jpg).
+- `design/originals/assets/portal/earth-clouds.jpg`: original 2048 × 1024 [cloud texture](https://assets.science.nasa.gov/content/dam/science/esd/eo/content-feature/bluemarble/images/cloud_combined_2048.jpg).
 - No new generated imagery or bitmap editing was used for this revision. The shader, atmospheric rim, lighting, pointer interaction and luminous ENTER control are native website rendering.
 
 The close orbital composition places the sphere centre outside the bottom-right of the viewport. The renderer draws only the visible area, with a thin atmospheric rim and a backlit sunrise; pointer and keyboard rotation remain available. The stock-video preview supplied as a visual reference is not a website asset.
 
-- `assets/portal/earth-night.jpg`: original 2048 × 1024 [NASA night-light texture](https://assets.science.nasa.gov/content/dam/science/esd/eo/content-feature/bluemarble/images/land_ocean_ice_lights_2048.jpg).
+- `design/originals/assets/portal/earth-night.jpg`: original 2048 × 1024 [NASA night-light texture](https://assets.science.nasa.gov/content/dam/science/esd/eo/content-feature/bluemarble/images/land_ocean_ice_lights_2048.jpg).
 
 ## Generation prompt
 
@@ -41,3 +41,7 @@ Constraints: transparent alpha background including between fingers and around o
 The root homepage opens on the entrance. ENTER navigates to `#network`; direct section links and browser Back/Forward remain usable. Without JavaScript the entrance link scrolls to the already-rendered map. Reduced-motion preferences disable travel and transition effects.
 
 The moving lights on map connections are decorative representations of the research network, not live data transfers or measured experimental activity. Their endpoints use the same coordinates as the country markers. They stop when the map is offscreen or the browser tab is hidden.
+
+## Delivery assets
+
+The browser uses optimized WebP copies in `public/assets/portal/`. Originals above are preserved outside the deployment output. `scripts/optimize_assets.py` regenerates these copies. Typography and the interactive core remain HTML/CSS.

@@ -1,71 +1,32 @@
-# Updating AISLE
+# Editing the AISLE website
 
-## Where to edit
+## Source of truth
 
-- `data/results.json`: first-stage category and aggregate scores, scope and snapshot date.
-- `scripts/build_site.py`: English/Chinese copy, task specifications and chart rendering.
-- `assets/style.css`: base visual system and responsive layouts.
-- `assets/observatory.css`: dark palette, world map, video player and responsive overrides.
-- `data/network.json`: country groups, institution identities and optional experiment-film metadata.
-- `scripts/network.py` and `assets/network.js`: research map markup and interactions.
-- `assets/experiments/`: optimized supplied films and their posters.
-- `assets/site.js`: mobile navigation, accessible tabs, sorting and model details.
-- `assets/lab-demo.mp4`: lighter viewing copy of the original `demo.mp4`.
-- `assets/lab-poster.jpg`: a frame from the original laboratory recording, retained for future use.
-- `framework.png`: the original framework already present in the repository.
+| Content | Edit |
+| --- | --- |
+| Homepage sections | `src/sitegen/pages/home.py` |
+| Leaderboard page | `src/sitegen/pages/leaderboard.py` |
+| Task protocols/scoring | `src/sitegen/pages/tasks.py` |
+| Shared header/footer/metadata | `src/sitegen/components/layout.py` |
+| Entrance markup | `src/sitegen/components/portal.py` |
+| Results/chart markup | `src/sitegen/components/results.py` |
+| Study scores and model names | `data/results.json` |
+| Countries, institutions, film metadata | `data/network.json` |
+| Institution credits | `data/institutions.json` |
+| Base components and dark theme | `src/styles/base.css`, `src/styles/theme.css` |
+| Entrance presentation | `src/styles/portal.css` |
+| Browser interactions | `src/scripts/` |
 
-Run `python3 scripts/build_site.py` after changing data or page copy. The generated HTML files are committed so GitHub Pages needs no build dependencies. Results are explored through the clickable leaderboard and inline score details; the website has no CSV download interface.
+The site is English only. Keep the original study scores and task claims intact. Seven models share three categories; five have full coverage. Unmeasured results stay N/A. The network's institution counts are independent of benchmark coverage.
 
-## Before adding a task
+## Workflow
 
-Fill in: scientific goal; allowed actions and variable ranges; observations; physical/simulated/measured-data environment; budget; stopping rules; success thresholds; repeats; scoring version; evidence links; current readiness.
+1. Edit source files or data, then run `make check` with Python 3.12+.
+2. Run `make serve` and inspect the changed pages at desktop and mobile widths.
+3. For score changes, check cohort/category ordering and model detail panels.
+4. For network changes, check locations, institution identity and film playback.
+5. Commit the source changes and push to `main`. The Pages workflow builds and deploys `dist/`.
 
-Do not add a development direction to an established leaderboard until the evaluation coverage and scoring rules support it.
+Do not commit generated `dist/` files. Add delivery assets to `public/assets/`, originals to `design/originals/`, and record their provenance. Optional regeneration of the current image/font delivery copies uses `python scripts/optimize_assets.py` after installing `requirements-dev.txt`.
 
-## Before updating results
-
-Record the evaluation configuration and date when known. Keep `snapshotDate` separate from the dates on which experiments were conducted. Do not infer missing API parameters from provider defaults. Keep unmeasured entries as `null` (shown as N/A), not zero.
-
-The shared index averages three categories. The full index includes multimodal scores and only models with complete coverage. Preserve original aggregate values computed before display rounding; do not recompute published numbers from rounded cells without checking the source.
-
-## Assets and public releases
-
-Use original equipment photographs and recordings. Label conceptual illustrations. Keep captions tied to actual sites and tasks. Public paper, code, dataset and citation links should be added only when they are available. Internal planning pages, local paths, unpublished reference answers and credentials do not belong in the public site.
-
-## Release checks
-
-```sh
-python3 scripts/build_site.py
-python3 scripts/check_site.py
-node --check assets/site.js
-node --check assets/network.js
-python3 -m http.server 4173
-```
-
-Preview the site in desktop and mobile browsers. Check the two language versions, mobile navigation, keyboard tabs, cohort switching, category ordering, model detail panels, and N/A states. Pages are hosted from `main` at `https://aisle.science/`.
-
-## MVP structure
-
-Home → interactive world map → study statistics → Leaderboard → Task Breakdown → Institutions. `tasks.html` contains task protocols and scoring, replacing the standalone Methodology page. Preserve model logos from `assets/logos/`. The x-axis is categorical; no release dates or harness settings are inferred.
-
-Laboratory footage is available through institution cards on the map. Keep films optional: institutions without supplied media show their identity and location without invented experiment claims. See `docs/network-media.md`.
-
-Keep homepage copy factual and concise: benchmark purpose, evaluated coverage, named tasks and results. Model details expand within the leaderboard, without an overlay, scroll lock or automatic page jump.
-
-## Institutions and score filters
-
-`data/institutions.json` defines the two homepage groups (Academic Institutions and Industry), bilingual display names and logo filenames. Original supplied PNGs are kept in `assets/institutions/`. The combined logo strip and PowerPoint file are not published; each institution uses its individual asset. BEARS is confirmed as a separate institution, distinct from UC Berkeley.
-
-Leaderboard header buttons switch between the existing aggregate and individual category scores, reordering the same cohort. Ties share a rank; missing results remain N/A and sort last. Category views use the category score itself on a 0–100 scale, while Overall retains equal-weight contributions. These are category aggregates, not new per-experiment or environment-specific scores.
-
-The homepage uses a blue-charcoal background, a geographic map and restrained ambient light/pin animation. The centered title and “Nature as the Verifier” subtitle remain. Reduced-motion preferences disable ambient motion.
-
-Institution logos use a continuous horizontal strip with edge fades and pause-on-hover. The duplicated academic list is hidden from assistive technology. With only one industry member, GreenDynamics remains static without duplicating companies. Reduced-motion preferences stop both animations and leave the academic strip manually scrollable.
-
-Public-facing branding is AISLE throughout. Repository and GitHub Issues links remain hidden until the project repository is ready. Language controls remain hidden; the Chinese pages are available at their direct URLs. Both institution groups remain single horizontal rows on every viewport, without a visible pause button.
-
-The header uses the full project name. Footer snapshot text is hidden. Leaderboard rows and category segments show non-modal hover/focus previews; touch/click still opens inline details. Aggregate segments distinguish category scores from their weighted contribution. Homepage statistics count once to the unchanged final values over 1.1 seconds, with static accessible values and a reduced-motion fallback.
-
-Verify all country groups, institution switching, video playback and Escape/close behavior in addition to the ranking controls. Videos should not be requested before opening a player, and closing must pause/unload the source. Check 320 px, 390 px and desktop layouts for horizontal overflow.
-
-The main title uses the locally hosted Syne ExtraBold display face, split into two lines with title case preserved. Its OFL license is kept with the font. Category fills use brighter blue, gold, teal and violet; update the shared palette in both `scripts/build_site.py` and `assets/site.js` so category switching stays visually consistent. Decorative highlights belong in `assets/observatory.css` and must not alter bar widths or scores.
+The entrance title remains a single line with a straight apostrophe. Branding stays at the left edge and navigation at the right. Category colors in `src/sitegen/components/results.py` and `src/scripts/research.js` must agree; bar lengths must always represent the underlying scores.

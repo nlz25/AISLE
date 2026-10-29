@@ -3,7 +3,6 @@
     {
       "id": "us",
       "en": "United States",
-      "zh": "美国",
       "lat": 37.87,
       "lon": -122.26,
       "institutions": [
@@ -13,7 +12,6 @@
     {
       "id": "ca",
       "en": "Canada",
-      "zh": "加拿大",
       "lat": 43.66,
       "lon": -79.4,
       "institutions": [
@@ -23,7 +21,6 @@
     {
       "id": "ch",
       "en": "Switzerland",
-      "zh": "瑞士",
       "lat": 46.52,
       "lon": 6.57,
       "institutions": [
@@ -33,7 +30,6 @@
     {
       "id": "cn",
       "en": "China",
-      "zh": "中国",
       "lat": 31.3,
       "lon": 120.58,
       "institutions": [
@@ -46,7 +42,6 @@
     {
       "id": "sg",
       "en": "Singapore",
-      "zh": "新加坡",
       "lat": 1.3,
       "lon": 103.78,
       "institutions": [
@@ -57,7 +52,6 @@
     {
       "id": "au",
       "en": "Australia",
-      "zh": "澳大利亚",
       "lat": -33.92,
       "lon": 151.23,
       "institutions": [
@@ -69,125 +63,97 @@
     {
       "id": "suzhou",
       "name": "Suzhou National Laboratory",
-      "zh": "苏州国家实验室",
       "short": "Suzhou National Laboratory",
-      "logo": "SZLAB.png",
+      "logo": "SZLAB.webp",
       "city": "Suzhou",
-      "cityZh": "苏州",
       "country": "cn",
       "video": "suzhou",
       "topic": "Colour matching",
-      "topicZh": "颜色匹配",
       "description": "Robotic liquid handling and experimental colour matching.",
-      "descriptionZh": "机器人液体操作与真实实验颜色匹配。",
       "duration": "00:19"
     },
     {
       "id": "bears",
       "name": "Berkeley Education Alliance for Research in Singapore",
-      "zh": "伯克利新加坡科研教育联盟",
       "short": "BEARS",
-      "logo": "BEARS.png",
+      "logo": "BEARS.webp",
       "city": "Singapore",
-      "cityZh": "新加坡",
       "country": "sg",
       "video": "bears",
       "topic": "Colour matching & resin transfer",
-      "topicZh": "颜色匹配与树脂转移",
       "description": "Colour formulation and resin-transfer experiments.",
-      "descriptionZh": "颜色配方与树脂转移实验。",
       "duration": "00:25"
     },
     {
       "id": "csu",
       "name": "Central South University",
-      "zh": "中南大学",
       "short": "Central South University",
-      "logo": "CSU.png",
+      "logo": "CSU.webp",
       "city": "Changsha",
-      "cityZh": "长沙",
       "country": "cn",
       "video": "csu",
       "topic": "Copper-alloy heat treatment",
-      "topicZh": "铜基合金热处理",
       "description": "Experimental heat treatment of copper-based alloys.",
-      "descriptionZh": "铜基合金的实验热处理。",
       "duration": "00:07"
     },
     {
       "id": "unsw",
       "name": "University of New South Wales",
-      "zh": "新南威尔士大学",
       "short": "UNSW Sydney",
-      "logo": "UNSW.png",
+      "logo": "UNSW.webp",
       "city": "Sydney",
-      "cityZh": "悉尼",
       "country": "au",
       "video": "unsw",
       "topic": "Coloured photovoltaics",
-      "topicZh": "彩色光伏",
       "description": "Experimental research on coloured photovoltaic devices.",
-      "descriptionZh": "彩色光伏器件的实验研究。",
       "duration": "00:25"
     },
     {
       "id": "ustc",
       "name": "University of Science and Technology of China",
-      "zh": "中国科学技术大学",
       "short": "USTC",
-      "logo": "USTC.png",
+      "logo": "USTC.webp",
       "city": "Hefei",
-      "cityZh": "合肥",
       "country": "cn"
     },
     {
       "id": "szu",
       "name": "Shenzhen University",
-      "zh": "深圳大学",
       "short": "Shenzhen University",
-      "logo": "SZU.png",
+      "logo": "SZU.webp",
       "city": "Shenzhen",
-      "cityZh": "深圳",
       "country": "cn"
     },
     {
       "id": "ntu",
       "name": "Nanyang Technological University",
-      "zh": "南洋理工大学",
       "short": "NTU Singapore",
-      "logo": "NTU.png",
+      "logo": "NTU.webp",
       "city": "Singapore",
-      "cityZh": "新加坡",
       "country": "sg"
     },
     {
       "id": "epfl",
       "name": "École polytechnique fédérale de Lausanne",
-      "zh": "洛桑联邦理工学院",
       "short": "EPFL",
-      "logo": "EPFL.png",
+      "logo": "EPFL.webp",
       "city": "Lausanne",
-      "cityZh": "洛桑",
       "country": "ch"
     },
     {
       "id": "berkeley",
       "name": "University of California, Berkeley",
-      "zh": "加州大学伯克利分校",
       "short": "UC Berkeley",
-      "logo": "UCBerkeley.png",
+      "logo": "UCBerkeley.webp",
       "city": "Berkeley",
-      "cityZh": "伯克利",
       "country": "us"
     },
     {
       "id": "toronto",
       "name": "University of Toronto",
-      "zh": "多伦多大学",
       "short": "University of Toronto",
-      "logo": "UofT.png",
+      "logo": "UofT.webp",
       "city": "Toronto",
-      "cityZh": "多伦多",
       "country": "ca"
     }
   ]

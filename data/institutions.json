@@ -1,71 +1,60 @@
 {
   "academic": [
     {
-      "logo": "SZLAB.png",
+      "logo": "SZLAB.webp",
       "en": "Suzhou National Laboratory",
-      "zh": "苏州国家实验室",
       "shape": "wide"
     },
     {
-      "logo": "USTC.png",
+      "logo": "USTC.webp",
       "en": "USTC",
-      "zh": "中国科学技术大学",
       "shape": ""
     },
     {
-      "logo": "BEARS.png",
+      "logo": "BEARS.webp",
       "en": "BEARS",
-      "zh": "BEARS",
       "shape": ""
     },
     {
-      "logo": "UNSW.png",
+      "logo": "UNSW.webp",
       "en": "UNSW Sydney",
-      "zh": "新南威尔士大学",
       "shape": ""
     },
     {
-      "logo": "EPFL.png",
+      "logo": "EPFL.webp",
       "en": "EPFL",
-      "zh": "洛桑联邦理工学院",
       "shape": "wide"
     },
     {
-      "logo": "CSU.png",
+      "logo": "CSU.webp",
       "en": "Central South University",
-      "zh": "中南大学",
       "shape": ""
     },
     {
-      "logo": "SZU.png",
+      "logo": "SZU.webp",
       "en": "Shenzhen University",
-      "zh": "深圳大学",
       "shape": ""
     },
     {
-      "logo": "NTU.png",
+      "logo": "NTU.webp",
       "en": "Nanyang Technological University",
-      "zh": "南洋理工大学",
       "shape": ""
     },
     {
-      "logo": "UCBerkeley.png",
+      "logo": "UCBerkeley.webp",
       "en": "UC Berkeley",
-      "zh": "加州大学伯克利分校",
       "shape": ""
     },
     {
-      "logo": "UofT.png",
+      "logo": "UofT.webp",
       "en": "University of Toronto",
-      "zh": "多伦多大学",
       "shape": ""
     }
   ],
   "industry": [
     {
-      "logo": "GreenDynamics.png",
+      "logo": "GreenDynamics.webp",
       "en": "GreenDynamics",
-      "zh": "GreenDynamics",
       "shape": "wide"
     }
   ]
