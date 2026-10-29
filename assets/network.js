@@ -68,4 +68,53 @@
   dialog.addEventListener('close',()=>{video.pause();video.removeAttribute('src');video.load();opener?.focus({preventScroll:true});});
   video.addEventListener('error',()=>{if(video.hasAttribute('src'))error.hidden=false;});
   selectCountry('cn',false);
+
+  // Decorative traveling lights, not live experimental traffic. Geometry is sampled
+  // once, then only transforms/opacity change at 30 fps while the map is visible.
+  const svg=document.querySelector('.network-arcs');
+  const particles=svg.querySelector('.network-flow-particles');
+  const reduced=matchMedia('(prefers-reduced-motion: reduce)');
+  const routes=[...svg.querySelectorAll('.network-route')].map((path,index)=>{
+    const length=path.getTotalLength();
+    const samples=Array.from({length:301},(_,i)=>path.getPointAtLength(length*i/300));
+    const group=document.createElementNS('http://www.w3.org/2000/svg','g');
+    const dots=Array.from({length:8},(_,i)=>{
+      const dot=document.createElementNS('http://www.w3.org/2000/svg','circle');
+      dot.setAttribute('r',i===0?'7':i===1?'2.4':String(2.1-(i-2)*.22));
+      dot.setAttribute('class',i===0?'network-flow-halo':i===1?'network-flow':'network-flow-tail');
+      if(index===3)dot.classList.add('network-flow-warm');
+      group.append(dot);return dot;
+    });
+    particles.append(group);
+    return {samples,dots,duration:9000+index*1200,offset:index*.21};
+  });
+  let visible=false,frame=0,lastTime=0,elapsed=0;
+  const canAnimate=()=>visible&&!document.hidden&&!reduced.matches&&!document.getElementById('research-content')?.hidden;
+  function draw(time){
+    if(!canAnimate()){frame=0;lastTime=0;return;}
+    if(!lastTime)lastTime=time-34;
+    if(time-lastTime>=32){
+      elapsed+=Math.min(time-lastTime,100);lastTime=time;
+      routes.forEach(route=>{
+        const progress=(elapsed/route.duration+route.offset)%1;
+        route.dots.forEach((dot,index)=>{
+          const p=(progress-Math.max(0,index-1)*.009+1)%1;
+          const position=p*300,from=Math.floor(position),mix=position-from;
+          const a=route.samples[from],b=route.samples[Math.min(300,from+1)];
+          dot.setAttribute('transform',`translate(${a.x+(b.x-a.x)*mix} ${a.y+(b.y-a.y)*mix})`);
+          dot.style.opacity=String(Math.min(1,p*16,(1-p)*16)*(index>1?(8-index)/7:1));
+        });
+      });
+    }
+    frame=requestAnimationFrame(draw);
+  }
+  function syncMotion(){
+    const moving=canAnimate();particles.classList.toggle('is-moving',moving);
+    if(moving&&!frame)frame=requestAnimationFrame(draw);
+    else if(!moving&&frame){cancelAnimationFrame(frame);frame=0;lastTime=0;}
+  }
+  new IntersectionObserver(entries=>{visible=entries[0].isIntersecting;syncMotion();},{threshold:.05}).observe(svg);
+  document.addEventListener('visibilitychange',syncMotion);
+  document.addEventListener('aisle:viewchange',syncMotion);
+  reduced.addEventListener('change',syncMotion);
 })();

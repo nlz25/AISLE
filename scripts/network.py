@@ -18,15 +18,23 @@ def network_hero(lang):
         pins.append(f'<button class="map-pin pin-{c["id"]}" style="--x:{x:.3f}%;--y:{y:.3f}%" data-country="{c["id"]}" aria-pressed="{str(active).lower()}" aria-controls="network-inspector" aria-label="{esc(label)} · {n} {count_label}"><span class="pin-core"></span><span class="pin-label">{esc(label)}<small>{n} {count_label}</small></span></button>')
         countries.append(f'<button class="country-option" data-country="{c["id"]}" aria-pressed="{str(active).lower()}" aria-controls="network-inspector">{esc(label)}<span>{n:02}</span></button>')
     first=data['institutions'][0]
+    # Paths share coordinates with the country pins; curves are visual network links.
+    points={c['id']:((c['lon']+180)/360*1200,(85-c['lat'])/145*560) for c in data['countries']}
+    arcs=[]
+    for index,(start,end,lift) in enumerate([('us','ca',-65),('ca','ch',-95),('ch','cn',-110),('cn','sg',20),('sg','au',-75)]):
+        x1,y1=points[start];x2,y2=points[end]
+        d=f'M{x1:.2f} {y1:.2f} Q{(x1+x2)/2:.2f} {min(y1,y2)+lift:.2f} {x2:.2f} {y2:.2f}'
+        arcs.append(f'<path class="network-route" id="network-route-{index}" data-route-from="{start}" data-route-to="{end}" d="{d}"/>')
+    routes=''.join(arcs)
     map_version=hashlib.sha256((ROOT/'assets/map/world.svg').read_bytes()).hexdigest()[:10]
     payload=json.dumps(data,ensure_ascii=False).replace('<','\\u003c')
-    return f'''<section class="network-hero" aria-labelledby="network-title">
+    return f'''<section class="network-hero" id="network" aria-labelledby="network-title">
       <div class="network-aurora" aria-hidden="true"></div><div class="network-grain" aria-hidden="true"></div>
-      <div class="network-heading wrap"><h1 id="network-title"><span class="network-title-line">AI Scientists'</span> <span class="network-title-line network-title-emphasis">Last Exam</span></h1><p class="intro">Nature as the Verifier</p></div>
+      <div class="network-view-head wrap"><div><p>AISLE / {t('INSTITUTIONS','参与机构')}</p><h2 id="network-title" tabindex="-1">{t('Global research network','全球科研网络')}</h2></div><a class="network-return" href="#entrance">← {t('Back to entrance','返回入口')}</a></div>
       <div class="network-shell wrap">
         <div class="network-stage">
           <div class="map-caption"><span class="status-dot"></span>{t('Global research network','全球科研网络')}<span class="map-caption-rule"></span><span>{t('Select a location to explore','选择地点，探索实验')}</span></div>
-          <div class="world-map" aria-hidden="true"><div class="map-glow"></div><img src="{asset('map/world.svg')}?v={map_version}" alt="" width="1200" height="560" fetchpriority="high"><svg class="network-arcs" viewBox="0 0 1200 560" preserveAspectRatio="none"><path d="M192 182 Q330 48 335 160 M335 160 Q475 40 622 148 M622 148 Q810 60 1002 207 M1002 207 Q1030 265 946 323 M946 323 Q1050 310 1104 459"/><path class="arc-light" d="M622 148 Q810 60 1002 207 M1002 207 Q1030 265 946 323"/></svg><div class="map-equator"></div></div>
+          <div class="world-map" aria-hidden="true"><div class="map-glow"></div><img src="{asset('map/world.svg')}?v={map_version}" alt="" width="1200" height="560"><svg class="network-arcs" viewBox="0 0 1200 560" preserveAspectRatio="none">{routes}<g class="network-flow-particles"></g></svg><div class="map-equator"></div></div>
           <div class="map-markers">{''.join(pins)}</div>
           <aside id="network-inspector" class="network-inspector" aria-label="{t('Selected institution','已选机构')}">
             <div class="inspector-topline"><span id="network-location">{t('Suzhou, China','中国 · 苏州')}</span><span class="inspector-number" aria-hidden="true">01 / 04</span></div>
