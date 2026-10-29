@@ -10,6 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 DATA = json.loads((ROOT / 'data/results.json').read_text())
 MODELS = DATA['models']
 ASSET_VERSION = hashlib.sha256(b''.join((ROOT/'assets'/asset).read_bytes() for asset in ['style.css','site.js','observatory.css','network.js','portal.css','portal.js','globe.js'])).hexdigest()[:12]
+ICON_VERSION = hashlib.sha256((ROOT/'favicon.png').read_bytes()).hexdigest()[:12]
 lang = 'en'
 
 
@@ -64,6 +65,8 @@ def shell(page, title, description, body):
 <title>{esc(title)} · AISLE</title><meta name="description" content="{esc(description)}">
 <meta name="theme-color" content="#10131a"><meta property="og:type" content="website"><meta property="og:title" content="{esc(title)} · AISLE"><meta property="og:description" content="{esc(description)}"><meta property="og:url" content="{url}">
 <meta name="twitter:card" content="summary">
+<link rel="icon" type="image/png" sizes="1254x1254" href="{root('favicon.png')}?v={ICON_VERSION}">
+<link rel="apple-touch-icon" href="{root('favicon.png')}?v={ICON_VERSION}">
 <link rel="canonical" href="{url}"><link rel="alternate" hreflang="en" href="https://aisle.science/{page}"><link rel="alternate" hreflang="zh-CN" href="https://aisle.science/zh/{page}">
 {f'<link rel="preload" href="{root("assets/fonts/space-grotesk.ttf")}" as="font" type="font/ttf" crossorigin>' if page == "index.html" else ''}
 <link rel="stylesheet" href="{root('assets/style.css')}?v={ASSET_VERSION}"><link rel="stylesheet" href="{root('assets/observatory.css')}?v={ASSET_VERSION}">{f'<link rel="stylesheet" href="{root("assets/portal.css")}?v={ASSET_VERSION}"><script defer src="{root("assets/portal.js")}?v={ASSET_VERSION}"></script><script defer src="{root("assets/globe.js")}?v={ASSET_VERSION}"></script>' if page == 'index.html' else ''}<script defer src="{root('assets/site.js')}?v={ASSET_VERSION}"></script>{f'<script defer src="{root("assets/network.js")}?v={ASSET_VERSION}"></script>' if page == "index.html" else ""}</head>
