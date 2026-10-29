@@ -14,7 +14,7 @@ def entrance(lang):
       <div class="portal-stars" aria-hidden="true"></div>
       <div class="portal-grain network-grain" aria-hidden="true"></div>
       <div class="portal-heading wrap">
-        <h1 id="portal-title"><span>AI Scientists'</span> <span>Last Exam</span></h1>
+        <h1 id="portal-title">AI Scientists<span class="portal-apostrophe">'</span> <span class="portal-title-ending">Last Exam</span></h1>
         <p>Nature as the Verifier</p>
       </div>
         <div class="portal-globe" data-texture="{prefix}assets/portal/earth-surface.jpg" data-clouds="{prefix}assets/portal/earth-clouds.jpg" data-night="{prefix}assets/portal/earth-night.jpg">

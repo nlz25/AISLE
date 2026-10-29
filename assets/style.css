@@ -170,3 +170,9 @@
 
 @media(max-width:780px){.brand-logo{width:40px;height:40px}.brand{gap:6px}}
 @media(max-width:390px){.brand-logo{width:36px;height:36px}}
+
+/* Anchor the brand and navigation to the viewport edges on every page. */
+.site-header .header-inner{width:100%;padding-inline:clamp(12px,2vw,32px)}
+.header-inner .nav-links{margin-left:auto}
+.header-inner .nav-side{display:none}
+@media(max-width:780px){.header-inner .nav-side{display:flex;margin-left:auto}}
