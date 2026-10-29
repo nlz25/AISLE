@@ -6,6 +6,64 @@
   src: url(../fonts/space-grotesk.woff2) format("woff2");
 }
 
+@font-face {
+  font-family: "Dancing Script";
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url(../fonts/dancing-script.woff2) format("woff2");
+}
+
+.experiment-quotation {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: clamp(56px, 7vw, 96px) 16px clamp(64px, 8vw, 104px);
+  text-align: center;
+}
+
+.experiment-quotation blockquote {
+  margin: 0;
+  color: #c7c8ca;
+  font-family: "Dancing Script", cursive;
+  font-size: clamp(30px, 3.3vw, 43px);
+  font-weight: 400;
+  line-height: 1.5;
+  text-wrap: pretty;
+}
+
+.experiment-quotation p {
+  margin: 0;
+}
+
+.experiment-quotation strong {
+  color: #f3e5ce;
+  font-weight: 700;
+}
+
+.experiment-quotation figcaption {
+  margin-top: 30px;
+  font-size: 13px;
+  letter-spacing: .08em;
+  color: #a4afc0;
+}
+
+.experiment-quotation figcaption span {
+  padding: 0 .6em;
+}
+
+.experiment-quotation a {
+  text-decoration: none;
+}
+
+.experiment-quotation a:hover {
+  color: #f3e5ce;
+}
+
+.experiment-quotation a:focus-visible {
+  outline: 2px solid #a0b9ff;
+  outline-offset: 6px;
+}
+
 /* AISLE observatory — AItonomy's blue-charcoal palette, with a geographic first screen. */
 
 :root {
