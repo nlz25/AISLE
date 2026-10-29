@@ -23,7 +23,7 @@ class Page(HTMLParser):
         if 'id' in a:
             if a['id'] in self.ids: errors.append(f'{self.path}: duplicate id {a["id"]}')
             self.ids.add(a['id'])
-        for key in ['href', 'src', 'poster', 'data-src', 'data-texture', 'data-clouds']:
+        for key in ['href', 'src', 'poster', 'data-src', 'data-texture', 'data-clouds', 'data-night']:
             if a.get(key): self.refs.append(a[key])
         for key in ['aria-controls','data-sort-board','data-status']:
             if a.get(key): self.controls.append(a[key])

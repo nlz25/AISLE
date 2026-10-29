@@ -9,13 +9,17 @@ The entrance is a conceptual illustration, not footage or a photograph of partic
 
 ## Interactive Earth
 
-The live Earth is a WebGL sphere with locally hosted NASA Blue Marble surface and cloud maps. It rotates geographically around its axis; the continents are not a flat image rotated in CSS. Dragging and arrow keys rotate the sphere. Space toggles automatic rotation. Animation stops when the entrance or tab is hidden, and system reduced-motion settings disable automatic movement. Unsupported graphics or failed texture loads retain the static Earth.
+The live Earth is a WebGL sphere with locally hosted NASA Blue Marble surface, cloud and historical night-light maps. It rotates geographically around its axis; the continents are not a flat image rotated in CSS. Dragging and arrow keys rotate the sphere. Space toggles automatic rotation. Animation stops when the entrance or tab is hidden, and system reduced-motion settings disable automatic movement. Unsupported graphics or failed texture loads retain the static Earth.
 
 Source: [NASA Earth Observatory — The Blue Marble (2002)](https://science.nasa.gov/earth/earth-observatory/the-blue-marble-true-color-global-imagery-at-1km-resolution/). Imagery credit: NASA Goddard Space Flight Center; Reto Stöckli and Robert Simmon. These historical textures are illustrative, not live satellite/weather information or an institutional affiliation.
 
 - `assets/portal/earth-surface.jpg`: original 2048 × 1024 [surface texture](https://assets.science.nasa.gov/content/dam/science/esd/eo/content-feature/bluemarble/images/land_ocean_ice_2048.jpg).
 - `assets/portal/earth-clouds.jpg`: original 2048 × 1024 [cloud texture](https://assets.science.nasa.gov/content/dam/science/esd/eo/content-feature/bluemarble/images/cloud_combined_2048.jpg).
 - No new generated imagery or bitmap editing was used for this revision. The shader, atmospheric rim, lighting, pointer interaction and luminous ENTER control are native website rendering.
+
+The close orbital composition places the sphere centre outside the bottom-right of the viewport. The renderer draws only the visible area, with a thin atmospheric rim and a backlit sunrise; pointer and keyboard rotation remain available. The stock-video preview supplied as a visual reference is not a website asset.
+
+- `assets/portal/earth-night.jpg`: original 2048 × 1024 [NASA night-light texture](https://assets.science.nasa.gov/content/dam/science/esd/eo/content-feature/bluemarble/images/land_ocean_ice_lights_2048.jpg).
 
 ## Generation prompt
 
