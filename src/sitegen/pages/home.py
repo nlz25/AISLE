@@ -92,7 +92,7 @@ def home():
       <div class="stats"><div class="stat"><strong><span data-count="4079" data-count-digits="1" aria-hidden="true">4,079</span><span class="sr-only">4,079</span></strong><span>Physical experiments</span></div><div class="stat"><strong><span data-count="2" data-count-digits="2" aria-hidden="true">02</span><span class="sr-only">02</span></strong><span>Laboratories</span></div><div class="stat"><strong><span data-count="7" data-count-digits="2" aria-hidden="true">07</span><span class="sr-only">07</span></strong><span>Models evaluated</span></div><div class="stat"><strong><span data-count="4" data-count-digits="2" aria-hidden="true">04</span><span class="sr-only">04</span></strong><span>Task categories</span></div></div>
       <p class="scope-note">AISLE includes physical experiments and simulated tasks.</p>
       <section class="section home-leaderboard" id="results"><div class="section-head"><h2>Leaderboard</h2>{link("Full leaderboard", "leaderboard.html")}</div>{chart_tabs()}</section>
-      <section class="section" id="experiments"><div class="section-head"><div><div class="eyebrow">AISLE</div><h2>Task Breakdown</h2></div></div><div data-tabs><div class="tabs" role="tablist" aria-label="Task categories">{tabs}</div>{panels}</div></section>
+      <section class="section" id="experiments"><div class="section-head"><div><h2>Task Breakdown</h2></div></div><div data-tabs><div class="tabs" role="tablist" aria-label="Task categories">{tabs}</div>{panels}</div></section>
       {institutions()}
 </div></div>
     </main>"""

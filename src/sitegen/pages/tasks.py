@@ -66,4 +66,4 @@ def tasks():
       <p>Within applicable task groups, targets receive equal weight. Displayed values are rounded; manuscript aggregate scores are preserved from the original calculation. Select a model in the results page to explore the score composition and task coverage.</p>""",
     )
     nav = "".join(f'<a href="#{key}">{title}</a>' for key, title, _ in sections)
-    return f"""<main id="main" class="wrap"><section class="page-hero"><div class="eyebrow">AISLE</div><h1>Tasks</h1><p>Tasks, experimental conditions and scoring.</p></section><div class="doc-layout"><nav class="doc-nav" aria-label="On this page">{nav}</nav><div>{"".join(s[2] for s in sections)}</div></div></main>"""
+    return f"""<main id="main" class="wrap"><section class="page-hero"><h1>Tasks</h1></section><div class="doc-layout"><nav class="doc-nav" aria-label="On this page">{nav}</nav><div>{"".join(s[2] for s in sections)}</div></div></main>"""

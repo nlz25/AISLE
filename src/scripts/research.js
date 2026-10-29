@@ -100,7 +100,7 @@ if (resultData) {
     } else {
       body = `<div class="tip-primary"><span>${('Overall')}</span><strong>${model[cohort].toFixed(2)}<small> / 100</small></strong></div><dl>${categories.map(([key,label])=>`<div><dt>${label}</dt><dd>${model[key]==null?'N/A':model[key].toFixed(2)}</dd></div>`).join('')}</dl>`;
     }
-    tooltip.innerHTML = `<strong class="tip-model">${safe(model.name)}</strong><span class="tip-org">${safe(model.organization)}</span>${body}<span class="tip-hint">${('Click the model for details')}</span>`;
+    tooltip.innerHTML = `<strong class="tip-model">${safe(model.name)}</strong><span class="tip-org">${safe(model.organization)}</span>${body}`;
     tooltip.hidden = false;
     const anchor = (metric ? target : row).getBoundingClientRect();
     const rect = tooltip.getBoundingClientRect();
@@ -172,7 +172,7 @@ if (resultData) {
         row.setAttribute('aria-label', overall ? originals.get(row).label : `${model.name} · ${label} ${value} / 100`);
         board.querySelector('.stack-rows').append(row);
       });
-      note.textContent = overall ? initialNote : `${label} · ${('Category score / 100. N/A = not evaluated. Select a model for all scores.')}`;
+      note.textContent = overall ? initialNote : `${label} · ${('Score / 100. N/A = not evaluated.')}`;
       const panel = document.getElementById(`model-details-${cohort}`);
       if (panel) collapse(panel);
     }));

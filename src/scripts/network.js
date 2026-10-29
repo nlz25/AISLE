@@ -33,7 +33,6 @@
     options.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.institution === id)));
     const place = item.city === country.en ? country.en : `${item.city}, ${country.en}`;
     document.getElementById('network-location').textContent = place;
-    inspector.querySelector('.inspector-number').textContent = `${String(country.institutions.indexOf(id)+1).padStart(2,'0')} / ${String(country.institutions.length).padStart(2,'0')}`;
     const logo = document.getElementById('network-logo');
     logo.src = asset('institutions/' + item.logo);
     logo.alt = item.name;
@@ -42,9 +41,6 @@
     fullname.textContent = item.name;
     fullname.hidden = !!item.video || item.name === item.short;
     film.hidden = !item.video;
-    const desc = document.getElementById('network-description');
-    desc.hidden = !!item.video;
-    desc.textContent = (item.kind === 'industry' ? 'Industry' : 'Academic institution');
     if (item.video) {
       const poster = document.getElementById('network-poster');
       poster.src = asset('experiments/' + item.video + '.webp');

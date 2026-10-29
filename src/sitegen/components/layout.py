@@ -24,10 +24,10 @@ def header(page):
 
 
 def footer():
-    return f"""<footer class="site-footer"><div class="wrap"><div class="footer-top">
-      <div><a href="index.html" class="wordmark">AISLE</a><p>AI Scientists’ Last Exam</p></div>
+    return """<footer class="site-footer"><div class="wrap footer-top">
+      <a href="index.html" class="wordmark">© 2026 AISLE</a>
       <div class="footer-links"><a href="leaderboard.html">Leaderboard</a><a href="tasks.html">Tasks</a></div>
-      </div><div class="footer-bottom"><span>© 2026 AISLE · AI Scientists’ Last Exam</span></div></div></footer>"""
+    </div></footer>"""
 
 
 def results_data():

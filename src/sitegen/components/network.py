@@ -24,7 +24,7 @@ def network_hero():
         active = c["id"] == "cn"
         count_label = "institution" if n == 1 else "institutions"
         pins.append(
-            f'<button class="map-pin pin-{c["id"]}" style="--x:{x:.3f}%;--y:{y:.3f}%" data-country="{c["id"]}" aria-pressed="{str(active).lower()}" aria-controls="network-inspector" aria-label="{esc(label)} · {n} {count_label}"><span class="pin-core"></span><span class="pin-label">{esc(label)}<small>{n} {count_label}</small></span></button>'
+            f'<button class="map-pin pin-{c["id"]}" style="--x:{x:.3f}%;--y:{y:.3f}%" data-country="{c["id"]}" aria-pressed="{str(active).lower()}" aria-controls="network-inspector" aria-label="{esc(label)} · {n} {count_label}"><span class="pin-core"></span><span class="pin-label">{esc(label)}</span></button>'
         )
         countries.append(
             f'<button class="country-option" data-country="{c["id"]}" aria-pressed="{str(active).lower()}" aria-controls="network-inspector">{esc(label)}<span>{n:02}</span></button>'
@@ -58,21 +58,18 @@ def network_hero():
     payload = json.dumps(data, ensure_ascii=False).replace("<", "\\u003c")
     return f'''<section class="network-hero" id="network" aria-labelledby="network-title">
       <div class="network-aurora" aria-hidden="true"></div><div class="network-grain" aria-hidden="true"></div>
-      <div class="network-view-head wrap"><div><p>AISLE / INSTITUTIONS</p><h2 id="network-title" tabindex="-1">Global research network</h2></div><a class="network-return" href="#entrance">← Back to entrance</a></div>
+      <div class="network-view-head wrap"><div><h2 id="network-title" tabindex="-1">Global research network</h2></div><a class="network-return" href="#entrance">← Back to entrance</a></div>
       <div class="network-shell wrap">
         <div class="network-stage">
-          <div class="map-caption"><span class="status-dot"></span>Global research network<span class="map-caption-rule"></span><span>Select a location to explore</span></div>
           <div class="world-map" aria-hidden="true"><div class="map-glow"></div><img loading="lazy" decoding="async" src="{asset("map/world.svg")}?v={map_version}" alt="" width="1200" height="560"><svg class="network-arcs" viewBox="0 0 1200 560" preserveAspectRatio="none">{routes}<g class="network-flow-particles"></g></svg><div class="map-equator"></div></div>
           <div class="map-markers">{"".join(pins)}</div>
           <aside id="network-inspector" class="network-inspector" aria-label="Selected institution">
-            <div class="inspector-topline"><span id="network-location">Suzhou, China</span><span class="inspector-number" aria-hidden="true">01 / 04</span></div>
+            <div class="inspector-topline"><span id="network-location">Suzhou, China</span></div>
             <div class="institution-options" role="group" aria-label="Choose an institution"></div>
             <div class="inspector-identity"><span class="inspector-logo"><img loading="lazy" decoding="async" id="network-logo" src="{asset("institutions/" + first["logo"])}" alt="{esc(first["name"])}" width="54" height="40"></span><div><h2 id="network-institution">{esc(first["short"])}</h2><p id="network-full-name" hidden></p></div></div>
-            <div id="network-film"><button type="button" class="film-preview" aria-label="Watch Suzhou National Laboratory experiment film"><img loading="lazy" decoding="async" id="network-poster" src="{asset("experiments/suzhou.webp")}" alt="Colour-matching experiment at Suzhou National Laboratory" width="960" height="516"><span class="film-play" aria-hidden="true">▶</span><span class="film-duration">00:19</span><span class="film-caption">Watch experiment</span></button><p id="network-topic">{first["topic"]}</p></div>
-            <p id="network-description" hidden></p>
+            <div id="network-film"><button type="button" class="film-preview" aria-label="Watch Suzhou National Laboratory experiment film"><img loading="lazy" decoding="async" id="network-poster" src="{asset("experiments/suzhou.webp")}" alt="Colour-matching experiment at Suzhou National Laboratory" width="960" height="516"><span class="film-play" aria-hidden="true">▶</span><span class="film-duration">00:19</span></button><p id="network-topic">{first["topic"]}</p></div>
             <p class="network-selection sr-only" role="status" aria-live="polite"></p>
           </aside>
-          <div class="map-footnote"><span>{len(data["countries"]):02}</span>countries<i></i><span>{len(data["institutions"]):02}</span>institutions<i></i><span>{sum(bool(i.get("video")) for i in data["institutions"]):02}</span>experiment films</div>
         </div>
         <div class="network-country-nav" role="group" aria-label="Browse research locations">{"".join(countries)}</div>
       </div>

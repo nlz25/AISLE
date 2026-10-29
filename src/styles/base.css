@@ -205,29 +205,6 @@ button {
   font-size: 13px;
 }
 
-.eyebrow {
-  font-size: 10px;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  font-weight: 650;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.eyebrow:before {
-  content: "";
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--green);
-  flex-shrink: 0;
-}
-
-.eyebrow.light:before {
-  background: #b5d0ad;
-}
-
 .arrow {
   font-size: 17px;
   font-weight: 400;
@@ -457,17 +434,6 @@ button {
   display: flex;
   gap: 22px;
   font-size: 11px;
-}
-
-.footer-bottom {
-  display: flex;
-  justify-content: space-between;
-  gap: 20px;
-  color: var(--muted);
-  font-size: 9px;
-  border-top: 1px solid var(--line);
-  padding-top: 20px;
-  margin-top: 30px;
 }
 
 .page-hero {
@@ -877,11 +843,6 @@ button {
     flex-wrap: wrap;
   }
 
-  .footer-bottom {
-    flex-direction: column;
-    gap: 6px;
-  }
-
   .page-hero {
     padding: 42px 0 20px;
   }
@@ -1009,11 +970,6 @@ button {
 }
 
 .results-table tr[data-profile]:hover .model-button {
-  color: var(--green);
-}
-
-.interaction-hint {
-  font-size: 11px;
   color: var(--green);
 }
 
@@ -2039,13 +1995,6 @@ button {
   margin: 0;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
-}
-
-.tip-hint {
-  display: block;
-  margin-top: 12px;
-  font-size: 10px;
-  color: #64748b;
 }
 
 .stack-segment.is-inspected {
