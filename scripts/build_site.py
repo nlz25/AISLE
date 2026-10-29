@@ -64,6 +64,7 @@ def shell(page, title, description, body):
 <meta name="theme-color" content="#10131a"><meta property="og:type" content="website"><meta property="og:title" content="{esc(title)} · AISLE"><meta property="og:description" content="{esc(description)}"><meta property="og:url" content="{url}">
 <meta name="twitter:card" content="summary">
 <link rel="canonical" href="{url}"><link rel="alternate" hreflang="en" href="https://aisle.science/{page}"><link rel="alternate" hreflang="zh-CN" href="https://aisle.science/zh/{page}">
+{f'<link rel="preload" href="{root("assets/fonts/syne-800.ttf")}" as="font" type="font/ttf" crossorigin>' if page == "index.html" else ''}
 <link rel="stylesheet" href="{root('assets/style.css')}?v={ASSET_VERSION}"><link rel="stylesheet" href="{root('assets/observatory.css')}?v={ASSET_VERSION}"><script defer src="{root('assets/site.js')}?v={ASSET_VERSION}"></script>{f'<script defer src="{root("assets/network.js")}?v={ASSET_VERSION}"></script>' if page == "index.html" else ""}</head>
 <body class="{lang}">{header(page)}{body}{results_data() if page != 'tasks.html' else ''}{footer()}</body></html>'''
 
@@ -97,7 +98,7 @@ def logo(m):
     return f'<img src="{root("assets/logos/"+LOGOS[m["id"]]+".png")}" alt="{esc(LOGOS[m["id"]])} logo" width="32" height="32">'
 
 
-CATEGORY_COLORS={'optimization':'#6485c6','safety':'#d2a45b','robustness':'#57a7a3','multimodal':'#a18ac6'}
+CATEGORY_COLORS={'optimization':'#75a7ff','safety':'#ffc86a','robustness':'#49ddcc','multimodal':'#c19bff'}
 
 
 def category_names():
@@ -108,10 +109,10 @@ def chart(cohort):
     models=sorted([m for m in MODELS if m[cohort] is not None],key=lambda m:-m[cohort])
     keys=['optimization','safety','robustness']+(['multimodal'] if cohort=='full' else [])
     names=category_names()
-    legend=f'<button type="button" data-chart-metric="{cohort}" aria-pressed="true">{t("Overall","综合")}</button>'+''.join(f'<button type="button" data-chart-metric="{k}" aria-pressed="false"><i style="background:{CATEGORY_COLORS[k]}"></i>{names[k]}</button>' for k in names)
+    legend=f'<button type="button" data-chart-metric="{cohort}" aria-pressed="true">{t("Overall","综合")}</button>'+''.join(f'<button type="button" data-chart-metric="{k}" aria-pressed="false"><i style="background-color:{CATEGORY_COLORS[k]}"></i>{names[k]}</button>' for k in names)
     rows=''
     for rank,m in enumerate(models,1):
-        segments=''.join(f'<span class="stack-segment" data-metric="{k}" style="width:{m[k]/len(keys):.4f}%;background:{CATEGORY_COLORS[k]}"></span>' for k in keys)
+        segments=''.join(f'<span class="stack-segment" data-metric="{k}" style="width:{m[k]/len(keys):.4f}%;background-color:{CATEGORY_COLORS[k]}"></span>' for k in keys)
         values='; '.join(f'{names[k]} {m[k]:.2f}' for k in keys)
         rows+=f'<button class="stack-row" data-profile="{m["id"]}" data-cohort="{cohort}" aria-expanded="false" aria-controls="model-details-{cohort}" aria-label="{esc(m["name"])} · {t("Overall","综合分")} {m[cohort]:.2f}. {esc(values)}"><span class="stack-rank">{rank}</span><span class="stack-model">{logo(m)}<span><strong>{esc(m["name"])}</strong><small>{esc(m["organization"])}</small></span></span><strong class="stack-score">{m[cohort]:.2f}</strong><span class="stack-track" aria-hidden="true">{segments}</span></button>'
     return f'''<div class="leaderboard-card stacked-board" data-chart-cohort="{cohort}"><div class="stack-header"><span>AISLE · {len(models)} {t('models','个模型')}</span><div class="stack-legend" role="group" aria-label="{t('View scores by category','按类别查看分数')}">{legend}</div></div><div class="stack-columns"><span>#</span><span>{t('Model','模型')}</span><span data-score-heading>{t('Overall','综合分')}</span><span data-bar-heading>{t('Category contributions','各类别得分贡献')}</span></div><div class="stack-rows">{rows}</div><div class="stack-scale"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div><p class="stack-note" role="status">{t('Equal category weights. Select a category above or a model for details.','类别等权。点击上方类别切换分数，点击模型查看详情。')}</p><section class="model-details" id="model-details-{cohort}" aria-label="{t('Model details','模型详情')}" hidden></section></div>'''
@@ -135,7 +136,7 @@ def category_ranking(key):
         score=m[key]
         rank=str(1+sum(x[key] is not None and x[key]>score for x in models)) if score is not None else '—'
         value=f'{score:.2f}' if score is not None else 'N/A'
-        bar=f'<span style="width:{score}%;background:{CATEGORY_COLORS[key]}"></span>' if score is not None else ''
+        bar=f'<span style="width:{score}%;background-color:{CATEGORY_COLORS[key]}"></span>' if score is not None else ''
         rows+=f'<li class="category-row"><span class="category-rank">{rank}</span><span class="category-model">{logo(m)}<span>{esc(m["name"])}</span></span><span class="category-track" aria-hidden="true">{bar}</span><strong>{value}</strong></li>'
     return f'<div class="category-results"><div class="category-results-head"><h4>{t("Category ranking","类别排名")}</h4><span>{t("Score / 100","得分 / 100")}</span></div><ol class="category-ranks">{rows}</ol><p class="category-note">{t("Scores are aggregated within this category. N/A = not evaluated.","得分按当前类别汇总。N/A = 未评测。")}</p></div>'
 

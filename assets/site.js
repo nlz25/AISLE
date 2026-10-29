@@ -117,7 +117,7 @@ if (resultData) {
   window.addEventListener('resize',hideTip);
 
   // Keep the cohort fixed while changing the score and ranking being inspected.
-  const colors = {optimization:'#6485c6',safety:'#d2a45b',robustness:'#57a7a3',multimodal:'#a18ac6'};
+  const colors = {optimization:'#75a7ff',safety:'#ffc86a',robustness:'#49ddcc',multimodal:'#c19bff'};
   document.querySelectorAll('[data-chart-cohort]').forEach(board => {
     const cohort = board.dataset.chartCohort;
     const rows = [...board.querySelectorAll('.stack-row')];
@@ -145,7 +145,7 @@ if (resultData) {
         const value = score == null ? 'N/A' : score.toFixed(2);
         row.querySelector('.stack-rank').textContent = score == null ? '—' : 1 + scores.filter(s => s.model[key] != null && s.model[key] > score).length;
         row.querySelector('.stack-score').textContent = value;
-        row.querySelector('.stack-track').innerHTML = overall ? originals.get(row).bar : score == null ? '' : `<span class="stack-segment" data-metric="${key}" style="width:${score}%;background:${colors[key]}"></span>`;
+        row.querySelector('.stack-track').innerHTML = overall ? originals.get(row).bar : score == null ? '' : `<span class="stack-segment" data-metric="${key}" style="width:${score}%;background-color:${colors[key]}"></span>`;
         row.setAttribute('aria-label',overall ? originals.get(row).label : `${model.name} · ${label} ${value} / 100`);
         board.querySelector('.stack-rows').append(row);
       });

@@ -22,7 +22,7 @@ def network_hero(lang):
     payload=json.dumps(data,ensure_ascii=False).replace('<','\\u003c')
     return f'''<section class="network-hero" aria-labelledby="network-title">
       <div class="network-aurora" aria-hidden="true"></div><div class="network-grain" aria-hidden="true"></div>
-      <div class="network-heading wrap"><h1 id="network-title">AI Scientists' Last Exam</h1><p class="intro">Nature as the Verifier</p></div>
+      <div class="network-heading wrap"><h1 id="network-title"><span class="network-title-line">AI Scientists'</span> <span class="network-title-line network-title-emphasis">Last Exam</span></h1><p class="intro">Nature as the Verifier</p></div>
       <div class="network-shell wrap">
         <div class="network-stage">
           <div class="map-caption"><span class="status-dot"></span>{t('Global research network','全球科研网络')}<span class="map-caption-rule"></span><span>{t('Select a location to explore','选择地点，探索实验')}</span></div>
