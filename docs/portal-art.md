@@ -5,7 +5,17 @@ The entrance is a conceptual illustration, not footage or a photograph of partic
 - Mode: built-in `image_gen`, transparent background.
 - Asset: `assets/portal/robot-earth.png` (1672 × 941, RGBA; original generated alpha preserved).
 - The original generated image is retained separately. No API/CLI generation or raster repainting was used.
-- HTML supplies all text and the ENTER link. CSS supplies light, grain and slow motion. The generated illustration supplies the robot and Earth only.
+- HTML supplies all text and the ENTER link. CSS supplies light, grain and slow motion. The generated illustration supplies the robot, clipped in layout without modifying the original raster. Its Earth remains the static fallback.
+
+## Interactive Earth
+
+The live Earth is a WebGL sphere with locally hosted NASA Blue Marble surface and cloud maps. It rotates geographically around its axis; the continents are not a flat image rotated in CSS. Dragging and arrow keys rotate the sphere. Space toggles automatic rotation. Animation stops when the entrance or tab is hidden, and system reduced-motion settings disable automatic movement. Unsupported graphics or failed texture loads retain the static Earth.
+
+Source: [NASA Earth Observatory — The Blue Marble (2002)](https://science.nasa.gov/earth/earth-observatory/the-blue-marble-true-color-global-imagery-at-1km-resolution/). Imagery credit: NASA Goddard Space Flight Center; Reto Stöckli and Robert Simmon. These historical textures are illustrative, not live satellite/weather information or an institutional affiliation.
+
+- `assets/portal/earth-surface.jpg`: original 2048 × 1024 [surface texture](https://assets.science.nasa.gov/content/dam/science/esd/eo/content-feature/bluemarble/images/land_ocean_ice_2048.jpg).
+- `assets/portal/earth-clouds.jpg`: original 2048 × 1024 [cloud texture](https://assets.science.nasa.gov/content/dam/science/esd/eo/content-feature/bluemarble/images/cloud_combined_2048.jpg).
+- No new generated imagery or bitmap editing was used for this revision. The shader, atmospheric rim, lighting, pointer interaction and luminous ENTER control are native website rendering.
 
 ## Generation prompt
 

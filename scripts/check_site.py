@@ -23,7 +23,7 @@ class Page(HTMLParser):
         if 'id' in a:
             if a['id'] in self.ids: errors.append(f'{self.path}: duplicate id {a["id"]}')
             self.ids.add(a['id'])
-        for key in ['href', 'src', 'poster', 'data-src']:
+        for key in ['href', 'src', 'poster', 'data-src', 'data-texture', 'data-clouds']:
             if a.get(key): self.refs.append(a[key])
         for key in ['aria-controls','data-sort-board','data-status']:
             if a.get(key): self.controls.append(a[key])
@@ -91,7 +91,7 @@ for item in institutions.values():
     for asset in assets:
         if not (ROOT/'assets'/asset).is_file(): errors.append(f'Missing network asset: {asset}')
 
-for path in [*ROOT.glob('*.html'),*(ROOT/'zh').glob('*.html'),ROOT/'assets/site.js',ROOT/'assets/network.js',ROOT/'assets/portal.js',ROOT/'data/network.json']:
+for path in [*ROOT.glob('*.html'),*(ROOT/'zh').glob('*.html'),ROOT/'assets/site.js',ROOT/'assets/network.js',ROOT/'assets/portal.js',ROOT/'assets/globe.js',ROOT/'data/network.json']:
     source=path.read_text()
     if re.search(r'(app\.notion\.com|/Users/|gh[op]_[A-Za-z0-9]{20})', source):
         errors.append(f'{path}: internal source detail in public page')
