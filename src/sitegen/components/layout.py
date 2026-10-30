@@ -9,6 +9,7 @@ def header(page):
         ("index.html", "Home"),
         ("leaderboard.html", "Leaderboard"),
         ("tasks.html", "Tasks"),
+        ("#join" if page == "index.html" else "index.html#join", "Join us"),
     ]
     nav = "".join(
         f'<a href="{url}"{chr(32) + "aria-current=page" if url == page else ""}>{label}</a>'

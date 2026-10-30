@@ -796,6 +796,68 @@ body {
   text-transform: uppercase;
 }
 
+.join-network {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 32px 48px;
+  padding-block: clamp(48px, 7vw, 88px);
+  scroll-margin-top: 110px;
+}
+
+.join-copy {
+  flex: 1 1 360px;
+}
+
+.join-copy h2 {
+  margin: 0 0 16px;
+  font: 500 clamp(32px, 4vw, 48px)/1.15 var(--sans);
+  letter-spacing: -1px;
+}
+
+.join-copy p {
+  max-width: 520px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 15px;
+}
+
+.join-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.join-email-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 46px;
+  padding: 10px 30px;
+  border: 1px solid #a0b9ff80;
+  border-radius: 4px;
+  background: #a0b9ff12;
+  color: #e4ecff;
+}
+
+.join-email-button:hover {
+  background: #a0b9ff25;
+  border-color: #a0b9ff;
+}
+
+.join-email-address {
+  color: var(--muted);
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+.join-email-address:hover {
+  color: var(--ink);
+  text-decoration: underline;
+}
+
 .site-footer {
   background: linear-gradient(180deg,transparent,#0c1018);
 }

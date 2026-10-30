@@ -12,6 +12,7 @@ from ..components.results import (
 from ..components.portal import entrance
 from ..components.network import network_hero
 from ..components.institutions import institutions
+from ..components.contact import contact
 
 
 def home():
@@ -94,5 +95,6 @@ def home():
       <section class="section home-leaderboard" id="results"><div class="section-head"><h2>Leaderboard</h2>{link("Full leaderboard", "leaderboard.html")}</div>{chart_tabs()}</section>
       <section class="section" id="experiments"><div class="section-head"><div><h2>Task Breakdown</h2></div></div><div data-tabs><div class="tabs" role="tablist" aria-label="Task categories">{tabs}</div>{panels}</div></section>
       {institutions()}
+      {contact()}
 </div></div>
     </main>"""
