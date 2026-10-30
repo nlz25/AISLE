@@ -3,8 +3,10 @@
 .portal {
   position: relative;
   isolation: isolate;
-  min-height: 640px;
-  height: calc(100svh - 79px);
+  display: flex;
+  flex-direction: column;
+  min-height: max(640px, calc(100svh - 79px));
+  height: auto;
   overflow: clip;
   background: radial-gradient(ellipse at 18% 65%,#193e6836,transparent 48%),radial-gradient(ellipse at 82% 58%,#ae6c271a,transparent 43%),radial-gradient(ellipse at 54% 100%,#173f632b,transparent 64%),#0c1018;
 }
@@ -39,10 +41,9 @@
 }
 
 .portal-heading {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 16%;
+  position: relative;
+  flex: 0 0 auto;
+  padding-top: clamp(32px, 6svh, 72px);
   z-index: 3;
   text-align: center;
   pointer-events: none;
@@ -68,11 +69,11 @@
   -webkit-background-clip: text;
 }
 
-.portal-heading p {
-  font: 400 25px/1.4 var(--serif);
+.portal-heading > .portal-tagline {
+  font: 400 22px/1.4 var(--serif);
   letter-spacing: .2px;
   color: #bccde5;
-  margin: 16px 0 0;
+  margin: 0 0 14px;
 }
 
 /* Independent layers keep the forearm attached to the viewport edge. */
@@ -80,9 +81,11 @@
 .portal-scene {
   --touch-y: 50%;
   --enter-x: 52%;
-  position: absolute;
+  position: relative;
   z-index: 1;
-  inset: 280px 0 80px;
+  flex: 1 0 220px;
+  min-height: 220px;
+  margin-bottom: 30px;
   pointer-events: none;
 }
 
@@ -563,19 +566,9 @@
   }
 }
 
-@media (min-width:1600px) {
-  .portal-scene {
-    top: 320px;
-  }
-}
-
 @media (max-width:1100px) {
-  .portal-heading p {
+  .portal-heading > .portal-tagline {
     font-size: 23px;
-  }
-
-  .portal-scene {
-    top: 265px;
   }
 
   .portal-enter-core {
@@ -586,17 +579,11 @@
 
 @media (max-width:780px) {
   .portal {
-    height: calc(100svh - 71px);
-    min-height: 610px;
+    min-height: max(680px, calc(100svh - 71px));
   }
 
-  .portal-heading p {
+  .portal-heading > .portal-tagline {
     font-size: 22px;
-  }
-
-  .portal-scene {
-    top: 265px;
-    bottom: 110px;
   }
 
   .portal-enter {
@@ -639,20 +626,13 @@
 }
 
 @media (max-width:500px) {
-  .portal {
-    min-height: 620px;
-  }
-
-  .portal-heading p {
-    font-size: 22px;
-    margin-top: 18px;
+  .portal-heading > .portal-tagline {
+    font-size: 20px;
   }
 
   .portal-scene {
-    --touch-y: 65%;
+    --touch-y: 50%;
     --enter-x: 49%;
-    top: 255px;
-    bottom: 128px;
   }
 
   .portal-arm {
@@ -716,11 +696,7 @@
     width: 58px;
   }
 
-  .portal-scene {
-    top: 235px;
-  }
-
-  .portal-heading p {
+  .portal-heading > .portal-tagline {
     font-size: 20px;
   }
 }

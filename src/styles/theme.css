@@ -6,28 +6,21 @@
   src: url(../fonts/space-grotesk.woff2) format("woff2");
 }
 
-@font-face {
-  font-family: "Dancing Script";
-  font-style: normal;
-  font-weight: 400 700;
-  font-display: swap;
-  src: url(../fonts/dancing-script.woff2) format("woff2");
-}
-
 .experiment-quotation {
-  max-width: 980px;
+  pointer-events: auto;
+  max-width: 800px;
   margin: 0 auto;
-  padding: clamp(56px, 7vw, 96px) 16px clamp(64px, 8vw, 104px);
+  padding: 24px 0 0;
   text-align: center;
 }
 
 .experiment-quotation blockquote {
   margin: 0;
-  color: #c7c8ca;
-  font-family: "Dancing Script", cursive;
-  font-size: clamp(30px, 3.3vw, 43px);
+  color: #d5dce6;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(16px, 1.55vw, 21px);
   font-weight: 400;
-  line-height: 1.5;
+  line-height: 1.65;
   text-wrap: pretty;
 }
 
@@ -41,7 +34,7 @@
 }
 
 .experiment-quotation figcaption {
-  margin-top: 30px;
+  margin-top: 16px;
   font-size: 13px;
   letter-spacing: .08em;
   color: #a4afc0;
@@ -52,6 +45,7 @@
 }
 
 .experiment-quotation a {
+  pointer-events: auto;
   text-decoration: none;
 }
 

@@ -1,14 +1,17 @@
 """Progressively enhanced entrance; all research content stays server-rendered."""
 
+from .quotation import experiment_quotation
+
 
 def entrance():
-    return """<section class="portal" id="entrance" aria-labelledby="portal-title">
+    return f"""<section class="portal" id="entrance" aria-labelledby="portal-title">
       <div class="portal-atmosphere" aria-hidden="true"></div>
       <div class="portal-stars" aria-hidden="true"></div>
       <div class="portal-grain network-grain" aria-hidden="true"></div>
       <div class="portal-heading wrap">
+        <p class="portal-tagline">Nature as the Verifier</p>
         <h1 id="portal-title">AI Scientists<span class="portal-apostrophe">'</span> <span class="portal-title-ending">Last Exam</span></h1>
-        <p>Nature as the Verifier</p>
+        {experiment_quotation()}
       </div>
         <div class="portal-globe" data-texture="assets/portal/earth-surface.webp" data-clouds="assets/portal/earth-clouds.webp" data-night="assets/portal/earth-night.webp">
           <div class="portal-globe-fallback" aria-hidden="true"></div>

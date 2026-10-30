@@ -8,7 +8,7 @@
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
   let transitionTimer;
 
-  const isEntrance = () => !location.hash || ['#entrance', '#main'].includes(location.hash);
+  const isEntrance = () => !location.hash || ['#entrance', '#main', '#experimental-principle'].includes(location.hash);
 
   function renderView({
     focus = false,
