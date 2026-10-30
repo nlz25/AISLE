@@ -17,7 +17,7 @@ def entrance():
           <canvas hidden class="portal-globe-canvas" width="640" height="640" tabindex="0" role="img" aria-label="Interactive Earth. Drag or use arrow keys to rotate. Press Space to pause or resume rotation."></canvas>
         </div>
       <div class="portal-scene">
-        <div class="portal-arm" aria-hidden="true"><img src="assets/portal/robot-earth.webp" width="1672" height="941" alt="" fetchpriority="high" decoding="async"></div>
+        <div class="portal-arm" aria-hidden="true"><img src="assets/portal/robot-hand.webp" width="1672" height="941" alt="" fetchpriority="high" decoding="async"></div>
         <div class="portal-contact" aria-hidden="true"></div>
         <div class="portal-touch" aria-hidden="true"></div>
         <a class="portal-enter" href="#network" aria-label="Explore the global research network">

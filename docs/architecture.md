@@ -23,7 +23,7 @@ The research section starts hidden; lazy images are not requested during entranc
 
 - WebP delivery copies preserve the supplied/generated artwork; originals stay in `design/originals/`.
 - Locally served WOFF2 replaces TTF. The header logo and favicon are sized for their rendered uses.
-- The four entrance textures/art assets total approximately 714 KB, down from 2.56 MB. The mechanical-arm artwork is approximately 257 KB, down from 1.31 MB.
+- The five entrance textures/art assets total approximately 940 KB. The separate high-resolution mechanical hand is approximately 226 KB, down from its 1.05 MB PNG; the original 257 KB scene remains the static Earth fallback.
 - Default Earth rendering is capped at 1280 × 900, DPR 1.25 and 20 frames per second; pointer interaction is coalesced and uses a 30 fps animation ceiling.
 - The Earth and map stop rendering outside their view and when the document is hidden. CSS animation also pauses in background tabs.
 - Large entrance light gradients are static. The small interactive core retains restrained animation; mobile drops the full-screen grain layer.
@@ -32,6 +32,6 @@ These are asset and rendering-budget measurements, not a claim about visitor loa
 
 ## Checks
 
-`make check` builds all pages, checks local resources and fragment links, ARIA control targets, study-score aggregation, cohort coverage, institution/media records, English-only output, CSS/module references and the deployment boundary. It also checks JavaScript syntax. `scripts/check_site.py` enforces an 800 KB entrance-media budget.
+`make check` builds all pages, checks local resources and fragment links, ARIA control targets, study-score aggregation, cohort coverage, institution/media records, English-only output, CSS/module references and the deployment boundary. It also checks JavaScript syntax. `scripts/check_site.py` enforces a 1 MB entrance-media budget, including the separate detailed hand and the static Earth fallback.
 
 Browser QA covers entry/back navigation, globe controls, institution selection, video playback, cohort/category changes, model detail expansion, mobile menus and narrow-screen overflow. Honor reduced motion and retain static fallbacks for unavailable WebGL.

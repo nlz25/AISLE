@@ -3,9 +3,10 @@
 The entrance is a conceptual illustration, not footage or a photograph of participating laboratories. Institution logos, experiment footage, scores and locations are unchanged.
 
 - Mode: built-in `image_gen`, transparent background.
-- Asset: `design/originals/assets/portal/robot-earth.png` (1672 × 941, RGBA; original generated alpha preserved).
+- Original scene: `design/originals/assets/portal/robot-earth.png` (1672 × 941, RGBA; original generated alpha preserved), retained for the static Earth fallback.
+- Replacement hand: `design/originals/assets/portal/robot-hand.png` (1672 × 941, RGBA), an unchanged copy of the user-supplied `design/explorations/resources.png`. No image generation, background removal or repainting was used for this replacement.
 - The original generated image is retained separately. No API/CLI generation or raster repainting was used.
-- HTML supplies all text and the ENTER link. CSS supplies light, grain and slow motion. The generated illustration supplies the robot, clipped in layout without modifying the original raster. Its Earth remains the static fallback.
+- HTML supplies all text and the ENTER link. CSS supplies light, grain and slow motion. The replacement hand is a separate layer: its fingertip at source pixel (1578, 294) shares the contact light's position, at 45.7% of the scene width on desktop and 40% on narrow screens. Half the old image width and a 2° rotation keep the wrist near its previous position. The original scene's Earth remains the static fallback.
 
 ## Interactive Earth
 
@@ -44,4 +45,4 @@ The moving lights on map connections are decorative representations of the resea
 
 ## Delivery assets
 
-The browser uses optimized WebP copies in `public/assets/portal/`. Originals above are preserved outside the deployment output. `scripts/optimize_assets.py` regenerates these copies. Typography and the interactive core remain HTML/CSS.
+The browser uses optimized WebP copies in `public/assets/portal/`. Originals above are preserved outside the deployment output. `scripts/optimize_assets.py` regenerates these copies. The replacement hand retains its full 1672 × 941 resolution and transparency, using WebP quality 95 to preserve mechanical detail. Typography and the interactive core remain HTML/CSS.

@@ -184,8 +184,8 @@ for path in ROOT.glob("*.html"):
         errors.append(f"Chinese content remains in {path.name}")
 # Keep the entrance art and globe textures within a documented transfer budget.
 portal_bytes = sum(p.stat().st_size for p in (ROOT / "assets/portal").glob("*.webp"))
-if portal_bytes > 800_000:
-    errors.append(f"Portal media exceeds 800 KB: {portal_bytes}")
+if portal_bytes > 1_000_000:
+    errors.append(f"Portal media exceeds 1 MB: {portal_bytes}")
 if errors:
     raise SystemExit("\n".join(errors))
 print(
