@@ -351,23 +351,14 @@ body {
   backdrop-filter: blur(14px);
 }
 
-.inspector-topline {
-  display: flex;
-  justify-content: space-between;
-  gap: 8px;
-  color: #a9b9d0;
-  font: 9px/1.4 ui-monospace,monospace;
-  letter-spacing: .7px;
-}
-
-.institution-options {
+.research-options {
   display: flex;
   flex-wrap: wrap;
   gap: 5px;
-  margin-top: 12px;
+  margin: 0 0 12px;
 }
 
-.institution-options button {
+.research-options button {
   padding: 4px 7px;
   border: 1px solid #ffffff12;
   background: #ffffff03;
@@ -377,48 +368,10 @@ body {
   line-height: 1.5;
 }
 
-.institution-options button[aria-pressed=true] {
+.research-options button[aria-pressed=true] {
   border-color: #a7c0fd60;
   background: #96b4f51a;
   color: #ecf2ff;
-}
-
-.inspector-identity {
-  display: flex;
-  align-items: center;
-  gap: 11px;
-  margin: 15px 0;
-}
-
-.inspector-logo {
-  width: 53px;
-  height: 42px;
-  flex: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 5px;
-  background: #f0f1eb;
-  border-radius: 6px;
-}
-
-.inspector-logo img {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
-}
-
-.inspector-identity h2 {
-  font: 600 14px/1.35 var(--sans);
-  letter-spacing: -.15px;
-  margin: 0;
-}
-
-.inspector-identity p {
-  font-size: 10px;
-  line-height: 1.5;
-  color: #a4b3c9;
-  margin: 6px 0 0;
 }
 
 .film-preview {
@@ -484,9 +437,16 @@ body {
 }
 
 #network-topic {
-  font-size: 10px;
-  color: #bdc9db;
-  margin: 10px 0 0;
+  margin: 14px 0 0;
+  font: 500 17px/1.4 var(--sans);
+  color: #e4ecf8;
+}
+
+#network-description {
+  margin: 6px 0 0;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--muted);
 }
 
 #network-description {
@@ -972,7 +932,7 @@ body {
     top: -12px;
   }
 
-  .pin-cn .pin-label {
+  .pin-apac .pin-label {
     left: -8px;
     top: -12px;
   }
@@ -992,35 +952,7 @@ body {
     bottom: auto;
     width: 100%;
     padding: 15px 17px;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0 20px;
-    min-height: 170px;
-  }
-
-  .inspector-topline {
-    grid-column: 1/-1;
-  }
-
-  .institution-options {
-    grid-column: 1;
-  }
-
-  .inspector-identity {
-    grid-column: 1;
-    margin: 12px 0 0;
-    align-self: start;
-  }
-
-  .inspector-identity h2 {
-    font-size: 13px;
-  }
-
-  #network-film {
-    grid-column: 2;
-    grid-row: 2/5;
-    align-self: center;
-    margin-top: 10px;
+    display: block;
   }
 
   .film-preview img {
@@ -1036,11 +968,6 @@ body {
     font-size: 8px;
     bottom: 5px;
     right: 6px;
-  }
-
-  #network-topic {
-    font-size: 9px;
-    margin-top: 6px;
   }
 
   .network-country-nav {
@@ -1123,7 +1050,7 @@ body {
     top: -12px;
   }
 
-  .pin-cn .pin-label {
+  .pin-apac .pin-label {
     left: -20px;
     top: -12px;
   }
@@ -1134,37 +1061,16 @@ body {
   }
 
   .network-inspector {
-    gap: 0 12px;
     padding: 12px;
-    grid-template-columns: 1fr 1fr;
-    min-height: 185px;
   }
 
-  .inspector-logo {
-    width: 35px;
-    height: 35px;
-    padding: 4px;
-  }
-
-  .inspector-identity {
-    gap: 7px;
-  }
-
-  .inspector-identity h2 {
-    font-size: 11px;
-  }
-
-  .institution-options {
+  .research-options {
     gap: 4px;
   }
 
-  .institution-options button {
+  .research-options button {
     font-size: 8px;
     padding: 3px 5px;
-  }
-
-  .inspector-topline {
-    font-size: 8px;
   }
 
   .film-play {
@@ -1184,26 +1090,6 @@ body {
     font-size: 9px;
   }
 
-  .network-inspector:has(#network-film[hidden]) {
-    display: block;
-    min-height: 150px;
-  }
-
-  .network-inspector:has(#network-film[hidden]) .inspector-topline {
-    display: flex;
-  }
-
-  .network-inspector:has(#network-film[hidden]) .inspector-identity {
-    margin-block: 16px;
-  }
-
-  .network-inspector:has(#network-film[hidden]) .inspector-identity h2 {
-    font-size: 15px;
-  }
-
-  .network-inspector:has(#network-film[hidden]) .inspector-identity p {
-    font-size: 11px;
-  }
 }
 
 @media (prefers-reduced-motion:reduce) {
@@ -1228,14 +1114,6 @@ body {
     padding: 12px;
   }
 
-  .institution-options {
-    margin-top: 8px;
-  }
-
-  .inspector-identity {
-    margin: 10px 0;
-  }
-
   .film-preview img {
     height: 80px;
     aspect-ratio: auto;
@@ -1255,21 +1133,10 @@ body {
     font-size: 9px;
   }
 
-  .inspector-topline {
+  .research-options button {
     font-size: 10px;
   }
 
-  .institution-options button {
-    font-size: 10px;
-  }
-
-  .inspector-identity h2 {
-    font-size: 12px;
-  }
-
-  #network-topic {
-    font-size: 10px;
-  }
 }
 
 @media (max-width:450px) {
@@ -1277,9 +1144,6 @@ body {
     font-size: 10px;
   }
 
-  .network-inspector {
-    min-height: 190px;
-  }
 }
 
 /* Brighter data ink and category fills retain the original scores and category mapping. */

@@ -1,4 +1,4 @@
-/* Country groups keep nearby institutions selectable without overlapping map pins. */
+/* Location groups expose research directions and films on the map. */
 (() => {
   const source = document.getElementById('network-data');
   if (!source) return;
@@ -7,22 +7,13 @@
   const countries = new Map(network.countries.map(c => [c.id, c]));
   const institutions = new Map(network.institutions.map(i => [i.id, i]));
   const inspector = document.getElementById('network-inspector');
-  const options = inspector.querySelector('.institution-options');
+  const options = inspector.querySelector('.research-options');
   const film = document.getElementById('network-film');
   const preview = film.querySelector('.film-preview');
   const dialog = document.querySelector('.experiment-dialog');
   const video = document.getElementById('experiment-video');
   const error = document.getElementById('experiment-error');
-  const shortLabels = {
-    suzhou: 'Suzhou Lab',
-    csu: 'CSU',
-    ustc: 'USTC',
-    szu: 'SZU',
-    bears: 'BEARS',
-    ntu: 'NTU',
-    greendynamics: 'GreenDynamics'
-  };
-  let selected = institutions.get('suzhou'),
+  let selected = network.institutions[0],
     opener = null;
 
   function selectInstitution(id, announce = true) {
@@ -31,25 +22,17 @@
     selected = item;
     const country = countries.get(item.country);
     options.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.institution === id)));
-    const place = item.city === country.en ? country.en : `${item.city}, ${country.en}`;
-    document.getElementById('network-location').textContent = place;
-    const logo = document.getElementById('network-logo');
-    logo.src = asset('institutions/' + item.logo);
-    logo.alt = item.name;
-    document.getElementById('network-institution').textContent = item.short;
-    const fullname = document.getElementById('network-full-name');
-    fullname.textContent = item.name;
-    fullname.hidden = !!item.video || item.name === item.short;
     film.hidden = !item.video;
     if (item.video) {
       const poster = document.getElementById('network-poster');
       poster.src = asset('experiments/' + item.video + '.webp');
       poster.alt = (item.topic);
       film.querySelector('.film-duration').textContent = item.duration;
-      document.getElementById('network-topic').textContent = (item.topic);
-      preview.setAttribute('aria-label', ('Watch experiment film: ') + (item.short));
+      document.getElementById('network-topic').textContent = item.topic;
+      document.getElementById('network-description').textContent = item.description;
+      preview.setAttribute('aria-label', 'Watch experiment film: ' + item.topic);
     }
-    if (announce) inspector.querySelector('.network-selection').textContent = `${item.name}. ${place}. ${item.video?('Experiment film available.'):''}`;
+    if (announce) inspector.querySelector('.network-selection').textContent = `${country.en}. ${item.topic}. Experiment film available.`;
   }
 
   function selectCountry(id, announce = true) {
@@ -63,7 +46,7 @@
         button = document.createElement('button');
       button.type = 'button';
       button.dataset.institution = item.id;
-      button.textContent = (shortLabels[item.id] || item.short);
+      button.textContent = item.topic;
       button.setAttribute('aria-pressed', 'false');
       button.addEventListener('click', () => selectInstitution(item.id));
       options.append(button);
@@ -76,7 +59,6 @@
     opener = preview;
     error.hidden = true;
     document.getElementById('experiment-title').textContent = (selected.topic);
-    document.getElementById('experiment-location').textContent = selected.name;
     document.getElementById('experiment-description').textContent = (selected.description);
     video.poster = asset('experiments/' + selected.video + '.webp');
     video.src = asset('experiments/' + selected.video + '.mp4');
@@ -101,7 +83,7 @@
   video.addEventListener('error', () => {
     if (video.hasAttribute('src')) error.hidden = false;
   });
-  selectCountry('cn', false);
+  selectCountry(selected.country, false);
 
   // Decorative traveling lights, not live experimental traffic. Geometry is sampled
   // once, then only transforms/opacity change at 30 fps while the map is visible.
