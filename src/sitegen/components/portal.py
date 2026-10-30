@@ -9,7 +9,6 @@ def entrance():
       <div class="portal-stars" aria-hidden="true"></div>
       <div class="portal-grain network-grain" aria-hidden="true"></div>
       <div class="portal-heading wrap">
-        <p class="portal-tagline">Nature as the Verifier</p>
         <h1 id="portal-title">AI Scientists<span class="portal-apostrophe">'</span> <span class="portal-title-ending">Last Exam</span></h1>
         {experiment_quotation()}
       </div>
@@ -26,6 +25,7 @@ def entrance():
           <span class="portal-enter-ring" aria-hidden="true"></span>
           <span class="portal-enter-ring portal-enter-ring-inner" aria-hidden="true"></span>
           <span class="portal-enter-core" aria-hidden="true"><span class="portal-nucleus"></span></span>
+          <span class="portal-tagline">Nature as the Verifier</span>
         </a>
       </div>
     </section>"""

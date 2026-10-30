@@ -69,11 +69,18 @@
   -webkit-background-clip: text;
 }
 
-.portal-heading > .portal-tagline {
-  font: 400 22px/1.4 var(--serif);
+.portal-enter .portal-tagline {
+  position: absolute;
+  top: calc(100% + 34px);
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  text-align: center;
+  pointer-events: none;
+  font: 400 25px/1.4 var(--serif);
   letter-spacing: .2px;
   color: #bccde5;
-  margin: 0 0 14px;
+  margin: 0;
 }
 
 /* Independent layers keep the forearm attached to the viewport edge. */
@@ -567,7 +574,7 @@
 }
 
 @media (max-width:1100px) {
-  .portal-heading > .portal-tagline {
+  .portal-enter .portal-tagline {
     font-size: 23px;
   }
 
@@ -582,7 +589,7 @@
     min-height: max(680px, calc(100svh - 71px));
   }
 
-  .portal-heading > .portal-tagline {
+  .portal-enter .portal-tagline {
     font-size: 22px;
   }
 
@@ -626,7 +633,7 @@
 }
 
 @media (max-width:500px) {
-  .portal-heading > .portal-tagline {
+  .portal-enter .portal-tagline {
     font-size: 20px;
   }
 
@@ -696,7 +703,7 @@
     width: 58px;
   }
 
-  .portal-heading > .portal-tagline {
+  .portal-enter .portal-tagline {
     font-size: 20px;
   }
 }
