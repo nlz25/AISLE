@@ -10,7 +10,7 @@ The entrance is a conceptual illustration, not footage or a photograph of partic
 
 ## Interactive Earth
 
-The live Earth is a WebGL sphere with locally hosted NASA Blue Marble surface, cloud and historical night-light maps. It rotates geographically around its axis; the continents are not a flat image rotated in CSS. Dragging and arrow keys rotate the sphere. Space toggles automatic rotation. Animation stops when the entrance or tab is hidden, and system reduced-motion settings disable automatic movement. Unsupported graphics or failed texture loads retain the static Earth.
+The live Earth uses Globe.gl / Three.js with separate surface, cloud and atmosphere layers and locally hosted imagery. A longer-lens camera preserves the close orbital crop without magnifying a tiny surface patch. Dragging and arrow keys orbit the globe. Space toggles automatic rotation. Animation stops when the entrance or tab is hidden, and system reduced-motion settings disable automatic movement. Unsupported graphics or failed texture loads retain the static Earth. WebGL context loss reveals the static fallback; context restoration resumes the scene.
 
 Source: [NASA Earth Observatory — The Blue Marble (2002)](https://science.nasa.gov/earth/earth-observatory/the-blue-marble-true-color-global-imagery-at-1km-resolution/). Imagery credit: NASA Goddard Space Flight Center; Reto Stöckli and Robert Simmon. These historical textures are illustrative, not live satellite/weather information or an institutional affiliation.
 
@@ -18,9 +18,33 @@ Source: [NASA Earth Observatory — The Blue Marble (2002)](https://science.nasa
 - `design/originals/assets/portal/earth-clouds.jpg`: original 2048 × 1024 [cloud texture](https://assets.science.nasa.gov/content/dam/science/esd/eo/content-feature/bluemarble/images/cloud_combined_2048.jpg).
 - No new generated imagery or bitmap editing was used for this revision. The shader, atmospheric rim, lighting, pointer interaction and luminous ENTER control are native website rendering.
 
-The close orbital composition places the sphere centre outside the bottom-right of the viewport. The renderer draws only the visible area, with a thin atmospheric rim and a backlit sunrise; pointer and keyboard rotation remain available. The stock-video preview supplied as a visual reference is not a website asset.
+The close orbital composition places the sphere centre outside the bottom-right of the viewport. The renderer draws only the viewport. A sun-dependent thin atmosphere shell and surface limb scattering replace Globe.gl's default halo; a small static CSS sunrise is anchored to the visible horizon. Very low ambient light keeps the night side dark, while a separate cloud layer and rough ocean reflections preserve depth. Pointer and keyboard rotation remain available. The stock-video preview supplied as a visual reference is not a website asset.
 
 - `design/originals/assets/portal/earth-night.jpg`: original 2048 × 1024 [NASA night-light texture](https://assets.science.nasa.gov/content/dam/science/esd/eo/content-feature/bluemarble/images/land_ocean_ice_lights_2048.jpg).
+
+The optional desktop maps in `design/originals/assets/globe/` are all 4096 × 2048:
+
+- `earth-surface-hd.jpg`: [day surface](https://threejs.org/examples/textures/planets/earth_day_4096.jpg).
+- `earth-night-hd.jpg`: [night surface and city lights](https://threejs.org/examples/textures/planets/earth_night_4096.jpg).
+- `earth-detail-hd.jpg`: [packed height, roughness and cloud channels](https://threejs.org/examples/textures/planets/earth_bump_roughness_clouds_4096.jpg).
+
+These textures are distributed with the official Three.js Earth example.
+The [example](https://threejs.org/examples/webgpu_tsl_earth.html) credits
+[Solar System Scope / INOVE](https://www.solarsystemscope.com/textures/), whose
+texture collection is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+Delivery conversion to WebP is the only modification. The homepage footer links
+to `public/assets/globe/credits.txt` for public attribution and source details.
+Mobile and slow 2G visits keep the existing NASA surface. These maps are
+illustrative historical imagery, not live observations.
+
+The night map now uses a 1024 x 512 global base and local WebP tiles at 2K,
+4K and 8K source resolutions. The original [Solar System Scope 8K night map](https://www.solarsystemscope.com/textures/download/8k_earth_nightmap.jpg)
+is preserved at `design/originals/globe/earth-night-8k.jpg`, under the same
+CC BY 4.0 license. `scripts/build_night_tiles.py` resizes and tiles that original,
+with eight-pixel gutters that wrap at the antimeridian and extend at the poles.
+It does not reposition, simplify or synthesize city lights. The homepage footer
+credits the imagery. Existing 4K night assets are retained as earlier delivery
+sources; the live renderer requests the small base and view-dependent tiles.
 
 ## Generation prompt
 

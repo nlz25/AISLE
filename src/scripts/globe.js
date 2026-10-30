@@ -1,217 +1,210 @@
-/* A shaded, draggable sphere. NASA Blue Marble textures are hosted locally.
-   No third-party runtime, telemetry, or live geographic data. */
-(() => {
-  const globe = document.querySelector('.portal-globe');
-  if (!globe) return;
-  const canvas = globe.querySelector('canvas');
-  const portal = document.getElementById('entrance');
-  const reduced = matchMedia('(prefers-reduced-motion: reduce)');
-  let gl;
+/* Globe.gl scene, served locally and rendered on a bounded, visibility-aware loop. */
+import {
+  Globe, AmbientLight, BackSide, DirectionalLight, Mesh, MeshPhongMaterial,
+  MeshStandardMaterial, ShaderMaterial, SphereGeometry,
+  SRGBColorSpace, Texture, TextureLoader, Vector3
+} from '../vendor/globe.gl.js?v=__ASSET_VERSION__';
+import { createNightTiles } from './globe-tiles.js?v=__ASSET_VERSION__';
+
+const globe = document.querySelector('.portal-globe');
+const host = globe?.querySelector('.portal-globe-view');
+const portal = document.getElementById('entrance');
+const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+
+if (host && portal) initialize().catch(error => {
+  globe.dataset.globeState = 'fallback';
+  host.hidden = true;
+  console.warn('Using static Earth artwork', error);
+});
+
+async function initialize() {
+  const loader = new TextureLoader();
+  const connection = navigator.connection;
+  const useHD = innerWidth > 900 && (!connection?.effectiveType || connection.effectiveType === '4g');
+  // The first complete scene needs only small, global images. Larger surface
+  // and cloud detail are optional upgrades after the entrance has been visible.
+  let [surface, cloudMap, night] = await Promise.all([
+    loader.loadAsync(globe.dataset.texture), loader.loadAsync(globe.dataset.clouds),
+    loader.loadAsync(`${globe.dataset.night}?v=__ASSET_VERSION__`)
+  ]);
+  globe.dataset.textureResolution = String(surface.image.width);
+  surface.colorSpace = night.colorSpace = SRGBColorSpace;
+
+  let world;
   try {
-    gl = canvas.getContext('webgl', {
-      alpha: true,
-      antialias: false,
-      premultipliedAlpha: false,
-      powerPreference: 'low-power'
-    });
-  } catch {
-    /* Static image remains available. */ }
-  const fallback = () => {
-    globe.dataset.globeState = 'fallback';
-    canvas.hidden = true;
+    world = new Globe(host, {
+      animateIn: false, waitForGlobeReady: false,
+      rendererConfig: { alpha: true, antialias: true, powerPreference: 'low-power' }
+    })
+      .backgroundColor('rgba(0,0,0,0)')
+      .enablePointerInteraction(false)
+      .showPointerCursor(false)
+      .globeCurvatureResolution(1)
+      .showAtmosphere(false);
+  } catch (error) {
+    [surface, cloudMap, night].forEach(texture => texture.dispose());
+    throw error;
+  }
+
+  // Stop both library animation loops. Only this scene's loop submits frames.
+  world.pauseAnimation();
+  const renderer = world.renderer();
+  const camera = world.camera();
+  // A longer lens keeps the orbital crop without magnifying a tiny patch of terrain.
+  camera.fov = 14;
+  const controls = world.controls();
+  const scene = world.scene();
+  const canvas = renderer.domElement;
+  canvas.className = 'portal-globe-canvas';
+  canvas.tabIndex = 0;
+  canvas.setAttribute('role', 'img');
+  canvas.setAttribute('aria-label', 'Interactive Earth. Drag or use arrow keys to rotate. Press Space to pause or resume rotation.');
+  controls.enableZoom = controls.enablePan = false;
+  controls.enableDamping = false;
+  controls.autoRotate = false;
+  canvas.style.touchAction = 'pan-y';
+
+  const sunDirection = new Vector3();
+  const sun = new DirectionalLight(0xfff4e6, 3.2);
+  world.lights([new AmbientLight(0x7395bb, .025), sun]);
+  const material = new MeshStandardMaterial({
+    map: surface, roughness: .85, metalness: 0,
+    bumpScale: .004,
+    emissive: 0xffffff, emissiveMap: night, emissiveIntensity: .85
+  });
+  const nightTiles = createNightTiles({
+    renderer, camera, radius: world.getGlobeRadius(), url: globe.dataset.nightTiles,
+    reduced, onChange: requestDraw,
+    onStats: stats => {
+      globe.dataset.nightTilesResident = String(stats.resident);
+      globe.dataset.nightTilesRequests = String(stats.requests);
+      globe.dataset.nightTilesBytes = String(stats.bytes);
+      globe.dataset.nightTilesPending = String(stats.pending);
+    }
+  });
+  // Extend the standard PBR material with night-side emission and atmospheric
+  // limb scattering, following the lighting model in Three.js's Earth example.
+  material.onBeforeCompile = shader => {
+    shader.uniforms.uSunDirection = { value: sunDirection };
+    shader.vertexShader = 'varying vec3 vEarthNormal;\nvarying vec3 vEarthPosition;\n' + shader.vertexShader;
+    shader.vertexShader = shader.vertexShader.replace('#include <beginnormal_vertex>',
+      '#include <beginnormal_vertex>\nvEarthNormal = mat3(modelMatrix) * objectNormal;\nvEarthPosition = (modelMatrix * vec4(position, 1.0)).xyz;');
+    shader.fragmentShader = 'uniform vec3 uSunDirection;\nvarying vec3 vEarthNormal;\nvarying vec3 vEarthPosition;\n' + shader.fragmentShader;
+    shader.fragmentShader = shader.fragmentShader.replace('#include <roughnessmap_fragment>',
+      '#include <roughnessmap_fragment>\nroughnessFactor = clamp(roughnessFactor, 0.42, 0.9);');
+    shader.fragmentShader = shader.fragmentShader.replace('#include <lights_fragment_end>',
+      '#include <lights_fragment_end>\nreflectedLight.directSpecular *= 0.16;');
+    shader.fragmentShader = shader.fragmentShader.replace('#include <emissivemap_fragment>', `
+      #include <emissivemap_fragment>
+      float sunOrientation = dot(normalize(vEarthNormal), uSunDirection);
+      totalEmissiveRadiance *= 1.0 - smoothstep(-0.2, 0.18, sunOrientation);
+    `);
+    nightTiles.patch(shader);
+    shader.fragmentShader = shader.fragmentShader.replace('#include <opaque_fragment>', `
+      float facing = max(0.0, dot(normalize(vEarthNormal), normalize(cameraPosition - vEarthPosition)));
+      float limb = pow(1.0 - facing, 4.0);
+      float scatteredLight = smoothstep(-0.5, 0.8, sunOrientation);
+      vec3 atmosphere = mix(vec3(0.07, 0.18, 0.48), vec3(0.18, 0.48, 0.9), smoothstep(-0.2, 0.8, sunOrientation));
+      outgoingLight = mix(outgoingLight, atmosphere, limb * scatteredLight * 0.78);
+      #include <opaque_fragment>
+    `);
   };
-  if (!gl) {
-    fallback();
-    return;
-  }
+  world.globeMaterial(material);
 
-  const vertex = `attribute vec2 aPosition;
-    varying vec2 vPosition;
-    void main() { vPosition = aPosition; gl_Position = vec4(aPosition, 0., 1.); }`;
-  const precision = gl.getShaderPrecisionFormat(gl.FRAGMENT_SHADER, gl.HIGH_FLOAT).precision ? 'highp' : 'mediump';
-  const fragment = `precision ${precision} float;
-    varying vec2 vPosition;
-    uniform sampler2D uSurface;
-    uniform sampler2D uClouds;
-    uniform sampler2D uNight;
-    uniform vec2 uView;
-    uniform vec2 uCenter;
-    uniform vec2 uSun;
-    uniform float uRadius;
-    uniform float uLongitude;
-    uniform float uLatitude;
-    uniform float uCloudDrift;
-    const float PI = 3.14159265;
-    vec2 coordinates(vec3 normal) {
-      float c = cos(uLatitude), s = sin(uLatitude);
-      vec3 tilted = vec3(normal.x, normal.y*c + normal.z*s, -normal.y*s + normal.z*c);
-      return vec2(.5 + (atan(tilted.x, tilted.z) + uLongitude) / (2.*PI),
-        .5 + asin(clamp(tilted.y, -1., 1.)) / PI);
-    }
-    void main() {
-      vec2 pixel = (vec2(vPosition.x,-vPosition.y)*.5+.5)*uView;
-      vec2 q = (pixel-uCenter)/uRadius;
-      vec2 p = vec2(q.x,-q.y);
-      float r = length(p);
-      // A backlit dawn, with the sun anchored to the cropped horizon.
-      vec2 sunNormal = (uSun-uCenter)/uRadius;
-      vec3 light = normalize(vec3(sunNormal.x,-sunNormal.y,-1.05));
-      vec2 delta = pixel-uSun;
-      float distanceToSun = length(delta);
-      float scale = clamp(uView.x/1200.,.65,1.4);
-      float halo = exp(-distanceToSun/(65.*scale))*.34;
-      float corona = exp(-distanceToSun/(16.*scale))*.8;
-      float core = exp(-distanceToSun/(3.2*scale))*2.1;
-      float streak = exp(-abs(delta.y)/(1.2*scale))*exp(-abs(delta.x)/(170.*scale))*.27;
-      vec3 flare = vec3(1.,.61,.27)*halo + vec3(1.,.86,.61)*corona + vec3(1.,.98,.91)*core + vec3(.35,.53,.9)*streak;
-      if (r > 1.) {
-        float edgeDistance = (r-1.)*uRadius;
-        float rim = exp(-edgeDistance/2.4)*.78 + exp(-edgeDistance/11.)*.15;
-        float warmth = exp(-distanceToSun/(110.*scale));
-        vec3 atmosphere = mix(vec3(.24,.57,.91),vec3(1.,.83,.53),warmth);
-        float alpha = clamp(rim + max(flare.r,max(flare.g,flare.b)),0.,1.);
-        gl_FragColor = vec4((atmosphere*rim+flare)/max(alpha,.0001),alpha);
-        return;
-      }
-      vec3 n = vec3(p,sqrt(max(0.,1.-dot(p,p))));
-      vec2 uv = coordinates(n);
-      vec3 terrain = texture2D(uSurface,uv).rgb;
-      vec3 night = texture2D(uNight,uv).rgb;
-      float cloud = texture2D(uClouds,vec2(uv.x+uCloudDrift,uv.y)).r;
-      cloud = smoothstep(.16,.88,cloud)*.82;
-      float sea = 1.-smoothstep(-.025,.07,terrain.g-terrain.b);
-      terrain = mix(terrain,vec3(.018,.057,.105),sea*.65);
-      float incidence = dot(n,light);
-      float day = smoothstep(-.12,.45,incidence);
-      float daylight = max(incidence,0.);
-      vec3 color = terrain*(.035+daylight*.69);
-      color += vec3(.018,.031,.055)*(1.-day*.5);
-      float lights = smoothstep(.18,.7,max(night.r,night.g));
-      color += vec3(1.,.72,.35)*lights*(1.-day*.82)*(1.-cloud*.62)*1.45;
-      color = mix(color,vec3(.50,.60,.73)*(.06+daylight*.95),cloud);
-      float fresnel = pow(1.-n.z,3.);
-      color += vec3(.09,.29,.53)*fresnel*(.28+daylight*.6);
-      color += vec3(.40,.67,.93)*pow(1.-n.z,12.)*.55;
-      color += flare;
-      gl_FragColor = vec4(color,1.);
-    }`;
+  const radius = world.getGlobeRadius();
+  globe.dataset.nightRenderer = 'tiles';
+  const cloudPacked = { value: 0 };
+  const cloudMaterial = new MeshPhongMaterial({
+    color: 0xdceaff, alphaMap: cloudMap, transparent: true,
+    opacity: .82, depthWrite: false, shininess: 0
+  });
+  cloudMaterial.onBeforeCompile = shader => {
+    shader.uniforms.uCloudPacked = cloudPacked;
+    shader.fragmentShader = 'uniform float uCloudPacked;\n' + shader.fragmentShader;
+    shader.fragmentShader = shader.fragmentShader.replace('#include <alphamap_fragment>',
+      'vec4 cloudSample = texture2D(alphaMap, vAlphaMapUv);\ndiffuseColor.a *= mix(cloudSample.g, smoothstep(0.2, 0.95, cloudSample.b), uCloudPacked);');
+  };
+  const clouds = new Mesh(new SphereGeometry(radius * 1.002, 192, 96), cloudMaterial);
+  clouds.rotation.y = -Math.PI / 2;
+  clouds.renderOrder = 2;
+  scene.add(clouds);
+  const atmosphere = new Mesh(new SphereGeometry(radius * 1.012, 192, 96), new ShaderMaterial({
+    side: BackSide, transparent: true, depthWrite: false,
+    uniforms: { uSunDirection: { value: sunDirection } },
+    vertexShader: `varying vec3 vNormalWorld; varying vec3 vPositionWorld;
+      void main() {
+        vNormalWorld = normalize(mat3(modelMatrix) * normal);
+        vPositionWorld = (modelMatrix * vec4(position, 1.0)).xyz;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      }`,
+    fragmentShader: `uniform vec3 uSunDirection;
+      varying vec3 vNormalWorld; varying vec3 vPositionWorld;
+      void main() {
+        vec3 normal = normalize(vNormalWorld);
+        vec3 viewDirection = normalize(cameraPosition - vPositionWorld);
+        float sun = dot(normal, uSunDirection);
+        float density = pow(clamp(abs(dot(normal, viewDirection)) / 0.23, 0.0, 1.0), 3.0);
+        float lit = smoothstep(-0.5, 0.8, sun);
+        vec3 color = mix(vec3(0.2, 0.28, 0.6), vec3(0.22, 0.55, 1.0), smoothstep(-0.15, 0.8, sun));
+        gl_FragColor = vec4(color, density * lit * 0.85);
+        #include <tonemapping_fragment>
+        #include <colorspace_fragment>
+      }`
+  }));
+  atmosphere.renderOrder = 3;
+  scene.add(atmosphere);
+  const anisotropy = Math.min(16, renderer.capabilities.getMaxAnisotropy());
+  [surface, cloudMap, night].forEach(texture => { texture.anisotropy = anisotropy; });
 
-  let program, uniforms, surfaceImage, cloudImage, nightImage;
+  let ready = false, inView = true, paused = false, dragging = false;
+  let frame = 0, last = 0, inputFrame = 0, resumeAt = 0;
+  let fadeTimer = 0, detailTimer = 0, detailDone = false, detailRequest;
   let geometry;
-  let frame = 0,
-    last = 0,
-    ready = false,
-    inView = true,
-    dragging = false,
-    paused = false;
-  let longitude = 155 * Math.PI / 180,
-    latitude = 10 * Math.PI / 180,
-    cloudDrift = 0;
-  let pointer = null,
-    resumeAt = 0,
-    inputFrame = 0;
+  world.pointOfView({ lat: 14, lng: 175 });
+  const visible = () => ready && inView && !portal.hidden && !document.hidden && !renderer.getContext().isContextLost();
+  const canAnimate = () => visible() && !reduced.matches && !paused;
 
-  function compile(type, source) {
-    const shader = gl.createShader(type);
-    gl.shaderSource(shader, source);
-    gl.compileShader(shader);
-    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-      gl.deleteShader(shader);
-      throw new Error('Globe shader unavailable');
-    }
-    return shader;
+  function draw() {
+    if (!visible()) return;
+    // Lighting stays in the same part of the composition as the camera orbits.
+    sunDirection.set(-.8, .4, -.95).normalize().applyQuaternion(camera.quaternion);
+    sun.position.copy(sunDirection).multiplyScalar(1000);
+    nightTiles.update(performance.now(), sunDirection);
+    renderer.render(scene, camera);
+    clearTimeout(fadeTimer);
+    if (nightTiles.fading && !canAnimate()) fadeTimer = setTimeout(requestDraw, 50);
   }
 
-  function texture(image, unit) {
-    const tex = gl.createTexture();
-    gl.activeTexture(gl.TEXTURE0 + unit);
-    gl.bindTexture(gl.TEXTURE_2D, tex);
-    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
-    gl.generateMipmap(gl.TEXTURE_2D);
-  }
-
-  function initialize() {
-    const vs = compile(gl.VERTEX_SHADER, vertex),
-      fs = compile(gl.FRAGMENT_SHADER, fragment);
-    program = gl.createProgram();
-    gl.attachShader(program, vs);
-    gl.attachShader(program, fs);
-    gl.linkProgram(program);
-    gl.deleteShader(vs);
-    gl.deleteShader(fs);
-    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) throw new Error('Globe program unavailable');
-    gl.useProgram(program);
-    const buffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]), gl.STATIC_DRAW);
-    const position = gl.getAttribLocation(program, 'aPosition');
-    gl.enableVertexAttribArray(position);
-    gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0);
-    uniforms = Object.fromEntries(['uLongitude', 'uLatitude', 'uCloudDrift', 'uView', 'uCenter', 'uRadius', 'uSun'].map(name => [name, gl.getUniformLocation(program, name)]));
-    texture(surfaceImage, 0);
-    texture(cloudImage, 1);
-    texture(nightImage, 2);
-    gl.uniform1i(gl.getUniformLocation(program, 'uSurface'), 0);
-    gl.uniform1i(gl.getUniformLocation(program, 'uClouds'), 1);
-    gl.uniform1i(gl.getUniformLocation(program, 'uNight'), 2);
-    canvas.hidden = false;
-    ready = true;
-    resize();
-    globe.dataset.globeState = 'ready';
-    syncAnimation();
+  function requestDraw() {
+    if (inputFrame || !visible()) return;
+    inputFrame = requestAnimationFrame(() => { inputFrame = 0; draw(); });
   }
 
   function resize() {
-    if (!ready || portal.hidden) return;
-    const width = canvas.clientWidth,
-      height = canvas.clientHeight;
+    if (portal.hidden) return;
+    const { width, height } = host.getBoundingClientRect();
     if (!width || !height) return;
-    // Render only the viewport, even though most of the sphere lies outside it.
-    const scale = Math.min(devicePixelRatio || 1, 1.25, 1280 / width, 900 / height);
-    const renderWidth = Math.max(1, Math.round(width * scale));
-    const renderHeight = Math.max(1, Math.round(height * scale));
-    if (canvas.width !== renderWidth || canvas.height !== renderHeight) {
-      canvas.width = renderWidth;
-      canvas.height = renderHeight;
-    }
-    gl.viewport(0, 0, renderWidth, renderHeight);
     const mobile = width <= 500;
-    const radius = width * (mobile ? 1.1 : .69);
+    // Native resolution on ordinary screens, with a pixel budget on large/retina displays.
+    const ratio = Math.min(devicePixelRatio || 1, mobile ? 1.5 : 2, Math.sqrt(4_500_000 / (width * height)));
+    renderer.setPixelRatio(ratio);
+    world.width(width).height(height);
+    const projectedRadius = width * (mobile ? 1.1 : .69);
     const center = [width * (mobile ? 1.58 : 1.2), height * (mobile ? .92 : 1.18)];
-    const enterRect = portal.querySelector('.portal-enter').getBoundingClientRect();
-    const touchY = enterRect.top + enterRect.height / 2 - canvas.getBoundingClientRect().top;
-    const sunY = Math.max(height * .36, touchY - Math.min(92, width * .065));
-    const dy = Math.max(-radius * .96, Math.min(radius * .96, sunY - center[1]));
-    const sun = [center[0] - Math.sqrt(radius * radius - dy * dy), center[1] + dy];
-    geometry = {
-      width,
-      height,
-      radius,
-      center,
-      sun
-    };
-    gl.uniform2f(uniforms.uView, width, height);
-    gl.uniform2f(uniforms.uCenter, ...center);
-    gl.uniform2f(uniforms.uSun, ...sun);
-    gl.uniform1f(uniforms.uRadius, radius);
-    draw();
-  }
-
-  function draw() {
-    if (!ready || !geometry || portal.hidden || document.hidden || gl.isContextLost()) return;
-    gl.uniform1f(uniforms.uLongitude, longitude);
-    gl.uniform1f(uniforms.uLatitude, latitude);
-    gl.uniform1f(uniforms.uCloudDrift, cloudDrift);
-    gl.drawArrays(gl.TRIANGLES, 0, 6);
-  }
-
-  function canAnimate() {
-    return ready && inView && !portal.hidden && !document.hidden && !reduced.matches && !paused;
+    world.globeOffset([center[0] - width / 2, center[1] - height / 2]);
+    const focalLength = height / (2 * Math.tan(camera.fov * Math.PI / 360));
+    const distance = radius * Math.sqrt(1 + (focalLength / projectedRadius) ** 2);
+    world.pointOfView({ altitude: distance / radius - 1 });
+    controls.update();
+    geometry = { width, height, center, radius: projectedRadius };
+    nightTiles.dirty = true;
+    const enter = portal.querySelector('.portal-enter').getBoundingClientRect();
+    const sunY = Math.max(height * .36, enter.top + enter.height / 2 - host.getBoundingClientRect().top - Math.min(92, width * .065));
+    const dy = Math.max(-projectedRadius * .96, Math.min(projectedRadius * .96, sunY - center[1]));
+    globe.style.setProperty('--sun-x', `${center[0] - Math.sqrt(projectedRadius ** 2 - dy ** 2)}px`);
+    globe.style.setProperty('--sun-y', `${center[1] + dy}px`);
+    // Kapsule applies size changes asynchronously; draw after its update has flushed.
+    requestAnimationFrame(() => { if (ready) draw(); });
   }
 
   function tick(now) {
@@ -219,8 +212,12 @@
     if (!canAnimate()) return;
     if (now - last >= 1000 / (dragging ? 30 : 20)) {
       const dt = last ? Math.min((now - last) / 1000, .1) : 0;
-      if (!dragging && now >= resumeAt) longitude = (longitude + dt * .024) % (Math.PI * 2);
-      cloudDrift += dt * .00022;
+      if (!dragging && now >= resumeAt) {
+        const { lat, lng } = world.pointOfView();
+        world.pointOfView({ lat, lng: lng + dt * 1.3 });
+        controls.update();
+        clouds.rotation.y += dt * .0003;
+      }
       draw();
       last = now;
     }
@@ -228,115 +225,135 @@
   }
 
   function syncAnimation() {
-    if (frame) cancelAnimationFrame(frame);
+    cancelAnimationFrame(frame);
     frame = 0;
     last = 0;
+    clearTimeout(fadeTimer);
+    nightTiles.setActive(visible());
+    if (!visible()) {
+      clearTimeout(detailTimer);
+      detailTimer = 0;
+      detailRequest?.abort();
+    } else if (useHD && !detailDone && !detailTimer && !detailRequest) {
+      detailTimer = setTimeout(upgradeDetail, 3000);
+    }
+    controls.enabled = visible();
     globe.dataset.rotating = String(canAnimate() && !dragging);
     if (canAnimate()) frame = requestAnimationFrame(tick);
-    else draw();
+    else requestDraw();
   }
 
-  function updatePosition() {
-    latitude = Math.max(-1.1, Math.min(1.1, latitude));
-    longitude %= Math.PI * 2;
-    globe.dataset.longitude = (longitude * 180 / Math.PI).toFixed(1);
-    globe.dataset.latitude = (latitude * 180 / Math.PI).toFixed(1);
-    resumeAt = performance.now() + 1800;
-    if (!inputFrame) inputFrame = requestAnimationFrame(() => {
-      inputFrame = 0;
-      draw();
-    });
-  }
-  canvas.addEventListener('pointerdown', event => {
-    if (!ready || !geometry || event.button !== 0) return;
-    const bounds = canvas.getBoundingClientRect();
-    const x = event.clientX - bounds.left - geometry.center[0];
-    const y = event.clientY - bounds.top - geometry.center[1];
-    if (Math.hypot(x, y) > geometry.radius + 18) return;
-    pointer = {
-      id: event.pointerId,
-      x: event.clientX,
-      y: event.clientY
-    };
+  controls.addEventListener('change', () => {
+    const { lng, lat } = world.pointOfView();
+    globe.dataset.longitude = lng.toFixed(1);
+    globe.dataset.latitude = lat.toFixed(1);
+    nightTiles.dirty = true;
+    if (!canAnimate()) requestDraw();
+  });
+  controls.addEventListener('start', () => {
     dragging = true;
+    nightTiles.setMoving(true);
     globe.dataset.rotating = 'false';
-    canvas.setPointerCapture(event.pointerId);
   });
-  canvas.addEventListener('pointermove', event => {
-    if (!pointer || pointer.id !== event.pointerId) return;
-    const scale = 2.7 / Math.max(geometry.radius, 1);
-    longitude -= (event.clientX - pointer.x) * scale;
-    latitude += (event.clientY - pointer.y) * scale;
-    pointer.x = event.clientX;
-    pointer.y = event.clientY;
-    updatePosition();
-  });
-  const release = () => {
-    pointer = null;
+  controls.addEventListener('end', () => {
     dragging = false;
+    nightTiles.setMoving(false);
     resumeAt = performance.now() + 1800;
     syncAnimation();
-  };
-  canvas.addEventListener('pointerup', release);
-  canvas.addEventListener('pointercancel', release);
-  canvas.addEventListener('lostpointercapture', release);
+  });
+  // Ignore drags in the empty space around the cropped globe.
+  canvas.addEventListener('pointerdown', event => {
+    if (!geometry) return;
+    const rect = canvas.getBoundingClientRect();
+    const x = event.clientX - rect.left - geometry.center[0];
+    const y = event.clientY - rect.top - geometry.center[1];
+    if (Math.hypot(x, y) > geometry.radius + 18) event.stopImmediatePropagation();
+  }, { capture: true });
   canvas.addEventListener('keydown', event => {
-    if (!ready) return;
-    const keys = {
-      ArrowLeft: [.14, 0],
-      ArrowRight: [-.14, 0],
-      ArrowUp: [0, .1],
-      ArrowDown: [0, -.1]
-    };
+    const keys = { ArrowLeft: [8, 0], ArrowRight: [-8, 0], ArrowUp: [0, 6], ArrowDown: [0, -6] };
     if (keys[event.key]) {
       event.preventDefault();
-      longitude += keys[event.key][0];
-      latitude += keys[event.key][1];
-      updatePosition();
+      const { lat, lng } = world.pointOfView();
+      world.pointOfView({ lng: lng + keys[event.key][0], lat: Math.max(-65, Math.min(65, lat + keys[event.key][1])) });
+      controls.update();
+      resumeAt = performance.now() + 1800;
+      requestDraw();
     } else if (event.code === 'Space') {
       event.preventDefault();
       paused = !paused;
       syncAnimation();
     }
   });
-  new ResizeObserver(resize).observe(globe);
+
+  new ResizeObserver(resize).observe(host);
   new IntersectionObserver(entries => {
     inView = entries[0].isIntersecting;
     syncAnimation();
-  }, {
-    threshold: .05
-  }).observe(globe);
+  }, { threshold: .05 }).observe(globe);
   document.addEventListener('visibilitychange', syncAnimation);
-  document.addEventListener('aisle:viewchange', () => {
-    resize();
-    syncAnimation();
-  });
+  document.addEventListener('aisle:viewchange', () => { resize(); syncAnimation(); });
   reduced.addEventListener('change', syncAnimation);
   canvas.addEventListener('webglcontextlost', event => {
     event.preventDefault();
-    ready = false;
+    globe.dataset.globeState = 'fallback';
     syncAnimation();
-    fallback();
   });
   canvas.addEventListener('webglcontextrestored', () => {
-    try {
-      initialize();
-    } catch {
-      fallback();
-    }
+    nightTiles.invalidate();
+    globe.dataset.globeState = 'ready';
+    resize();
+    syncAnimation();
   });
-  const load = url => new Promise((resolve, reject) => {
-    const image = new Image();
-    image.onload = () => resolve(image);
-    image.onerror = reject;
-    image.src = url;
-  });
-  Promise.all([load(globe.dataset.texture), load(globe.dataset.clouds), load(globe.dataset.night)]).then(images => {
-    [surfaceImage, cloudImage, nightImage] = images;
-    try {
-      initialize();
-    } catch {
-      fallback();
+
+  async function upgradeDetail() {
+    detailTimer = 0;
+    if (!visible() || dragging || detailDone || detailRequest) return;
+    const request = detailRequest = new AbortController();
+    const load = async (url, colorSpace) => {
+      const response = await fetch(url, { signal: request.signal });
+      if (!response.ok) throw new Error('Optional Earth detail unavailable');
+      const bitmap = await createImageBitmap(await response.blob(), { imageOrientation: 'flipY', premultiplyAlpha: 'none', colorSpaceConversion: 'none' });
+      const texture = new Texture(bitmap);
+      texture.flipY = false;
+      if (colorSpace) texture.colorSpace = colorSpace;
+      texture.anisotropy = anisotropy;
+      texture.needsUpdate = true;
+      return texture;
+    };
+    const results = await Promise.allSettled([
+      load(globe.dataset.textureHd, SRGBColorSpace), load(globe.dataset.detail)
+    ]);
+    detailRequest = null;
+    if (!visible() || request.signal.aborted || dragging) {
+      for (const result of results) if (result.status === 'fulfilled') {
+        result.value.dispose(); result.value.image.close();
+      }
+      if (visible() && !dragging && !detailTimer) detailTimer = setTimeout(upgradeDetail, 3000);
+      return;
     }
-  }).catch(fallback);
-})();
+    detailDone = true;
+    if (results[0].status === 'fulfilled') {
+      surface.dispose();
+      surface = material.map = results[0].value;
+      globe.dataset.textureResolution = String(surface.image.width);
+    }
+    if (results[1].status === 'fulfilled') {
+      const detail = results[1].value;
+      material.bumpMap = material.roughnessMap = detail;
+      material.needsUpdate = true;
+      cloudMap.dispose();
+      cloudMap = cloudMaterial.alphaMap = detail;
+      cloudPacked.value = 1;
+    }
+    requestDraw();
+  }
+
+  await new Promise(resolve => setTimeout(resolve, 0));
+  ready = true;
+  resize();
+  await new Promise(requestAnimationFrame);
+  draw();
+  globe.dataset.globeState = 'ready';
+  globe.dataset.globeRenderer = 'globe.gl';
+  syncAnimation();
+}

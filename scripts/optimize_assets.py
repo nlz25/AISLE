@@ -35,7 +35,9 @@ def main():
             elif source.name == "earth-clouds.jpg":
                 image = image.convert("L")
                 image.thumbnail((1024, 512))
-            quality = 95 if source.name == "robot-hand.png" else 86
+            elif source.parent.name == "globe":
+                image.thumbnail((4096, 2048))
+            quality = 95 if source.name == "robot-hand.png" else 90 if source.name == "earth-night-hd.jpg" else 86
             image.save(target, "WEBP", quality=quality, method=6)
         before += source.stat().st_size
         after += target.stat().st_size

@@ -1,6 +1,7 @@
 """Check static links, interactive bindings and scientific score invariants."""
 
 import json
+import gzip
 import re
 import subprocess
 from html.parser import HTMLParser
@@ -39,6 +40,9 @@ class Page(HTMLParser):
             "poster",
             "data-src",
             "data-texture",
+            "data-texture-hd",
+            "data-night-tiles",
+            "data-detail",
             "data-clouds",
             "data-night",
         ]:
@@ -186,6 +190,35 @@ for path in ROOT.glob("*.html"):
 portal_bytes = sum(p.stat().st_size for p in (ROOT / "assets/portal").glob("*.webp"))
 if portal_bytes > 1_000_000:
     errors.append(f"Portal media exceeds 1 MB: {portal_bytes}")
+# Globe.gl is optional and loaded after the entrance artwork. Keep its local
+# dependency bundle bounded; ordinary Python builds never need npm or a CDN.
+vendor = ROOT / "assets/vendor/globe.gl.js"
+if not vendor.is_file() or not (vendor.parent / "globe.LICENSES.txt").is_file():
+    errors.append("Missing local Globe.gl bundle or dependency licenses")
+elif len(gzip.compress(vendor.read_bytes(), compresslevel=6)) > 600_000:
+    errors.append("Globe.gl bundle exceeds 600 KB gzip")
+hd_bytes = sum(p.stat().st_size for p in (ROOT / "assets/globe").glob("*.webp"))
+if hd_bytes > 2_000_000:
+    errors.append(f"Optional desktop Earth media exceeds 2 MB: {hd_bytes}")
+tile_root = ROOT / "assets/globe/night-tiles"
+try:
+    manifest = json.loads((tile_root / "manifest.json").read_text())
+    if manifest["tileSize"] != 512 or manifest["gutter"] != 8 or not re.fullmatch(r"[a-f0-9]{12}", manifest["version"]):
+        errors.append("Invalid night tile pyramid configuration")
+    base_bytes = (tile_root / "base.webp").stat().st_size
+    if base_bytes != manifest["base"]["bytes"] or base_bytes > 40_000:
+        errors.append("Global night base exceeds its 40 KB budget or manifest size")
+    if [level["level"] for level in manifest["levels"]] != [1, 2, 3]:
+        errors.append("Night tile pyramid must contain 2K, 4K and 8K levels")
+    for level in manifest["levels"]:
+        columns, rows = 2 ** (level["level"] + 1), 2 ** level["level"]
+        paths = [tile_root / manifest["version"] / str(level["level"]) / str(x) / f"{y}.webp" for x in range(columns) for y in range(rows)]
+        if (columns, rows) != (level["columns"], level["rows"]) or sum(p.stat().st_size for p in paths) != level["bytes"]:
+            errors.append(f"Incomplete night tile level {level['level']}")
+    if sum(level["bytes"] for level in manifest["levels"]) > 4_000_000:
+        errors.append("Complete night tile pyramid exceeds 4 MB")
+except (OSError, ValueError, KeyError, TypeError):
+    errors.append("Missing or corrupt night tile pyramid")
 if errors:
     raise SystemExit("\n".join(errors))
 print(

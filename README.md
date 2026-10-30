@@ -4,7 +4,7 @@
 
 ## Develop
 
-Requires Python **3.12+**. Node 22+ is used only for JavaScript syntax checks. The website has no client framework or third-party JavaScript runtime.
+Requires Python **3.12+**. Node 22+ is used for JavaScript syntax checks. The website has no client framework; its optional entrance globe uses a locally bundled Globe.gl / Three.js runtime.
 
 ```sh
 make check     # build, validate links/data/media, check JavaScript
@@ -12,6 +12,19 @@ make serve     # serve dist/ at http://127.0.0.1:4173
 ```
 
 If your default Python is older, use `make check PYTHON=/path/to/python3.12` (and the same for `make serve`).
+
+The checked-in globe bundle needs no npm install for ordinary builds or deployment.
+To regenerate it after changing dependencies:
+
+```sh
+cd scripts/globe-vendor
+npm ci --ignore-scripts
+npm run build
+```
+
+Commit the lockfile, generated `public/assets/vendor/globe.gl.js` and dependency
+licenses together. See [architecture and performance](docs/architecture.md) for
+the entrance's loading and rendering budgets.
 
 ## Project structure
 

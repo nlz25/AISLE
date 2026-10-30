@@ -1,0 +1,24 @@
+AISLE Earth imagery
+
+Desktop surface, night imagery, height, roughness and clouds: Solar System Scope / INOVE.
+Source collection: https://www.solarsystemscope.com/textures/
+License: Creative Commons Attribution 4.0 International
+https://creativecommons.org/licenses/by/4.0/
+Original 4096 x 2048 JPEGs distributed with the Three.js Earth example:
+https://threejs.org/examples/textures/planets/earth_day_4096.jpg
+https://threejs.org/examples/textures/planets/earth_night_4096.jpg
+https://threejs.org/examples/textures/planets/earth_bump_roughness_clouds_4096.jpg
+https://threejs.org/examples/webgpu_tsl_earth.html
+Changes: converted to WebP for delivery. No geographic features were repainted.
+
+Night imagery pyramid: Solar System Scope / INOVE's original 8192 x 4096
+night map, under the same CC BY 4.0 license above.
+https://www.solarsystemscope.com/textures/download/8k_earth_nightmap.jpg
+Changes: resized to a 1024 x 512 global base and 2K/4K/8K tiled WebP levels,
+with neighbouring-image gutters for filtering. City lights were not repositioned.
+The complete source remains outside website delivery.
+
+Standard surface, clouds and historical city lights: NASA Goddard Space Flight
+Center; Reto Stockli and Robert Simmon. NASA Earth Observatory, The Blue Marble
+(2002). These are illustrative historical textures, not live satellite data.
+https://science.nasa.gov/earth/earth-observatory/the-blue-marble-true-color-global-imagery-at-1km-resolution/

@@ -12,9 +12,10 @@ def entrance():
         <h1 id="portal-title">AI Scientists<span class="portal-apostrophe">'</span> <span class="portal-title-ending">Last Exam</span></h1>
         {experiment_quotation()}
       </div>
-        <div class="portal-globe" data-texture="assets/portal/earth-surface.webp" data-clouds="assets/portal/earth-clouds.webp" data-night="assets/portal/earth-night.webp">
+        <div class="portal-globe" data-texture="assets/portal/earth-surface.webp" data-texture-hd="assets/globe/earth-surface-hd.webp" data-clouds="assets/portal/earth-clouds.webp" data-night="assets/globe/night-tiles/base.webp" data-night-tiles="assets/globe/night-tiles/manifest.json" data-detail="assets/globe/earth-detail-hd.webp">
           <div class="portal-globe-fallback" aria-hidden="true"></div>
-          <canvas hidden class="portal-globe-canvas" width="640" height="640" tabindex="0" role="img" aria-label="Interactive Earth. Drag or use arrow keys to rotate. Press Space to pause or resume rotation."></canvas>
+          <div class="portal-globe-view"></div>
+          <div class="portal-globe-sun" aria-hidden="true"></div>
         </div>
       <div class="portal-scene">
         <div class="portal-arm" aria-hidden="true"><img src="assets/portal/robot-hand.webp" width="1672" height="941" alt="" fetchpriority="high" decoding="async"></div>

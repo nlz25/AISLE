@@ -3,4 +3,5 @@ __pycache__/
 .qa/
 dist/
 .venv/
+node_modules/
 design/explorations/

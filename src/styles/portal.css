@@ -150,6 +150,28 @@
   pointer-events: none;
 }
 
+.portal-globe-view {
+  position: absolute;
+  inset: 0;
+}
+
+.portal-globe-sun {
+  position: absolute;
+  left: var(--sun-x);
+  top: var(--sun-y);
+  width: 260px;
+  height: 260px;
+  transform: translate(-50%,-50%);
+  background: radial-gradient(circle,#fffaf0 0 .8%,#ffe5b5 1.8%,#ffc57699 4%,#e6a45b24 18%,transparent 65%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .4s;
+}
+
+.portal-globe[data-globe-state=ready] .portal-globe-sun {
+  opacity: 1;
+}
+
 .portal-globe-canvas {
   display: block;
   position: absolute;
