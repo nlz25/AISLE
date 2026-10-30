@@ -6,12 +6,20 @@
   src: url(../fonts/space-grotesk.woff2) format("woff2");
 }
 
+@font-face {
+  font-family: "Dancing Script";
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url(../fonts/dancing-script.woff2) format("woff2");
+}
+
 .experiment-quotation {
   pointer-events: auto;
   max-width: 800px;
-  margin: 0 auto;
+  margin: 0 0 0 auto;
   padding: 24px 0 0;
-  text-align: center;
+  text-align: right;
 }
 
 .experiment-quotation blockquote {
@@ -35,10 +43,13 @@
 
 .experiment-quotation figcaption {
   text-align: right;
-  margin-top: 16px;
-  font-size: 13px;
-  letter-spacing: .08em;
-  color: #a4afc0;
+  margin-top: 20px;
+  font-family: "Dancing Script", cursive;
+  font-size: clamp(24px, 2.4vw, 32px);
+  font-weight: 500;
+  line-height: 1.35;
+  letter-spacing: 0;
+  color: #c5cfde;
 }
 
 .experiment-quotation figcaption span {
