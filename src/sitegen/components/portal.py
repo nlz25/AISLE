@@ -14,6 +14,7 @@ def entrance():
       </div>
         <div class="portal-globe" data-texture="assets/portal/earth-surface.webp" data-texture-hd="assets/globe/earth-surface-hd.webp" data-clouds="assets/portal/earth-clouds.webp" data-night="assets/globe/night-tiles/base.webp" data-night-tiles="assets/globe/night-tiles/manifest.json" data-detail="assets/globe/earth-detail-hd.webp">
           <div class="portal-globe-fallback" aria-hidden="true"></div>
+          <noscript><picture class="portal-globe-static" aria-hidden="true"><source media="(max-width:500px)" srcset="assets/globe/earth-poster-mobile.webp"><img src="assets/globe/earth-poster.webp" alt="" width="1440" height="821"></picture></noscript>
           <div class="portal-globe-view"></div>
           <div class="portal-globe-sun" aria-hidden="true"></div>
         </div>

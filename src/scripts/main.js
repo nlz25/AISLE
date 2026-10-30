@@ -21,11 +21,19 @@ if (entrance) {
   // Let the artwork and heading paint before compiling the optional WebGL scene.
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
   const connection = navigator.connection;
+  const globeElement = entrance.querySelector('.portal-globe');
   let globe;
   const loadGlobe = () => {
-    if (entrance.hidden || globe || reduced.matches || connection?.saveData) return;
+    if (globe) return;
+    if (reduced.matches || connection?.saveData) {
+      globeElement.dataset.globeState = 'static';
+      return;
+    }
+    if (entrance.hidden) return;
+    globeElement.dataset.globeState = 'loading';
     globe = import('./globe.js?v=__ASSET_VERSION__').catch(error => {
       globe = null;
+      globeElement.dataset.globeState = 'fallback';
       console.warn('Using static Earth artwork', error);
     });
   };
@@ -38,9 +46,10 @@ if (entrance) {
   const artwork = entrance.querySelector('.portal-arm img');
   const afterArtwork = () => requestAnimationFrame(() => requestAnimationFrame(scheduleGlobe));
   if (artwork.complete) afterArtwork();
-  else artwork.addEventListener('load', afterArtwork, {
-    once: true
-  });
+  else {
+    artwork.addEventListener('load', afterArtwork, { once: true });
+    artwork.addEventListener('error', afterArtwork, { once: true });
+  }
   document.addEventListener('aisle:viewchange', scheduleGlobe);
   reduced.addEventListener('change', scheduleGlobe);
 } else if (document.getElementById('results-data')) {

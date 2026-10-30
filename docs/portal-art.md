@@ -2,23 +2,25 @@
 
 The entrance is a conceptual illustration, not footage or a photograph of participating laboratories. Institution logos, experiment footage, scores and locations are unchanged.
 
-- Mode: built-in `image_gen`, transparent background.
-- Original scene: `design/originals/assets/portal/robot-earth.png` (1672 × 941, RGBA; original generated alpha preserved), retained for the static Earth fallback.
+- Original scene mode: built-in `image_gen`, transparent background.
+- Original scene: `design/originals/assets/portal/robot-earth.png` (1672 × 941, RGBA; original generated alpha preserved), retained as an archive. Its `robot-earth.webp` delivery copy has no runtime references.
 - Replacement hand: `design/originals/assets/portal/robot-hand.png` (1672 × 941, RGBA), an unchanged copy of the user-supplied `design/explorations/resources.png`. No image generation, background removal or repainting was used for this replacement.
 - The original generated image is retained separately. No API/CLI generation or raster repainting was used.
-- HTML supplies all text and the ENTER link. CSS supplies light, grain and slow motion. The replacement hand is a separate layer: its fingertip at source pixel (1578, 294) shares the contact light's position, at 45.7% of the scene width on desktop and 40% on narrow screens. Half the old image width and a 2° rotation keep the wrist near its previous position. The original scene's Earth remains the static fallback.
+- HTML supplies all text and the ENTER link. CSS supplies light, grain and slow motion. The replacement hand is a separate layer: its fingertip at source pixel (1578, 294) shares the contact light's position, at 45.7% of the scene width on desktop and 40% on narrow screens. Half the old image width and a 2° rotation keep the wrist near its previous position.
 
 ## Interactive Earth
 
-The live Earth uses Globe.gl / Three.js with separate surface, cloud and atmosphere layers and locally hosted imagery. A longer-lens camera preserves the close orbital crop without magnifying a tiny surface patch. Dragging and arrow keys orbit the globe. Space toggles automatic rotation. Animation stops when the entrance or tab is hidden, and system reduced-motion settings disable automatic movement. Unsupported graphics or failed texture loads retain the static Earth. WebGL context loss reveals the static fallback; context restoration resumes the scene.
+The live Earth uses Globe.gl / Three.js with separate surface, cloud and atmosphere layers and locally hosted imagery. A longer-lens camera preserves the close orbital crop without magnifying a tiny surface patch. During normal loading, neither a placeholder globe nor a poster is shown: the entire renderer host stays hidden until camera sizing and cropping are applied synchronously and a complete frame has been drawn. This prevents the library's default centred blue sphere and old Earth artwork from flashing during refresh.
+
+Dragging and arrow keys orbit the globe. Space toggles automatic rotation. Animation stops when the entrance or tab is hidden. Initial reduced-motion or data-saving preferences, unavailable graphics, initialization failures and WebGL context loss use responsive posters of the current scene; the same posters appear without JavaScript. Context restoration draws a complete frame before revealing the live globe again.
 
 Source: [NASA Earth Observatory — The Blue Marble (2002)](https://science.nasa.gov/earth/earth-observatory/the-blue-marble-true-color-global-imagery-at-1km-resolution/). Imagery credit: NASA Goddard Space Flight Center; Reto Stöckli and Robert Simmon. These historical textures are illustrative, not live satellite/weather information or an institutional affiliation.
 
 - `design/originals/assets/portal/earth-surface.jpg`: original 2048 × 1024 [surface texture](https://assets.science.nasa.gov/content/dam/science/esd/eo/content-feature/bluemarble/images/land_ocean_ice_2048.jpg).
 - `design/originals/assets/portal/earth-clouds.jpg`: original 2048 × 1024 [cloud texture](https://assets.science.nasa.gov/content/dam/science/esd/eo/content-feature/bluemarble/images/cloud_combined_2048.jpg).
-- No new generated imagery or bitmap editing was used for this revision. The shader, atmospheric rim, lighting, pointer interaction and luminous ENTER control are native website rendering.
+- No new generated artwork was used for this revision. The shader, atmospheric rim, lighting, pointer interaction and luminous ENTER control are native website rendering. Static posters are browser captures of the same scene, including the CSS sunrise.
 
-The close orbital composition places the sphere centre outside the bottom-right of the viewport. The renderer draws only the viewport. A sun-dependent thin atmosphere shell and surface limb scattering replace Globe.gl's default halo; a small static CSS sunrise is anchored to the visible horizon. Very low ambient light keeps the night side dark, while a separate cloud layer and rough ocean reflections preserve depth. Pointer and keyboard rotation remain available. The stock-video preview supplied as a visual reference is not a website asset.
+The close orbital composition places the sphere centre outside the bottom-right of the viewport. The renderer draws only the viewport. An atmosphere shell at 1.028 times Earth's radius uses exponential optical-height falloff; blue surface limb scattering and a localized warm sunrise complete the horizon. The sunrise direction is stored relative to the camera so its warmth follows the screen-anchored CSS sun during rotation. These effects retain the existing three scene draw calls. Very low ambient light keeps the night side dark, while a separate cloud layer and rough ocean reflections preserve depth. The stock-video preview supplied as a visual reference is not a website asset.
 
 - `design/originals/assets/portal/earth-night.jpg`: original 2048 × 1024 [NASA night-light texture](https://assets.science.nasa.gov/content/dam/science/esd/eo/content-feature/bluemarble/images/land_ocean_ice_lights_2048.jpg).
 
@@ -70,3 +72,5 @@ The moving lights on map connections are decorative representations of the resea
 ## Delivery assets
 
 The browser uses optimized WebP copies in `public/assets/portal/`. Originals above are preserved outside the deployment output. `scripts/optimize_assets.py` regenerates these copies. The replacement hand retains its full 1672 × 941 resolution and transparency, using WebP quality 95 to preserve mechanical detail. Typography and the interactive core remain HTML/CSS.
+
+The fallback posters in `public/assets/globe/` are transparent browser captures of the current renderer and CSS sunrise: `earth-poster.webp` is 1440 × 821 (60,704 bytes), and `earth-poster-mobile.webp` is 390 × 773 (19,460 bytes). CSS selects the mobile capture at widths up to 500 pixels; a responsive picture provides the same choice without JavaScript. These are captured renderings, not generated artwork, and are absent during normal WebGL loading.

@@ -65,6 +65,9 @@ async function initialize() {
   canvas.style.touchAction = 'pan-y';
 
   const sunDirection = new Vector3();
+  const sunriseDirection = new Vector3();
+  const sunriseLocal = new Vector3();
+  const viewRay = new Vector3();
   const sun = new DirectionalLight(0xfff4e6, 3.2);
   world.lights([new AmbientLight(0x7395bb, .025), sun]);
   const material = new MeshStandardMaterial({
@@ -84,12 +87,14 @@ async function initialize() {
   });
   // Extend the standard PBR material with night-side emission and atmospheric
   // limb scattering, following the lighting model in Three.js's Earth example.
+  let surfaceCompiled = false;
   material.onBeforeCompile = shader => {
     shader.uniforms.uSunDirection = { value: sunDirection };
+    shader.uniforms.uSunriseDirection = { value: sunriseDirection };
     shader.vertexShader = 'varying vec3 vEarthNormal;\nvarying vec3 vEarthPosition;\n' + shader.vertexShader;
     shader.vertexShader = shader.vertexShader.replace('#include <beginnormal_vertex>',
       '#include <beginnormal_vertex>\nvEarthNormal = mat3(modelMatrix) * objectNormal;\nvEarthPosition = (modelMatrix * vec4(position, 1.0)).xyz;');
-    shader.fragmentShader = 'uniform vec3 uSunDirection;\nvarying vec3 vEarthNormal;\nvarying vec3 vEarthPosition;\n' + shader.fragmentShader;
+    shader.fragmentShader = 'uniform vec3 uSunDirection;\nuniform vec3 uSunriseDirection;\nvarying vec3 vEarthNormal;\nvarying vec3 vEarthPosition;\n' + shader.fragmentShader;
     shader.fragmentShader = shader.fragmentShader.replace('#include <roughnessmap_fragment>',
       '#include <roughnessmap_fragment>\nroughnessFactor = clamp(roughnessFactor, 0.42, 0.9);');
     shader.fragmentShader = shader.fragmentShader.replace('#include <lights_fragment_end>',
@@ -102,12 +107,15 @@ async function initialize() {
     nightTiles.patch(shader);
     shader.fragmentShader = shader.fragmentShader.replace('#include <opaque_fragment>', `
       float facing = max(0.0, dot(normalize(vEarthNormal), normalize(cameraPosition - vEarthPosition)));
-      float limb = pow(1.0 - facing, 4.0);
-      float scatteredLight = smoothstep(-0.5, 0.8, sunOrientation);
-      vec3 atmosphere = mix(vec3(0.07, 0.18, 0.48), vec3(0.18, 0.48, 0.9), smoothstep(-0.2, 0.8, sunOrientation));
-      outgoingLight = mix(outgoingLight, atmosphere, limb * scatteredLight * 0.78);
+      float limb = pow(1.0 - facing, 5.0);
+      float scatteredLight = 0.16 + 0.84 * smoothstep(-0.45, 0.65, sunOrientation);
+      float sunrise = exp((dot(normalize(vEarthNormal), uSunriseDirection) - 1.0) * 95.0);
+      vec3 airglow = mix(vec3(0.025, 0.16, 0.52), vec3(0.16, 0.52, 1.0), scatteredLight);
+      outgoingLight += airglow * limb * scatteredLight * 0.7;
+      outgoingLight += vec3(1.0, 0.54, 0.19) * sunrise * pow(1.0 - facing, 7.0) * 1.2;
       #include <opaque_fragment>
     `);
+    surfaceCompiled = true;
   };
   world.globeMaterial(material);
 
@@ -128,25 +136,34 @@ async function initialize() {
   clouds.rotation.y = -Math.PI / 2;
   clouds.renderOrder = 2;
   scene.add(clouds);
-  const atmosphere = new Mesh(new SphereGeometry(radius * 1.012, 192, 96), new ShaderMaterial({
+  const atmosphere = new Mesh(new SphereGeometry(radius * 1.028, 192, 96), new ShaderMaterial({
     side: BackSide, transparent: true, depthWrite: false,
-    uniforms: { uSunDirection: { value: sunDirection } },
+    uniforms: {
+      uSunDirection: { value: sunDirection },
+      uSunriseDirection: { value: sunriseDirection },
+      uRadius: { value: radius }
+    },
     vertexShader: `varying vec3 vNormalWorld; varying vec3 vPositionWorld;
       void main() {
         vNormalWorld = normalize(mat3(modelMatrix) * normal);
         vPositionWorld = (modelMatrix * vec4(position, 1.0)).xyz;
         gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
       }`,
-    fragmentShader: `uniform vec3 uSunDirection;
+    fragmentShader: `uniform vec3 uSunDirection; uniform vec3 uSunriseDirection; uniform float uRadius;
       varying vec3 vNormalWorld; varying vec3 vPositionWorld;
       void main() {
-        vec3 normal = normalize(vNormalWorld);
         vec3 viewDirection = normalize(cameraPosition - vPositionWorld);
-        float sun = dot(normal, uSunDirection);
-        float density = pow(clamp(abs(dot(normal, viewDirection)) / 0.23, 0.0, 1.0), 3.0);
-        float lit = smoothstep(-0.5, 0.8, sun);
-        vec3 color = mix(vec3(0.2, 0.28, 0.6), vec3(0.22, 0.55, 1.0), smoothstep(-0.15, 0.8, sun));
-        gl_FragColor = vec4(color, density * lit * 0.85);
+        // Distance of the viewing ray from Earth's centre gives a smooth
+        // optical falloff, including with this off-axis, close orbital crop.
+        vec3 closest = vPositionWorld - viewDirection * dot(vPositionWorld, viewDirection);
+        vec3 horizonNormal = normalize(closest);
+        float height = clamp((length(closest) / uRadius - 1.0) / 0.028, 0.0, 1.0);
+        float density = exp(-height * 4.5) * (1.0 - smoothstep(0.65, 1.0, height));
+        float lit = 0.18 + 0.82 * smoothstep(-0.45, 0.65, dot(horizonNormal, uSunDirection));
+        float sunrise = exp((dot(horizonNormal, uSunriseDirection) - 1.0) * 95.0);
+        vec3 blue = mix(vec3(0.08, 0.28, 0.8), vec3(0.28, 0.66, 1.0), lit);
+        vec3 color = mix(blue, vec3(1.0, 0.68, 0.32), sunrise * exp(-height * 2.0));
+        gl_FragColor = vec4(color, density * min(0.9, lit * 0.82 + sunrise * 0.2));
         #include <tonemapping_fragment>
         #include <colorspace_fragment>
       }`
@@ -156,7 +173,7 @@ async function initialize() {
   const anisotropy = Math.min(16, renderer.capabilities.getMaxAnisotropy());
   [surface, cloudMap, night].forEach(texture => { texture.anisotropy = anisotropy; });
 
-  let ready = false, inView = true, paused = false, dragging = false;
+  let ready = false, presented = false, inView = true, paused = false, dragging = false;
   let frame = 0, last = 0, inputFrame = 0, resumeAt = 0;
   let fadeTimer = 0, detailTimer = 0, detailDone = false, detailRequest;
   let geometry;
@@ -165,12 +182,24 @@ async function initialize() {
   const canAnimate = () => visible() && !reduced.matches && !paused;
 
   function draw() {
-    if (!visible()) return;
+    if (!visible() || !geometry) return;
     // Lighting stays in the same part of the composition as the camera orbits.
     sunDirection.set(-.8, .4, -.95).normalize().applyQuaternion(camera.quaternion);
+    sunriseDirection.copy(sunriseLocal).applyQuaternion(camera.quaternion);
     sun.position.copy(sunDirection).multiplyScalar(1000);
     nightTiles.update(performance.now(), sunDirection);
     renderer.render(scene, camera);
+    if (!surfaceCompiled) {
+      requestDraw();
+      return;
+    }
+    // The host stays hidden through Globe.gl's default frame, shader setup,
+    // camera placement and the first complete, correctly cropped render.
+    if (!presented) {
+      presented = true;
+      globe.dataset.globeState = 'ready';
+      globe.dataset.globeRenderer = 'globe.gl';
+    }
     clearTimeout(fadeTimer);
     if (nightTiles.fading && !canAnimate()) fadeTimer = setTimeout(requestDraw, 50);
   }
@@ -192,17 +221,30 @@ async function initialize() {
     const projectedRadius = width * (mobile ? 1.1 : .69);
     const center = [width * (mobile ? 1.58 : 1.2), height * (mobile ? .92 : 1.18)];
     world.globeOffset([center[0] - width / 2, center[1] - height / 2]);
+    // Kapsule batches the setters above. Apply the same projection now so a
+    // first frame or a resize cannot expose its default centred blue sphere.
+    renderer.setSize(width, height);
+    camera.aspect = width / height;
+    camera.setViewOffset(width, height, width / 2 - center[0], height / 2 - center[1], width, height);
     const focalLength = height / (2 * Math.tan(camera.fov * Math.PI / 360));
     const distance = radius * Math.sqrt(1 + (focalLength / projectedRadius) ** 2);
     world.pointOfView({ altitude: distance / radius - 1 });
+    camera.updateProjectionMatrix();
     controls.update();
+    camera.updateMatrixWorld();
     geometry = { width, height, center, radius: projectedRadius };
     nightTiles.dirty = true;
     const enter = portal.querySelector('.portal-enter').getBoundingClientRect();
     const sunY = Math.max(height * .36, enter.top + enter.height / 2 - host.getBoundingClientRect().top - Math.min(92, width * .065));
     const dy = Math.max(-projectedRadius * .96, Math.min(projectedRadius * .96, sunY - center[1]));
-    globe.style.setProperty('--sun-x', `${center[0] - Math.sqrt(projectedRadius ** 2 - dy ** 2)}px`);
+    const sunX = center[0] - Math.sqrt(projectedRadius ** 2 - dy ** 2);
+    globe.style.setProperty('--sun-x', `${sunX}px`);
     globe.style.setProperty('--sun-y', `${center[1] + dy}px`);
+    globe.style.setProperty('--sun-angle', `${Math.atan2(dy, sunX - center[0]) * 180 / Math.PI + 90}deg`);
+    viewRay.set(sunX / width * 2 - 1, 1 - (center[1] + dy) / height * 2, .5)
+      .unproject(camera).sub(camera.position).normalize();
+    sunriseDirection.copy(camera.position).addScaledVector(viewRay, -camera.position.dot(viewRay)).normalize();
+    sunriseLocal.copy(sunriseDirection).applyQuaternion(camera.quaternion.clone().invert());
     // Kapsule applies size changes asynchronously; draw after its update has flushed.
     requestAnimationFrame(() => { if (ready) draw(); });
   }
@@ -295,12 +337,12 @@ async function initialize() {
   reduced.addEventListener('change', syncAnimation);
   canvas.addEventListener('webglcontextlost', event => {
     event.preventDefault();
+    presented = false;
     globe.dataset.globeState = 'fallback';
     syncAnimation();
   });
   canvas.addEventListener('webglcontextrestored', () => {
     nightTiles.invalidate();
-    globe.dataset.globeState = 'ready';
     resize();
     syncAnimation();
   });
@@ -353,7 +395,5 @@ async function initialize() {
   resize();
   await new Promise(requestAnimationFrame);
   draw();
-  globe.dataset.globeState = 'ready';
-  globe.dataset.globeRenderer = 'globe.gl';
   syncAnimation();
 }

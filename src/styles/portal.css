@@ -138,38 +138,83 @@
 }
 
 .portal-globe-fallback {
+  display: none;
   position: absolute;
-  width: 138vw;
-  height: 138vw;
-  left: calc(120% - 69vw);
-  top: calc(118% - 69vw);
-  border-radius: 50%;
-  background: url("../portal/robot-earth.webp") 98% 93% / 250% auto no-repeat;
-  filter: brightness(.65) saturate(.8);
-  transition: opacity .4s;
+  inset: 0;
+  pointer-events: none;
+}
+
+.portal-globe:is([data-globe-state=fallback],[data-globe-state=static]) .portal-globe-fallback {
+  display: block;
+  background: url("../globe/earth-poster.webp") center / cover no-repeat;
+}
+
+.portal-globe-static,
+.portal-globe-static img {
+  display: block;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
   pointer-events: none;
 }
 
 .portal-globe-view {
   position: absolute;
   inset: 0;
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.portal-globe[data-globe-state=ready] .portal-globe-view {
+  visibility: visible;
+  opacity: 1;
+  pointer-events: auto;
+  transition: opacity .55s;
 }
 
 .portal-globe-sun {
+  --sun-size: clamp(200px,22vw,340px);
   position: absolute;
   left: var(--sun-x);
   top: var(--sun-y);
-  width: 260px;
-  height: 260px;
+  width: var(--sun-size);
+  height: var(--sun-size);
   transform: translate(-50%,-50%);
-  background: radial-gradient(circle,#fffaf0 0 .8%,#ffe5b5 1.8%,#ffc57699 4%,#e6a45b24 18%,transparent 65%);
+  background: radial-gradient(circle,#fffdf4 0 .65%,#fff1cf 1.25%,#ffd799c9 2.6%,#ffc57355 7%,#f3a75a20 19%,#d58b3c0a 37%,transparent 68%);
   opacity: 0;
   pointer-events: none;
-  transition: opacity .4s;
+}
+
+.portal-globe-sun:before,
+.portal-globe-sun:after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%,-50%) rotate(var(--sun-angle,-60deg));
+  border-radius: 50%;
+}
+
+.portal-globe-sun:before {
+  width: 76%;
+  height: 9%;
+  background: radial-gradient(ellipse,#ffdcaa85,#efad6340 32%,transparent 72%);
+  filter: blur(5px);
+}
+
+.portal-globe-sun:after {
+  width: 40%;
+  height: 2px;
+  background: linear-gradient(90deg,transparent,#ffca8d80 20%,#fff4d9 50%,#ffca8d80 80%,transparent);
+  box-shadow: 0 0 8px 1px #ffd39c66;
 }
 
 .portal-globe[data-globe-state=ready] .portal-globe-sun {
   opacity: 1;
+  transition: opacity .55s;
 }
 
 .portal-globe-canvas {
@@ -178,19 +223,9 @@
   inset: 0;
   width: 100%;
   height: 100%;
-  opacity: 0;
   touch-action: pan-y;
   outline-offset: -14px;
   cursor: grab;
-  transition: opacity .4s;
-}
-
-.portal-globe[data-globe-state=ready] .portal-globe-canvas {
-  opacity: 1;
-}
-
-.portal-globe[data-globe-state=ready] .portal-globe-fallback {
-  opacity: 0;
 }
 
 .portal-globe-canvas[hidden] {
@@ -674,11 +709,12 @@
     width: 62%;
   }
 
-  .portal-globe-fallback {
-    width: 220vw;
-    height: 220vw;
-    left: calc(158% - 110vw);
-    top: calc(92% - 110vw);
+  .portal-globe:is([data-globe-state=fallback],[data-globe-state=static]) .portal-globe-fallback {
+    background-image: url("../globe/earth-poster-mobile.webp");
+  }
+
+  .portal-globe-sun {
+    --sun-size: 180px;
   }
 
   .portal-enter {
