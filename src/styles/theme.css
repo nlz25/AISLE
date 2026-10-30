@@ -374,6 +374,30 @@ body {
   color: #ecf2ff;
 }
 
+.film-pending {
+  display: grid;
+  align-content: center;
+  gap: 8px;
+  min-height: 160px;
+  padding: 24px;
+  border: 1px solid #ffffff16;
+  border-radius: 7px;
+  background: radial-gradient(ellipse at 50% 0%, #6388c41a, transparent 75%), #101722;
+  text-align: center;
+}
+
+.film-pending h3 {
+  margin: 0;
+  font: 500 18px/1.4 var(--sans);
+  color: #e4ecf8;
+}
+
+.film-pending p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
 .film-preview {
   position: relative;
   display: block;

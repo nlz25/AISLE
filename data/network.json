@@ -1,6 +1,20 @@
 {
   "countries": [
     {
+      "id": "ca",
+      "en": "Canada",
+      "lat": 43.66,
+      "lon": -79.4,
+      "institutions": []
+    },
+    {
+      "id": "ch",
+      "en": "Switzerland",
+      "lat": 46.52,
+      "lon": 6.57,
+      "institutions": []
+    },
+    {
       "id": "apac",
       "en": "Asia-Pacific",
       "lat": 31.3,

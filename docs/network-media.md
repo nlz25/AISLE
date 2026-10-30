@@ -1,6 +1,6 @@
 # Research network and experiment media
 
-The map shows research directions and supplied experiment films, without institution names or logos. Only locations with film content are shown; Asia-Pacific is the display label for the former China entry. Map locations are not claims about where every leaderboard result was measured. The benchmark statistics and scores remain sourced from `data/results.json`.
+The map shows research directions and supplied experiment films, without institution names or logos. Canada and Switzerland remain selectable with a video-pending card; other locations show supplied films. Asia-Pacific is the display label for the former China entry. Map locations are not claims about where every leaderboard result was measured. The benchmark statistics and scores remain sourced from `data/results.json`.
 
 ## Supplied footage
 
@@ -19,7 +19,7 @@ The three viewing copies are loaded on demand. The initial page only requests th
 1. Update the existing institution strip in `data/institutions.json` if needed.
 2. Add the research record to `data/network.json`, including its location and media metadata. Institution branding stays in the separate institution strip.
 3. Add the research record ID to exactly one location group. Pins use representative coordinates; multiple films are selected by research direction within the card.
-4. Include `video`, `topic`, `description` and `duration` only when corresponding supplied media exists; do not publish empty map entries. Store the matching `.mp4` and `.webp` in `public/assets/experiments/`.
+4. Include `video`, `topic`, `description` and `duration` only when corresponding supplied media exists; leave the location’s `institutions` list empty when its video is pending. Store the matching `.mp4` and `.webp` in `public/assets/experiments/`.
 5. Build and validate with the commands in the README.
 
 GreenDynamics remains in the Industry strip. Its map location is not inferred from its name; add it to the appropriate country group once that location is confirmed.

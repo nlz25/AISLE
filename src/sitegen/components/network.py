@@ -18,16 +18,18 @@ def network_hero():
     countries = []
     for c in data["countries"]:
         label = c["en"]
-        n = len(c["institutions"])
+        n = sum(bool(item.get("video")) for item in data["institutions"] if item["id"] in c["institutions"])
         x = (c["lon"] + 180) / 360 * 100
         y = (85 - c["lat"]) / 145 * 100
         active = c["id"] == data["institutions"][0]["country"]
         count_label = "research film" if n == 1 else "research films"
+        availability = f"{n} {count_label}" if n else "Video coming soon"
+        badge = f"<span>{n:02}</span>" if n else ""
         pins.append(
-            f'<button class="map-pin pin-{c["id"]}" style="--x:{x:.3f}%;--y:{y:.3f}%" data-country="{c["id"]}" aria-pressed="{str(active).lower()}" aria-controls="network-inspector" aria-label="{esc(label)} · {n} {count_label}"><span class="pin-core"></span><span class="pin-label">{esc(label)}</span></button>'
+            f'<button class="map-pin pin-{c["id"]}" style="--x:{x:.3f}%;--y:{y:.3f}%" data-country="{c["id"]}" aria-pressed="{str(active).lower()}" aria-controls="network-inspector" aria-label="{esc(label)} · {availability}"><span class="pin-core"></span><span class="pin-label">{esc(label)}</span></button>'
         )
         countries.append(
-            f'<button class="country-option" data-country="{c["id"]}" aria-pressed="{str(active).lower()}" aria-controls="network-inspector">{esc(label)}<span>{n:02}</span></button>'
+            f'<button class="country-option" data-country="{c["id"]}" aria-pressed="{str(active).lower()}" aria-controls="network-inspector">{esc(label)}{badge}</button>'
         )
     first = data["institutions"][0]
     # Paths share coordinates with the country pins; curves are visual network links.
@@ -59,6 +61,7 @@ def network_hero():
           <div class="map-markers">{"".join(pins)}</div>
           <aside id="network-inspector" class="network-inspector" aria-label="Research films">
             <div class="research-options" role="group" aria-label="Choose a research direction" hidden></div>
+            <div id="network-pending" class="film-pending" hidden><h3 id="network-pending-location"></h3><p>Video coming soon</p></div>
             <div id="network-film"><button type="button" class="film-preview" aria-label="Watch experiment film: {esc(first['topic'])}"><img loading="lazy" decoding="async" id="network-poster" src="{asset('experiments/' + first['video'] + '.webp')}" alt="{esc(first['topic'])}" width="960" height="516"><span class="film-play" aria-hidden="true">▶</span><span class="film-duration">{esc(first['duration'])}</span></button><h3 id="network-topic">{esc(first['topic'])}</h3><p id="network-description">{esc(first['description'])}</p></div>
             <p class="network-selection sr-only" role="status" aria-live="polite"></p>
           </aside>

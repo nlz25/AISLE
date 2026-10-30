@@ -9,6 +9,7 @@
   const inspector = document.getElementById('network-inspector');
   const options = inspector.querySelector('.research-options');
   const film = document.getElementById('network-film');
+  const pending = document.getElementById('network-pending');
   const preview = film.querySelector('.film-preview');
   const dialog = document.querySelector('.experiment-dialog');
   const video = document.getElementById('experiment-video');
@@ -20,6 +21,7 @@
     const item = institutions.get(id);
     if (!item) return;
     selected = item;
+    pending.hidden = true;
     const country = countries.get(item.country);
     options.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.institution === id)));
     film.hidden = !item.video;
@@ -41,6 +43,14 @@
     document.querySelectorAll('[data-country]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.country === id)));
     options.replaceChildren();
     options.hidden = country.institutions.length < 2;
+    if (!country.institutions.length) {
+      selected = null;
+      film.hidden = true;
+      pending.hidden = false;
+      document.getElementById('network-pending-location').textContent = country.en;
+      if (announce) inspector.querySelector('.network-selection').textContent = `${country.en}. Video coming soon.`;
+      return;
+    }
     country.institutions.forEach(institutionId => {
       const item = institutions.get(institutionId),
         button = document.createElement('button');
@@ -55,7 +65,7 @@
   }
   document.querySelectorAll('[data-country]').forEach(b => b.addEventListener('click', () => selectCountry(b.dataset.country)));
   preview.addEventListener('click', () => {
-    if (!selected.video) return;
+    if (!selected?.video) return;
     opener = preview;
     error.hidden = true;
     document.getElementById('experiment-title').textContent = (selected.topic);
