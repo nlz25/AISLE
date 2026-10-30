@@ -449,12 +449,6 @@ body {
   color: var(--muted);
 }
 
-#network-description {
-  font-size: 11px;
-  color: #9eafc8;
-  margin: 0;
-}
-
 .network-country-nav {
   border-top: 1px solid #b6c7e51c;
   border-bottom: 1px solid #b6c7e512;
