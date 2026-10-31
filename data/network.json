@@ -1,40 +1,32 @@
 {
   "countries": [
     {
-      "id": "ca",
-      "en": "Canada",
+      "id": "north-america",
+      "en": "North America",
       "lat": 43.66,
       "lon": -79.4,
       "institutions": []
     },
     {
-      "id": "ch",
-      "en": "Switzerland",
+      "id": "europe",
+      "en": "Europe",
       "lat": 46.52,
       "lon": 6.57,
       "institutions": []
     },
     {
-      "id": "apac",
-      "en": "Asia-Pacific",
+      "id": "asia",
+      "en": "Asia",
       "lat": 31.3,
       "lon": 120.58,
       "institutions": [
-        "suzhou"
-      ]
-    },
-    {
-      "id": "sg",
-      "en": "Singapore",
-      "lat": 1.3,
-      "lon": 103.78,
-      "institutions": [
+        "suzhou",
         "bears"
       ]
     },
     {
-      "id": "au",
-      "en": "Australia",
+      "id": "pacific",
+      "en": "Pacific",
       "lat": -33.92,
       "lon": 151.23,
       "institutions": [
@@ -49,7 +41,7 @@
       "short": "Suzhou National Laboratory",
       "logo": "SZLAB-V1.png",
       "city": "Suzhou",
-      "country": "apac",
+      "country": "asia",
       "video": "suzhou",
       "topic": "Colour matching",
       "description": "Robotic liquid handling and experimental colour matching.",
@@ -61,7 +53,7 @@
       "short": "BEARS",
       "logo": "BEARS.webp",
       "city": "Singapore",
-      "country": "sg",
+      "country": "asia",
       "video": "bears",
       "topic": "Colour matching & resin transfer",
       "description": "Colour formulation and resin-transfer experiments.",
@@ -73,7 +65,7 @@
       "short": "UNSW Sydney",
       "logo": "UNSW.webp",
       "city": "Sydney",
-      "country": "au",
+      "country": "pacific",
       "video": "unsw",
       "topic": "Coloured photovoltaics",
       "description": "Experimental research on coloured photovoltaic devices.",

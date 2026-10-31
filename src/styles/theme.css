@@ -289,23 +289,18 @@ body {
   margin-top: 3px;
 }
 
-.pin-au .pin-label {
+.pin-pacific .pin-label {
   left: auto;
   right: 32px;
   text-align: right;
 }
 
-.pin-sg .pin-label {
-  top: 29px;
-  left: 5px;
-}
-
-.pin-ca .pin-label {
+.pin-north-america .pin-label {
   top: -27px;
   left: 20px;
 }
 
-.pin-ch .pin-label {
+.pin-europe .pin-label {
   top: -28px;
   left: 16px;
 }
@@ -940,28 +935,23 @@ body {
     display: none;
   }
 
-  .pin-ch .pin-label {
+  .pin-europe .pin-label {
     left: -10px;
     top: -12px;
   }
 
-  .pin-ca .pin-label {
+  .pin-north-america .pin-label {
     left: 10px;
     top: -12px;
   }
 
-  .pin-apac .pin-label {
+  .pin-asia .pin-label {
     left: -8px;
     top: -12px;
   }
 
-  .pin-au .pin-label {
+  .pin-pacific .pin-label {
     right: 28px;
-  }
-
-  .pin-sg .pin-label {
-    left: -22px;
-    top: 30px;
   }
 
   .network-inspector {
@@ -990,7 +980,7 @@ body {
 
   .network-country-nav {
     display: grid;
-    grid-template-columns: repeat(3,1fr);
+    grid-template-columns: repeat(2,1fr);
     gap: 6px 15px;
     padding: 10px 0;
   }
@@ -1053,27 +1043,22 @@ body {
     font-size: 7px;
   }
 
-  .pin-us .pin-label {
-    left: 8px;
-    top: 30px;
-  }
-
-  .pin-ca .pin-label {
-    left: 4px;
+  .pin-north-america .pin-label {
+    left: -24px;
     top: -10px;
   }
 
-  .pin-ch .pin-label {
+  .pin-europe .pin-label {
     left: -20px;
     top: -12px;
   }
 
-  .pin-apac .pin-label {
+  .pin-asia .pin-label {
     left: -20px;
     top: -12px;
   }
 
-  .pin-au .pin-label {
+  .pin-pacific .pin-label {
     right: 20px;
     top: 20px;
   }

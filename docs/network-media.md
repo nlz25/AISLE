@@ -1,6 +1,6 @@
 # Research network and experiment media
 
-The map shows research directions and supplied experiment films, without institution names or logos. Canada and Switzerland remain selectable with a video-pending card; other locations show supplied films. Asia-Pacific is the display label for the former China entry. Map locations are not claims about where every leaderboard result was measured. The benchmark statistics and scores remain sourced from `data/results.json`.
+The map shows research directions and supplied experiment films, without institution names or logos. North America and Europe remain selectable with a video-pending card. Asia groups the Suzhou and Singapore films; Pacific contains the Australian film. These four regional pins retain representative coordinates from the original locations. Map locations are not claims about where every leaderboard result was measured. The benchmark statistics and scores remain sourced from `data/results.json`.
 
 ## Supplied footage
 
