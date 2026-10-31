@@ -740,3 +740,18 @@
     animation: none;
   }
 }
+
+/* A small instrument readout sits above the touch point. */
+.portal-count {
+  position: absolute;
+  bottom: calc(100% + 28px);
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events: none;
+  white-space: nowrap;
+  font: 400 clamp(18px, 2.1vw, 26px)/1.1 ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: .16em;
+  color: #c7eaff;
+  text-shadow: 0 0 16px #6cbcff70;
+}

@@ -1,9 +1,13 @@
 """Progressively enhanced entrance; all research content stays server-rendered."""
 
+import json
+
+from ..context import ROOT, esc
 from .quotation import experiment_quotation
 
 
 def entrance():
+    endpoint = json.loads((ROOT / "data/counter.json").read_text())["endpoint"]
     return f"""<section class="portal" id="entrance" aria-labelledby="portal-title">
       <div class="portal-atmosphere" aria-hidden="true"></div>
       <div class="portal-stars" aria-hidden="true"></div>
@@ -25,6 +29,7 @@ def entrance():
           <span class="portal-enter-ring" aria-hidden="true"></span>
           <span class="portal-enter-ring portal-enter-ring-inner" aria-hidden="true"></span>
           <span class="portal-enter-core" aria-hidden="true"><span class="portal-nucleus"></span></span>
+          <span class="portal-count" data-endpoint="{esc(endpoint)}" role="status" title="Total portal clicks" hidden></span>
           <span class="portal-tagline">Nature as the Verifier</span>
         </a>
       </div>

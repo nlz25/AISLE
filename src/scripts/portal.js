@@ -1,9 +1,12 @@
+import { portalCounter } from './counter.js?v=__ASSET_VERSION__';
+
 /* The hash is the view state, so direct links, reload and Back/Forward stay useful. */
 (() => {
   const portal = document.getElementById('entrance');
   const content = document.getElementById('research-content');
   if (!portal || !content) return;
   const enter = portal.querySelector('.portal-enter');
+  const countClick = portalCounter(portal);
   const heading = document.getElementById('network-title');
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
   let transitionTimer;
@@ -51,6 +54,7 @@
   }
 
   enter.addEventListener('click', event => {
+    void countClick();
     if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     event.preventDefault();
     if (portal.classList.contains('is-leaving')) return;
