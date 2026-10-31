@@ -44,7 +44,12 @@ if (entrance) {
     else setTimeout(loadGlobe, 600);
   };
   const artwork = entrance.querySelector('.portal-arm img');
-  const afterArtwork = () => requestAnimationFrame(() => requestAnimationFrame(scheduleGlobe));
+  const afterArtwork = async () => {
+    // Start the hand's entrance only once its pixels can actually be painted.
+    try { await artwork.decode(); } catch { /* A failed image must not block the globe. */ }
+    entrance.classList.add('has-artwork');
+    requestAnimationFrame(() => requestAnimationFrame(scheduleGlobe));
+  };
   if (artwork.complete) afterArtwork();
   else {
     artwork.addEventListener('load', afterArtwork, { once: true });

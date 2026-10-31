@@ -6,15 +6,19 @@ The entrance is a conceptual illustration, not footage or a photograph of partic
 - Original scene: `design/originals/assets/portal/robot-earth.png` (1672 × 941, RGBA; original generated alpha preserved), retained as an archive. Its `robot-earth.webp` delivery copy has no runtime references.
 - Replacement hand: `design/originals/assets/portal/robot-hand.png` (1672 × 941, RGBA), an unchanged copy of the user-supplied `design/explorations/resources.png`. No image generation, background removal or repainting was used for this replacement.
 - The original generated image is retained separately. No API/CLI generation or raster repainting was used.
-- HTML supplies all text and the entrance link. CSS supplies light, grain and interaction. The supplied hand's source fingertip at pixel (1578, 294) anchors to the shared atmospheric contact. Its width follows that point so the forearm reaches the left viewport edge at full extension; the supplied image retains its 2° rotation.
+- HTML supplies all text and the entrance link. CSS supplies light, grain and interaction. The supplied hand's source fingertip at pixel (1578, 294) anchors to the shared atmospheric contact. Its width follows that point so the forearm reaches the left viewport edge at full extension, where the supplied image retains its 2° rotation.
 
 The entrance is a light at the point where the mechanical hand meets Earth.
 There is no outlined doorway or inset map. A soft, cool atmospheric veil and
 warm contact glow intensify as the pointer approaches from anywhere in the
-window. A smooth distance curve simultaneously advances the hand from its
-resting gap until the fingertip coincides with the light. Moving away gently
-retracts the hand. The hand's resting gap scales with the viewport, approximately
-98 pixels at 1440 pixels wide and 31 pixels at 390 pixels wide.
+window. A smooth distance curve simultaneously advances and turns the hand from
+its relaxed pose until the fingertip coincides with the light. A separate hand
+layer pivots around the forearm at 12% / 68% of the artwork, turning through 6°
+(5° on mobile) so the fingertip follows a shallow arc. Moving away gently
+reverses the same motion. Horizontal retraction scales with the viewport,
+approximately 115 pixels at 1440 pixels wide and 35 pixels at 390 pixels wide,
+in addition to the offset from rotation. Translation and rotation share one
+smoothed progress value, with no overshoot or extra settling phase.
 
 `portal-scene.js` supplies the shared geometry and contact-light strength. The
 Earth surface and atmosphere shaders use that same strength to brighten

@@ -12,11 +12,13 @@ GitHub Actions validates each pull request. A successful build on `main` uploads
 
 - `navigation.js`: mobile menu and page visibility state on every page.
 - `main.js`: chooses the appropriate enhancements and defers expensive work.
-- `portal.js`: hash-driven entrance/network navigation, focus and Back/Forward. Global pointer distance smoothly drives hand extension and atmospheric light. The response loop runs only while changing. Keyboard and touch can enter directly; reduced motion fixes the hand at contact. Activation blooms and crossfades, with a fade fallback.
+- `portal.js`: hash-driven entrance/network navigation, focus and Back/Forward. Global pointer distance smoothly drives hand extension, forearm rotation and atmospheric light through one progress value. The response loop runs only while changing. Keyboard and touch can enter directly; reduced motion fixes the hand at contact. Activation blooms and crossfades, with a fade fallback.
 - `portal-scene.js`: shared Earth projection, contact placement and light-strength uniform. The fingertip at full extension and the sunrise coincide on the projected horizon, including after resize and with centered cover-cropped fallback posters.
 - `globe.js`: optional Globe.gl Earth with separate surface, clouds and atmosphere. Initialization follows artwork paint and an idle opportunity. During normal loading, the globe host stays hidden without a poster; synchronous camera/crop setup and a successful complete draw precede its reveal. Reduced-motion and data-saving visits use a responsive poster of the current scene. A later change to reduced motion stops automatic rotation while preserving manual controls.
 - `research.js`: tabs, model details, score ordering/tooltips and study statistics. Loaded when the research view is entered, or on the leaderboard page.
 - `network.js`: country/institution selection, on-demand film player and decorative map paths. Loaded only on entry to the research network.
+
+The entrance hand slides in from the left with a small rotation and decelerates directly to its resting position in 780 ms once its image has decoded. This CSS animation runs on the image independently of the pointer-driven arm transform. The title, quotation, attribution and tagline fade upward in sequence. Reduced motion skips these animations; without JavaScript the hand remains visible and static.
 
 The research section starts hidden; lazy images are not requested during entrance display. A noscript style exposes the server-rendered research content when JavaScript is disabled. Videos keep `preload="none"` and receive their source only after a visitor opens the player.
 

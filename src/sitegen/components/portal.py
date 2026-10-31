@@ -14,13 +14,13 @@ def entrance():
       </div>
         <div class="portal-globe" data-texture="assets/portal/earth-surface.webp" data-texture-hd="assets/globe/earth-surface-hd.webp" data-clouds="assets/portal/earth-clouds.webp" data-night="assets/globe/night-tiles/base.webp" data-night-tiles="assets/globe/night-tiles/manifest.json" data-detail="assets/globe/earth-detail-hd.webp">
           <div class="portal-globe-fallback" aria-hidden="true"></div>
-          <noscript><picture class="portal-globe-static" aria-hidden="true"><source media="(max-width:500px)" srcset="assets/globe/earth-poster-mobile.webp"><img src="assets/globe/earth-poster.webp" alt="" width="1440" height="821"></picture></noscript>
+          <noscript><style>.portal-arm img{{animation:none}}</style><picture class="portal-globe-static" aria-hidden="true"><source media="(max-width:500px)" srcset="assets/globe/earth-poster-mobile.webp"><img src="assets/globe/earth-poster.webp" alt="" width="1440" height="821"></picture></noscript>
           <div class="portal-globe-view"></div>
         </div>
       <div class="portal-scene">
         <div class="portal-limb-glow" aria-hidden="true"></div>
         <div class="portal-globe-sun" aria-hidden="true"></div>
-        <div class="portal-arm" aria-hidden="true"><img src="assets/portal/robot-hand.webp" width="1672" height="941" alt="" fetchpriority="high" decoding="async"></div>
+        <div class="portal-arm" aria-hidden="true"><div class="portal-hand"><img src="assets/portal/robot-hand.webp" width="1672" height="941" alt="" fetchpriority="high" decoding="async"></div></div>
         <div class="portal-touch" aria-hidden="true"></div>
         <a class="portal-enter" href="#network" aria-label="Touch the Earth to enter the global research network">
           <span class="portal-enter-bloom" aria-hidden="true"></span>

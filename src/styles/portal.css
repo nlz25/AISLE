@@ -89,7 +89,8 @@
 
 .portal-scene {
   --touch-x: 56.4%;
-  --rest-gap: clamp(44px,6.8vw,104px);
+  --rest-gap: clamp(56px,8vw,120px);
+  --rest-tilt: -6deg;
   --touch-y: 50%;
   --enter-x: 56.4%;
   --contact-angle: 22deg;
@@ -113,6 +114,12 @@
   pointer-events: none;
 }
 
+.portal-hand {
+  /* Turn around the forearm; zero tilt keeps the fingertip on the contact light. */
+  transform-origin: 12% 68%;
+  transform: rotate(calc(var(--rest-tilt) * (1 - var(--hand-progress))));
+}
+
 .portal-arm img {
   display: block;
   width: 100%;
@@ -121,6 +128,13 @@
   /* Blend the source's cropped forearm edge into the scene. */
   mask-image: linear-gradient(#000 92%,transparent);
   filter: drop-shadow(0 16px 24px #0005);
+  /* Animate the artwork independently of the pointer-driven pose. */
+  transform-origin: 12% 68%;
+  animation: portal-hand-arrive .78s cubic-bezier(.2,.8,.2,1) .08s backwards paused;
+}
+
+.portal.has-artwork .portal-arm img {
+  animation-play-state: running;
 }
 
 /* A close orbital view: the planet's centre is beyond the bottom-right edge. */
@@ -327,7 +341,27 @@
   outline-offset: 12px;
 }
 
-.portal-ready.portal-open .portal-arm {
+.portal-heading h1,
+.portal-heading .experiment-quotation blockquote,
+.portal-heading .experiment-quotation figcaption,
+.portal-enter .portal-tagline {
+  animation: portal-text-arrive .7s cubic-bezier(.22,1,.36,1) var(--arrival-delay,.06s) backwards;
+}
+
+.portal-heading .experiment-quotation blockquote {
+  --arrival-delay: .18s;
+}
+
+.portal-heading .experiment-quotation figcaption {
+  --arrival-delay: .3s;
+}
+
+.portal-enter .portal-tagline {
+  --arrival-delay: .46s;
+}
+
+.portal-ready.portal-open .portal-arm,
+.portal-ready.portal-open .portal-hand {
   will-change: transform;
 }
 
@@ -365,6 +399,7 @@
 
 .portal.is-leaving .portal-enter-label,
 .portal.is-leaving .portal-tagline {
+  animation: none;
   opacity: 0;
   transition: opacity .18s;
 }
@@ -472,6 +507,34 @@
 
 .network-flow-particles.is-moving {
   opacity: 1;
+}
+
+@keyframes portal-hand-arrive {
+  from {
+    transform: translate(-110%,24px) rotate(-7deg);
+    opacity: 0;
+  }
+
+  22% {
+    opacity: 1;
+  }
+
+  to {
+    transform: translate(0,0) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+@keyframes portal-text-arrive {
+  from {
+    opacity: 0;
+    translate: 0 12px;
+  }
+
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
 }
 
 @keyframes portal-bloom {
@@ -589,7 +652,8 @@
 
   .portal-scene {
     --touch-x: 57%;
-    --rest-gap: clamp(24px,8vw,40px);
+    --rest-gap: clamp(28px,9vw,44px);
+    --rest-tilt: -5deg;
     --touch-y: 50%;
     --enter-x: 57%;
   }
@@ -657,6 +721,10 @@
 @media (prefers-reduced-motion:reduce) {
   .portal-arm {
     transform: translate(-94.38%,-31.24%) rotate(2deg);
+  }
+
+  .portal-hand {
+    transform: none;
   }
 
   .portal *,
