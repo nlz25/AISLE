@@ -5,6 +5,7 @@ import {
   SRGBColorSpace, Texture, TextureLoader, Vector3
 } from '../vendor/globe.gl.js?v=__ASSET_VERSION__';
 import { createNightTiles } from './globe-tiles.js?v=__ASSET_VERSION__';
+import { createSunriseFlare } from './globe-flare.js?v=__ASSET_VERSION__';
 import { contactLight, earthGeometry, layoutEntrance } from './portal-scene.js?v=__ASSET_VERSION__';
 
 const globe = document.querySelector('.portal-globe');
@@ -108,16 +109,27 @@ async function initialize() {
     `);
     nightTiles.patch(shader);
     shader.fragmentShader = shader.fragmentShader.replace('#include <opaque_fragment>', `
-      float facing = max(0.0, dot(normalize(vEarthNormal), normalize(cameraPosition - vEarthPosition)));
+      vec3 earthNormal = normalize(vEarthNormal);
+      float facing = clamp(dot(earthNormal, normalize(cameraPosition - vEarthPosition)), 0.0, 1.0);
       float scatteredLight = 0.16 + 0.84 * smoothstep(-0.45, 0.65, sunOrientation);
-      float sunrise = exp((dot(normalize(vEarthNormal), uSunriseDirection) - 1.0) * 95.0);
+      vec3 horizonTangent = normalize(cross(uSunriseDirection, normalize(cameraPosition)));
+      float poolWidth = mix(0.055, 0.12, uContactStrength);
+      float alongPool = dot(earthNormal, horizonTangent) / poolWidth;
+      float sunrise = exp(-alongPool * alongPool)
+        * smoothstep(0.85, 0.98, dot(earthNormal, uSunriseDirection));
       vec3 airglow = mix(vec3(0.025, 0.16, 0.52), vec3(0.16, 0.52, 1.0), scatteredLight);
       // Blue air scatters across a wider part of the limb; the warm contact
       // light stays thin. Both respect the terrain's remaining colour headroom.
       float blueRim = pow(1.0 - facing, 5.0);
-      float surfaceRim = pow(1.0 - facing, 10.0);
+      float surfaceRim = pow(1.0 - facing, 12.0);
       vec3 scattering = airglow * blueRim * scatteredLight * 0.7;
-      scattering += vec3(1.0, 0.54, 0.19) * sunrise * surfaceRim * (0.35 + uContactStrength * 0.55);
+      scattering += vec3(1.0, 0.57, 0.23) * sunrise * surfaceRim * (0.2 + uContactStrength * 0.65);
+      // The warm reflection remains on the surface. Ocean colour and texture
+      // break it up naturally instead of painting a white spot over the terrain.
+      float ocean = smoothstep(0.01, 0.075, diffuseColor.b - diffuseColor.r);
+      float seaDetail = 0.65 + 0.35 * smoothstep(0.015, 0.12, diffuseColor.g);
+      scattering += vec3(1.0, 0.76, 0.4) * sunrise * pow(1.0 - facing, 18.0)
+        * ocean * seaDetail * (0.1 + uContactStrength * 0.55);
       vec3 headroom = max(vec3(0.9) - outgoingLight, vec3(0.0));
       outgoingLight += min(scattering, vec3(0.65)) * headroom;
       #include <opaque_fragment>
@@ -171,11 +183,13 @@ async function initialize() {
         float density = exp(-altitude / 0.0085);
         float outerTail = 1.0 - smoothstep(0.04, 0.06, altitude);
         float lit = 0.18 + 0.82 * smoothstep(-0.45, 0.65, dot(horizonNormal, uSunDirection));
-        float sunrise = exp((dot(horizonNormal, uSunriseDirection) - 1.0) * 95.0);
+        float sunrise = exp((dot(horizonNormal, uSunriseDirection) - 1.0) * mix(240.0, 95.0, uContactStrength));
         float response = uContactStrength * sunrise;
         vec3 blue = mix(vec3(0.08, 0.28, 0.8), vec3(0.28, 0.66, 1.0), lit);
-        float warmth = sunrise * exp(-altitude / 0.016) * (0.7 + uContactStrength * 0.15);
-        vec3 color = mix(blue, vec3(1.0, 0.68, 0.32), warmth);
+        float warmth = sunrise * exp(-altitude / 0.006) * (0.5 + uContactStrength * 0.5);
+        vec3 color = mix(blue, vec3(1.0, 0.72, 0.38), warmth);
+        float horizonLight = sunrise * exp(-altitude / 0.0025) * uContactStrength;
+        color = mix(color, vec3(1.0, 0.88, 0.64), horizonLight * 0.7);
         // Bounded optical depth retains colour instead of turning the limb white.
         float opticalDepth = density * (0.45 + lit * 0.9 + sunrise * 0.4 + response * 0.4);
         float opacity = (1.0 - exp(-opticalDepth)) * outerTail;
@@ -186,6 +200,10 @@ async function initialize() {
   }));
   atmosphere.renderOrder = 3;
   scene.add(atmosphere);
+  const sunriseFlare = createSunriseFlare({
+    scene, renderer, radius, onChange: requestDraw,
+    onState: state => { globe.dataset.lensflareState = state; }
+  });
   const anisotropy = Math.min(16, renderer.capabilities.getMaxAnisotropy());
   [surface, cloudMap, night].forEach(texture => { texture.anisotropy = anisotropy; });
 
@@ -203,6 +221,7 @@ async function initialize() {
     sunDirection.set(-.8, .4, -.95).normalize().applyQuaternion(camera.quaternion);
     sunriseDirection.copy(sunriseLocal).applyQuaternion(camera.quaternion);
     sun.position.copy(sunDirection).multiplyScalar(1000);
+    sunriseFlare.update(sunriseDirection, geometry, contactLight.value);
     nightTiles.update(performance.now(), sunDirection);
     renderer.render(scene, camera);
     if (!surfaceCompiled) {

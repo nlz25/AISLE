@@ -20,14 +20,27 @@ approximately 115 pixels at 1440 pixels wide and 35 pixels at 390 pixels wide,
 in addition to the offset from rotation. Translation and rotation share one
 smoothed progress value, with no overshoot or extra settling phase.
 
-`portal-scene.js` supplies the shared geometry and contact-light strength. The
-Earth surface and atmosphere shaders use that same strength to brighten
-scattering around the contact. Blue scattering extends across the curved limb,
-while warm contact light stays on a thin rim. Both use the remaining colour
-headroom, preserving bright terrain texture
-instead of adding a white wash. Atmospheric density has a fixed exponential
-falloff; pointer approach changes local intensity rather than global thickness. CSS lights follow the same point and
-horizon angle. The pointer response eases through requestAnimationFrame only
+`portal-scene.js` supplies the shared geometry and contact-light strength. CSS
+uses the projected Earth radius and horizon angle to hide the lower part of a
+shallow sunrise behind the curved planet. A warm pool follows the limb, with a
+small raised light cap and a soft atmospheric tail. Proximity gradually
+broadens and brightens the pool.
+A short horizontal lens streak and a textured optical flare appear as proximity
+increases. The live view uses the official Three.js `Lensflare` addon with the
+diffraction and aperture-ghost textures from its lens flare example, replacing
+the earlier CSS rings. The source sits four projected pixels above the limb,
+within the sunrise cap. The addon positions ghosts along the optical axis and
+uses a small depth-tested occlusion probe. Its RGB textures are converted in
+memory to equivalent transparent additive sprites, preventing black rectangles
+on the transparent Earth canvas. Static and unavailable-WebGL visits reuse the
+same textures with CSS luminance masks; loading failures do not prevent Earth rendering. The
+optical sprites use the existing bounded render loop and are disabled at rest.
+The Earth surface shader adds a matching warm rim and a texture-modulated
+reflection on blue ocean regions, preserving the terrain's colour headroom.
+The atmosphere warms locally next to the surface while retaining its blue outer
+scattering and exponential density falloff. The light is composited over the
+fingertip where they meet. Posters use the same curved CSS light mask, including
+after resize. The pointer response eases through requestAnimationFrame only
 while changing; it stops once settled and while the entrance or tab is hidden.
 The bounded Earth render loop is unchanged. “Touch to enter” stays hidden on
 mouse-driven visits until proximity exceeds 0.55, then fades to full opacity
@@ -52,7 +65,12 @@ Source: [NASA Earth Observatory — The Blue Marble (2002)](https://science.nasa
 - `design/originals/assets/portal/earth-clouds.jpg`: original 2048 × 1024 [cloud texture](https://assets.science.nasa.gov/content/dam/science/esd/eo/content-feature/bluemarble/images/cloud_combined_2048.jpg).
 - No new generated artwork was used for this revision. The shader, atmospheric rim, lighting and proximity response are native website rendering. Static posters are transparent browser captures of Earth at 1440 × 821 and 390 × 773. The CSS sunrise remains separate so it always follows the contact point; it is never baked into the poster. Fallback geometry accounts for each poster's centered cover crop.
 
-The close orbital composition places the sphere centre outside the bottom-right of the viewport. The renderer draws only the viewport. The atmosphere mesh extends to 1.06 times Earth's radius. Exponential density decays almost to transparency before a final smooth tail at 1.04–1.06 radii; bounded optical depth avoids exposing the mesh silhouette as a cutoff. Blue rim scattering and a localized warm sunrise complete the horizon. The sunrise direction is stored relative to the camera so its warmth follows the screen-anchored CSS sun during rotation. These effects retain the existing three scene draw calls. Very low ambient light keeps the night side dark, while a separate cloud layer and rough ocean reflections preserve depth. The stock-video preview supplied as a visual reference is not a website asset.
+The close orbital composition places the sphere centre outside the bottom-right of the viewport. The renderer draws only the viewport. The atmosphere mesh extends to 1.06 times Earth's radius. Exponential density decays almost to transparency before a final smooth tail at 1.04–1.06 radii; bounded optical depth avoids exposing the mesh silhouette as a cutoff. Blue rim scattering and a localized warm sunrise complete the horizon. The sunrise direction is stored relative to the camera so its warmth follows the screen-anchored CSS sun during rotation. Earth retains three scene draws at rest; the active optical flare brings the total to ten. Very low ambient light keeps the night side dark, while a separate cloud layer and rough ocean reflections preserve depth. The stock-video preview supplied as a visual reference is not a website asset.
+
+The optical textures are unchanged copies of `lensflare0.png` (78,758 bytes)
+and `lensflare3.png` (4,822 bytes) from the Three.js r183 example. The example
+credits ro.me. Their source URLs and credit are in `public/assets/globe/credits.txt`;
+the Three.js MIT license is included in `public/assets/vendor/globe.LICENSES.txt`.
 
 - `design/originals/assets/portal/earth-night.jpg`: original 2048 × 1024 [NASA night-light texture](https://assets.science.nasa.gov/content/dam/science/esd/eo/content-feature/bluemarble/images/land_ocean_ice_lights_2048.jpg).
 

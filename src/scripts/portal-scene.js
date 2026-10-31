@@ -40,5 +40,13 @@ export function layoutEntrance(portal, live = false) {
   // The supplied hand's fingertip is at 94.38% of its source width.
   scene.style.setProperty('--arm-width', `${(x + 10) / .9438}px`);
   scene.style.setProperty('--contact-angle', `${angle}deg`);
+  // In the light's rotated coordinates the planet's centre is one radius
+  // inward. CSS can then occlude the sunrise with the actual curved horizon.
+  scene.style.setProperty('--earth-radius', `${geometry.radius}px`);
+  // Lens reflections lie on the axis from the source to the image centre.
+  const lensX = bounds.width / 2 - x;
+  const lensY = bounds.height / 2 - y;
+  scene.style.setProperty('--flare-axis', `${Math.atan2(lensY, lensX) * 180 / Math.PI}deg`);
+  scene.style.setProperty('--flare-reach', `${Math.min(800, Math.max(180, Math.hypot(lensX, lensY) * 2))}px`);
   return { ...geometry, contact: { x, y, angle } };
 }

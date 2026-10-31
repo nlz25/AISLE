@@ -20,8 +20,8 @@ def entrance():
       <div class="portal-scene">
         <div class="portal-limb-glow" aria-hidden="true"></div>
         <div class="portal-globe-sun" aria-hidden="true"></div>
+        <div class="portal-lens-flare" aria-hidden="true"><span class="portal-lens-ghosts"></span></div>
         <div class="portal-arm" aria-hidden="true"><div class="portal-hand"><img src="assets/portal/robot-hand.webp" width="1672" height="941" alt="" fetchpriority="high" decoding="async"></div></div>
-        <div class="portal-touch" aria-hidden="true"></div>
         <a class="portal-enter" href="#network" aria-label="Touch the Earth to enter the global research network">
           <span class="portal-enter-bloom" aria-hidden="true"></span>
           <span class="portal-enter-label" aria-hidden="true">Touch to enter</span>

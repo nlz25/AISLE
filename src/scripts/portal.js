@@ -29,7 +29,7 @@ import { contactLight, layoutEntrance } from './portal-scene.js?v=__ASSET_VERSIO
     if (document.hidden || portal.hidden) { lastTime = 0; return; }
     const dt = lastTime ? Math.min(64, time - lastTime) : 16;
     lastTime = time;
-    const ease = 1 - Math.exp(-dt / (target > strength ? 80 : 150));
+    const ease = 1 - Math.exp(-dt / (target > strength ? 180 : 260));
     const next = strength + (target - strength) * ease;
     paint(Math.abs(target - next) < .001 ? target : next);
     if (strength !== target) frame = requestAnimationFrame(follow);

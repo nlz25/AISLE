@@ -1,5 +1,14 @@
 AISLE Earth imagery
 
+Optical flare textures: Three.js r183 lens flare example, credited to ro.me.
+https://threejs.org/examples/webgl_lensflares.html
+https://raw.githubusercontent.com/mrdoob/three.js/r183/examples/textures/lensflare/lensflare0.png
+https://raw.githubusercontent.com/mrdoob/three.js/r183/examples/textures/lensflare/lensflare3.png
+Stored as lensflare-glare.png and lensflare-ghost.png without file changes.
+The live renderer converts black RGB backgrounds to equivalent additive alpha
+in memory for the transparent canvas. Static fallbacks use the original textures.
+Three.js MIT license: ../vendor/globe.LICENSES.txt
+
 Desktop surface, night imagery, height, roughness and clouds: Solar System Scope / INOVE.
 Source collection: https://www.solarsystemscope.com/textures/
 License: Creative Commons Attribution 4.0 International

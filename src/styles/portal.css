@@ -94,6 +94,9 @@
   --touch-y: 50%;
   --enter-x: 56.4%;
   --contact-angle: 22deg;
+  --earth-radius: 69vw;
+  --flare-axis: -118deg;
+  --flare-reach: 280px;
   position: relative;
   z-index: 1;
   flex: 1 0 220px;
@@ -193,30 +196,36 @@
   transition: opacity .55s;
 }
 
-/* A soft pool of scattered light follows the same atmospheric contact. */
+/* Local x points into Earth; local y follows its horizon. Both masks use
+   the projected planet radius, so the light stays attached during resize. */
 .portal-limb-glow {
   position: absolute;
   left: var(--enter-x);
   top: var(--touch-y);
-  width: clamp(70px,8vw,120px);
-  height: clamp(240px,28vw,400px);
-  transform: translate(-50%,-50%) rotate(var(--contact-angle)) scale(calc(.8 + var(--proximity) * .3));
-  background: radial-gradient(ellipse,#d7f1ff6b,#91ceff2b 26%,#669eff0e 48%,transparent 72%);
-  filter: blur(12px);
+  width: clamp(140px,16vw,230px);
+  height: clamp(300px,34vw,490px);
+  transform: translate(-50%,-50%) rotate(var(--contact-angle));
+  background:
+    radial-gradient(ellipse calc(24px + var(--proximity) * 22px) calc(70px + var(--proximity) * 90px) at 50% 50%,#ffedcde0,#ffc67d7a 25%,#e5b16a24 56%,transparent 82%),
+    radial-gradient(ellipse at 50% 50%,#b7e4ff77,#80bcf92b 36%,transparent 72%);
+  mask-image: radial-gradient(circle var(--earth-radius) at calc(50% + var(--earth-radius)) 50%,transparent calc(100% - 28px),#000 calc(100% - 5px),#000 calc(100% + 3px),transparent calc(100% + 62px));
   mix-blend-mode: screen;
   opacity: 0;
   pointer-events: none;
 }
 
 .portal-globe-sun {
-  --sun-size: clamp(240px,25vw,380px);
   position: absolute;
+  z-index: 2;
   left: var(--enter-x);
   top: var(--touch-y);
-  width: var(--sun-size);
-  height: var(--sun-size);
-  transform: translate(-50%,-50%) scale(calc(.8 + var(--proximity) * .45));
-  background: radial-gradient(circle,#fffdf4 0 .4%,#fff1d9 1%,#ffd5a0b3 2.8%,#f5be7159 7%,#d6ebff24 16%,#8acaff10 32%,transparent 66%);
+  width: clamp(180px,20vw,290px);
+  height: clamp(280px,31vw,450px);
+  transform: translate(-50%,-50%) rotate(var(--contact-angle));
+  background: radial-gradient(ellipse calc(30px + var(--proximity) * 20px) calc(68px + var(--proximity) * 66px) at 50% 50%,#ffe8b887,#f6be7552 24%,#d89a5021 48%,transparent 80%);
+  /* The planet hides the lower half of the source, exposing a low cap. */
+  mask-image: radial-gradient(circle var(--earth-radius) at calc(50% + var(--earth-radius)) 50%,transparent calc(100% - .5px),#000 calc(100% + 1px));
+  mix-blend-mode: screen;
   opacity: 0;
   pointer-events: none;
 }
@@ -225,36 +234,113 @@
 .portal-globe-sun:after {
   content: "";
   position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%,-50%) rotate(calc(var(--contact-angle) + 90deg));
-  border-radius: 50%;
+  inset: 0;
 }
 
 .portal-globe-sun:before {
-  width: 88%;
-  height: 13%;
-  background: radial-gradient(ellipse,#ffe3bd6b,#a7d8ff24 32%,transparent 72%);
-  filter: blur(8px);
-  opacity: calc(.25 + var(--proximity) * .75);
+  background: radial-gradient(ellipse calc(8px + var(--proximity) * 9px) calc(32px + var(--proximity) * 34px) at calc(50% + 4px) 50%,#fffef4 4%,#fff4d3f5 24%,#ffdc9cc9 43%,#ffbf6352 66%,transparent 94%);
+  opacity: calc(.48 + var(--proximity) * .52);
 }
 
 .portal-globe-sun:after {
-  width: 38%;
-  height: 1px;
-  background: linear-gradient(90deg,transparent,#ffe8b985 30%,#fff8eb 50%,#b9e2ff66 70%,transparent);
-  box-shadow: 0 0 10px 2px #e9dbbd4d;
-  opacity: calc(.2 + var(--proximity) * .8);
+  background: radial-gradient(ellipse calc(18px + var(--proximity) * 12px) calc(50px + var(--proximity) * 58px) at calc(50% + 4px) 50%,#fff1ca9c,#ffd08952 36%,transparent 78%);
+  filter: blur(3px);
+  opacity: calc(.22 + var(--proximity) * .78);
 }
 
 .portal:has(.portal-globe:is([data-globe-state=ready],[data-globe-state=fallback],[data-globe-state=static])) .portal-globe-sun,
 .portal:has(.portal-globe-static) .portal-globe-sun {
-  opacity: calc(.4 + var(--proximity) * .6);
+  opacity: calc(.46 + var(--proximity) * .54);
 }
 
 .portal:has(.portal-globe:is([data-globe-state=ready],[data-globe-state=fallback],[data-globe-state=static])) .portal-limb-glow,
 .portal:has(.portal-globe-static) .portal-limb-glow {
-  opacity: calc(.12 + var(--proximity) * .88);
+  opacity: calc(.18 + var(--proximity) * .82);
+}
+
+/* Optical flare crosses the image horizontally; the source stays on the
+   horizon. Faint lens reflections follow the optical centre on a separate axis. */
+.portal-lens-flare {
+  position: absolute;
+  z-index: 3;
+  left: var(--enter-x);
+  top: var(--touch-y);
+  width: clamp(220px,38vw,580px);
+  height: clamp(90px,12vw,170px);
+  transform: translate(-50%,-50%);
+  mix-blend-mode: screen;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.portal-lens-flare:before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: calc(50% - .5px);
+  width: 100%;
+  height: 1px;
+  transform: scaleX(calc(.72 + var(--proximity) * .28));
+  background: linear-gradient(90deg,transparent,#8fbfe919 14%,#a7d5ff59 34%,#e0efffb3 46%,#fff9e8 50%,#ffe0a4b3 54%,#add5ff52 69%,#8fbfe914 88%,transparent);
+  filter: drop-shadow(0 0 3px #a8d4ff66);
+}
+
+.portal-lens-flare:after {
+  content: "";
+  display: none;
+  position: absolute;
+  inset: 0;
+  background: url("../globe/lensflare-glare.png") center / clamp(126px,19vw,210px) auto no-repeat;
+  mask: url("../globe/lensflare-glare.png") center / clamp(126px,19vw,210px) auto no-repeat;
+  mask-mode: luminance;
+}
+
+/* Static and unavailable-WebGL visits reuse the official optical textures.
+   Live ghosts are rendered by Three.js Lensflare, including depth occlusion. */
+.portal-lens-ghosts {
+  --lens-size: clamp(96px,14.5vw,160px);
+  display: none;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--flare-reach);
+  height: clamp(140px,19vw,250px);
+  transform-origin: 0 50%;
+  transform: translateY(-50%) rotate(var(--flare-axis));
+  opacity: clamp(0,(var(--proximity) - .1) * 1.1,.99);
+}
+
+.portal-lens-ghosts:before,
+.portal-lens-ghosts:after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  aspect-ratio: 1;
+  transform: translate(-50%,-50%);
+  mask: url("../globe/lensflare-ghost.png") center / contain no-repeat;
+  mask-mode: luminance;
+}
+
+.portal-lens-ghosts:before {
+  left: 32%;
+  width: var(--lens-size);
+  background: #a8cde0bf;
+}
+
+.portal-lens-ghosts:after {
+  left: 62%;
+  width: calc(var(--lens-size) * .475);
+  background: #ffc888a6;
+}
+
+.portal:has(.portal-globe:is([data-globe-state=fallback],[data-globe-state=static],[data-lensflare-state=fallback]),.portal-globe-static) .portal-lens-ghosts,
+.portal:has(.portal-globe:is([data-globe-state=fallback],[data-globe-state=static],[data-lensflare-state=fallback]),.portal-globe-static) .portal-lens-flare:after {
+  display: block;
+}
+
+.portal:has(.portal-globe:is([data-globe-state=ready],[data-globe-state=fallback],[data-globe-state=static])) .portal-lens-flare,
+.portal:has(.portal-globe-static) .portal-lens-flare {
+  opacity: calc(.04 + var(--proximity) * var(--proximity) * .86);
 }
 
 .portal-globe-canvas {
@@ -281,20 +367,6 @@
 }
 
 /* The light itself is the entrance. Its hit target has no visible surface. */
-.portal-touch {
-  position: absolute;
-  z-index: 7;
-  left: var(--enter-x);
-  top: var(--touch-y);
-  width: 3px;
-  height: 3px;
-  transform: translate(-50%,-50%) scale(calc(1 + var(--proximity) * .6));
-  border-radius: 50%;
-  background: #fff3de;
-  box-shadow: 0 0 calc(8px + var(--proximity) * 8px) #fff0d5,0 0 calc(22px + var(--proximity) * 30px) #ffcf9299,0 0 calc(40px + var(--proximity) * 60px) #b1deff55;
-  pointer-events: none;
-}
-
 .portal-enter {
   position: absolute;
   z-index: 5;
@@ -656,6 +728,7 @@
     --rest-tilt: -5deg;
     --touch-y: 50%;
     --enter-x: 57%;
+    --earth-radius: 110vw;
   }
 
   .portal-arm {
@@ -664,10 +737,6 @@
 
   .portal-globe:is([data-globe-state=fallback],[data-globe-state=static]) .portal-globe-fallback {
     background-image: url("../globe/earth-poster-mobile.webp");
-  }
-
-  .portal-globe-sun {
-    --sun-size: 240px;
   }
 
   .portal-enter {
@@ -681,11 +750,6 @@
 
   .portal-enter .portal-tagline {
     top: calc(100% + 56px);
-  }
-
-  .portal-touch {
-    width: 3px;
-    height: 3px;
   }
 
   .network-view-head {
