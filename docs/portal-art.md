@@ -6,7 +6,35 @@ The entrance is a conceptual illustration, not footage or a photograph of partic
 - Original scene: `design/originals/assets/portal/robot-earth.png` (1672 × 941, RGBA; original generated alpha preserved), retained as an archive. Its `robot-earth.webp` delivery copy has no runtime references.
 - Replacement hand: `design/originals/assets/portal/robot-hand.png` (1672 × 941, RGBA), an unchanged copy of the user-supplied `design/explorations/resources.png`. No image generation, background removal or repainting was used for this replacement.
 - The original generated image is retained separately. No API/CLI generation or raster repainting was used.
-- HTML supplies all text and the ENTER link. CSS supplies light, grain and slow motion. The replacement hand is a separate layer: its fingertip at source pixel (1578, 294) shares the contact light's position, at 45.7% of the scene width on desktop and 40% on narrow screens. Half the old image width and a 2° rotation keep the wrist near its previous position.
+- HTML supplies all text and the entrance link. CSS supplies light, grain and interaction. The supplied hand's source fingertip at pixel (1578, 294) anchors to the shared atmospheric contact. Its width follows that point so the forearm reaches the left viewport edge at full extension; the supplied image retains its 2° rotation.
+
+The entrance is a light at the point where the mechanical hand meets Earth.
+There is no outlined doorway or inset map. A soft, cool atmospheric veil and
+warm contact glow intensify as the pointer approaches from anywhere in the
+window. A smooth distance curve simultaneously advances the hand from its
+resting gap until the fingertip coincides with the light. Moving away gently
+retracts the hand. The hand's resting gap scales with the viewport, approximately
+98 pixels at 1440 pixels wide and 31 pixels at 390 pixels wide.
+
+`portal-scene.js` supplies the shared geometry and contact-light strength. The
+Earth surface and atmosphere shaders use that same strength to brighten
+scattering around the contact. Blue scattering extends across the curved limb,
+while warm contact light stays on a thin rim. Both use the remaining colour
+headroom, preserving bright terrain texture
+instead of adding a white wash. Atmospheric density has a fixed exponential
+falloff; pointer approach changes local intensity rather than global thickness. CSS lights follow the same point and
+horizon angle. The pointer response eases through requestAnimationFrame only
+while changing; it stops once settled and while the entrance or tab is hidden.
+The bounded Earth render loop is unchanged. “Touch to enter” stays hidden on
+mouse-driven visits until proximity exceeds 0.55, then fades to full opacity
+at contact. Touch and script-free visits keep a visible cue.
+
+Keyboard focus brings the hand to the light. Touch activation completes the
+contact with one tap. Reduced motion holds the hand at contact and changes the
+light immediately; navigation also enters immediately. Activation releases a
+soft bloom and crossfades into the research network without a clipped aperture.
+Browsers without View Transitions use a short fade. The link retains its
+`#network` destination without JavaScript, and Back restores entrance focus.
 
 ## Interactive Earth
 
@@ -18,9 +46,9 @@ Source: [NASA Earth Observatory — The Blue Marble (2002)](https://science.nasa
 
 - `design/originals/assets/portal/earth-surface.jpg`: original 2048 × 1024 [surface texture](https://assets.science.nasa.gov/content/dam/science/esd/eo/content-feature/bluemarble/images/land_ocean_ice_2048.jpg).
 - `design/originals/assets/portal/earth-clouds.jpg`: original 2048 × 1024 [cloud texture](https://assets.science.nasa.gov/content/dam/science/esd/eo/content-feature/bluemarble/images/cloud_combined_2048.jpg).
-- No new generated artwork was used for this revision. The shader, atmospheric rim, lighting, pointer interaction and luminous ENTER control are native website rendering. Static posters are browser captures of the same scene, including the CSS sunrise.
+- No new generated artwork was used for this revision. The shader, atmospheric rim, lighting and proximity response are native website rendering. Static posters are transparent browser captures of Earth at 1440 × 821 and 390 × 773. The CSS sunrise remains separate so it always follows the contact point; it is never baked into the poster. Fallback geometry accounts for each poster's centered cover crop.
 
-The close orbital composition places the sphere centre outside the bottom-right of the viewport. The renderer draws only the viewport. An atmosphere shell at 1.028 times Earth's radius uses exponential optical-height falloff; blue surface limb scattering and a localized warm sunrise complete the horizon. The sunrise direction is stored relative to the camera so its warmth follows the screen-anchored CSS sun during rotation. These effects retain the existing three scene draw calls. Very low ambient light keeps the night side dark, while a separate cloud layer and rough ocean reflections preserve depth. The stock-video preview supplied as a visual reference is not a website asset.
+The close orbital composition places the sphere centre outside the bottom-right of the viewport. The renderer draws only the viewport. The atmosphere mesh extends to 1.06 times Earth's radius. Exponential density decays almost to transparency before a final smooth tail at 1.04–1.06 radii; bounded optical depth avoids exposing the mesh silhouette as a cutoff. Blue rim scattering and a localized warm sunrise complete the horizon. The sunrise direction is stored relative to the camera so its warmth follows the screen-anchored CSS sun during rotation. These effects retain the existing three scene draw calls. Very low ambient light keeps the night side dark, while a separate cloud layer and rough ocean reflections preserve depth. The stock-video preview supplied as a visual reference is not a website asset.
 
 - `design/originals/assets/portal/earth-night.jpg`: original 2048 × 1024 [NASA night-light texture](https://assets.science.nasa.gov/content/dam/science/esd/eo/content-feature/bluemarble/images/land_ocean_ice_lights_2048.jpg).
 

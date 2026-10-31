@@ -1,6 +1,8 @@
 /* Entrance artwork is a conceptual image; all controls and typography are live HTML. */
 
 .portal {
+  --proximity: 0;
+  --hand-progress: 0;
   position: relative;
   isolation: isolate;
   display: flex;
@@ -71,7 +73,7 @@
 
 .portal-enter .portal-tagline {
   position: absolute;
-  top: calc(100% + 34px);
+  top: calc(100% + 62px);
   left: 50%;
   transform: translateX(-50%);
   white-space: nowrap;
@@ -79,16 +81,18 @@
   pointer-events: none;
   font: 400 25px/1.4 var(--serif);
   letter-spacing: .2px;
-  color: #bccde5;
+  color: #c2cfdf;
   margin: 0;
 }
 
 /* Independent layers keep the forearm attached to the viewport edge. */
 
 .portal-scene {
-  --touch-x: 45.7%;
+  --touch-x: 56.4%;
+  --rest-gap: clamp(44px,6.8vw,104px);
   --touch-y: 50%;
-  --enter-x: 52%;
+  --enter-x: 56.4%;
+  --contact-angle: 22deg;
   position: relative;
   z-index: 1;
   flex: 1 0 220px;
@@ -101,11 +105,11 @@
   position: absolute;
   left: var(--touch-x);
   top: var(--touch-y);
-  width: 48%;
+  width: var(--arm-width,60%);
   aspect-ratio: 1672/941;
   /* Anchor the supplied image's fingertip (1578, 294) to the contact light. */
   transform-origin: 94.38% 31.24%;
-  transform: translate(-94.38%,-31.24%) rotate(2deg);
+  transform: translate(calc(-94.38% - var(--rest-gap) * (1 - var(--hand-progress))),-31.24%) rotate(2deg);
   pointer-events: none;
 }
 
@@ -175,15 +179,30 @@
   transition: opacity .55s;
 }
 
-.portal-globe-sun {
-  --sun-size: clamp(200px,22vw,340px);
+/* A soft pool of scattered light follows the same atmospheric contact. */
+.portal-limb-glow {
   position: absolute;
-  left: var(--sun-x);
-  top: var(--sun-y);
+  left: var(--enter-x);
+  top: var(--touch-y);
+  width: clamp(70px,8vw,120px);
+  height: clamp(240px,28vw,400px);
+  transform: translate(-50%,-50%) rotate(var(--contact-angle)) scale(calc(.8 + var(--proximity) * .3));
+  background: radial-gradient(ellipse,#d7f1ff6b,#91ceff2b 26%,#669eff0e 48%,transparent 72%);
+  filter: blur(12px);
+  mix-blend-mode: screen;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.portal-globe-sun {
+  --sun-size: clamp(240px,25vw,380px);
+  position: absolute;
+  left: var(--enter-x);
+  top: var(--touch-y);
   width: var(--sun-size);
   height: var(--sun-size);
-  transform: translate(-50%,-50%);
-  background: radial-gradient(circle,#fffdf4 0 .65%,#fff1cf 1.25%,#ffd799c9 2.6%,#ffc57355 7%,#f3a75a20 19%,#d58b3c0a 37%,transparent 68%);
+  transform: translate(-50%,-50%) scale(calc(.8 + var(--proximity) * .45));
+  background: radial-gradient(circle,#fffdf4 0 .4%,#fff1d9 1%,#ffd5a0b3 2.8%,#f5be7159 7%,#d6ebff24 16%,#8acaff10 32%,transparent 66%);
   opacity: 0;
   pointer-events: none;
 }
@@ -194,27 +213,34 @@
   position: absolute;
   left: 50%;
   top: 50%;
-  transform: translate(-50%,-50%) rotate(var(--sun-angle,-60deg));
+  transform: translate(-50%,-50%) rotate(calc(var(--contact-angle) + 90deg));
   border-radius: 50%;
 }
 
 .portal-globe-sun:before {
-  width: 76%;
-  height: 9%;
-  background: radial-gradient(ellipse,#ffdcaa85,#efad6340 32%,transparent 72%);
-  filter: blur(5px);
+  width: 88%;
+  height: 13%;
+  background: radial-gradient(ellipse,#ffe3bd6b,#a7d8ff24 32%,transparent 72%);
+  filter: blur(8px);
+  opacity: calc(.25 + var(--proximity) * .75);
 }
 
 .portal-globe-sun:after {
-  width: 40%;
-  height: 2px;
-  background: linear-gradient(90deg,transparent,#ffca8d80 20%,#fff4d9 50%,#ffca8d80 80%,transparent);
-  box-shadow: 0 0 8px 1px #ffd39c66;
+  width: 38%;
+  height: 1px;
+  background: linear-gradient(90deg,transparent,#ffe8b985 30%,#fff8eb 50%,#b9e2ff66 70%,transparent);
+  box-shadow: 0 0 10px 2px #e9dbbd4d;
+  opacity: calc(.2 + var(--proximity) * .8);
 }
 
-.portal-globe[data-globe-state=ready] .portal-globe-sun {
-  opacity: 1;
-  transition: opacity .55s;
+.portal:has(.portal-globe:is([data-globe-state=ready],[data-globe-state=fallback],[data-globe-state=static])) .portal-globe-sun,
+.portal:has(.portal-globe-static) .portal-globe-sun {
+  opacity: calc(.4 + var(--proximity) * .6);
+}
+
+.portal:has(.portal-globe:is([data-globe-state=ready],[data-globe-state=fallback],[data-globe-state=static])) .portal-limb-glow,
+.portal:has(.portal-globe-static) .portal-limb-glow {
+  opacity: calc(.12 + var(--proximity) * .88);
 }
 
 .portal-globe-canvas {
@@ -240,56 +266,19 @@
   outline: 1px solid #b4dcff55;
 }
 
-.portal-contact {
-  position: absolute;
-  left: var(--touch-x);
-  top: var(--touch-y);
-  width: 19%;
-  height: 1px;
-  background: linear-gradient(90deg,#ffd6a6cc,#f4f1db,#9ce5ff99,transparent);
-  box-shadow: 0 0 10px #86cfff9c;
-  pointer-events: none;
-}
-
-.portal-contact:before {
-  content: "";
-  position: absolute;
-  left: -10%;
-  top: -22px;
-  width: 110%;
-  height: 44px;
-  background: radial-gradient(ellipse,#9fddff35,transparent 69%);
-  animation: portal-contact 8s ease-in-out infinite;
-}
-
+/* The light itself is the entrance. Its hit target has no visible surface. */
 .portal-touch {
   position: absolute;
-  left: var(--touch-x);
+  z-index: 7;
+  left: var(--enter-x);
   top: var(--touch-y);
-  width: 8px;
-  height: 8px;
-  transform: translate(-50%,-50%);
+  width: 3px;
+  height: 3px;
+  transform: translate(-50%,-50%) scale(calc(1 + var(--proximity) * .6));
   border-radius: 50%;
-  background: #fff1cb;
-  box-shadow: 0 0 9px #fff,0 0 24px #ffbd65,0 0 55px #ffb55999;
+  background: #fff3de;
+  box-shadow: 0 0 calc(8px + var(--proximity) * 8px) #fff0d5,0 0 calc(22px + var(--proximity) * 30px) #ffcf9299,0 0 calc(40px + var(--proximity) * 60px) #b1deff55;
   pointer-events: none;
-}
-
-.portal-touch:before,
-.portal-touch:after {
-  content: "";
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 72px;
-  height: 1px;
-  transform: translate(-50%,-50%);
-  background: linear-gradient(90deg,transparent,#ffe2a9,transparent);
-}
-
-.portal-touch:after {
-  width: 32px;
-  transform: translate(-50%,-50%) rotate(90deg);
 }
 
 .portal-enter {
@@ -299,144 +288,47 @@
   left: var(--enter-x);
   top: var(--touch-y);
   transform: translate(-50%,-50%);
-  width: clamp(84px,8.1vw,124px);
+  width: clamp(88px,8vw,120px);
   aspect-ratio: 1;
-  display: grid;
-  place-items: center;
+  display: block;
   border-radius: 50%;
-  outline-offset: 15px;
+  color: #e9f3fa;
+  outline-offset: 6px;
+  cursor: pointer;
+  touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
 }
 
-.portal-enter-halo {
+.portal-enter-label {
   position: absolute;
-  inset: -72%;
-  border-radius: 50%;
-  background: radial-gradient(circle,#a0dfff30 8%,#62acff16 35%,transparent 69%);
-  pointer-events: none;
-  animation: portal-breathe 8s ease-in-out infinite;
-}
-
-.portal-enter:before,
-.portal-enter:after {
-  content: "";
-  position: absolute;
-  inset: -16%;
-  border-radius: 50%;
-  border: 1px solid #bedfff30;
-  pointer-events: none;
-}
-
-.portal-enter:after {
-  inset: -30%;
-  border-color: #c5dfff15;
-  animation: portal-ripple 8s ease-out infinite;
-}
-
-.portal-enter-ring {
-  position: absolute;
-  inset: -12%;
-  border: 1px solid #94cbff26;
-  border-radius: 50%;
-  border-top-color: #d7f3ff;
-  border-left-color: #f6ce86b3;
-  box-shadow: -2px 0 8px #e8b06c24,1px -1px 9px #a4deff22;
-  animation: portal-orbit 18s linear infinite;
-  pointer-events: none;
-}
-
-.portal-enter-ring:after {
-  content: "";
-  position: absolute;
-  width: 5px;
-  height: 5px;
+  top: calc(100% + 31px);
   left: 50%;
-  top: -3px;
-  border-radius: 50%;
-  background: #f3fcff;
-  box-shadow: 0 0 9px #fff,0 0 20px #83d5ff;
+  transform: translateX(-50%);
+  font: 500 10px/1.4 "Space Grotesk",var(--sans);
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: #d6e5f1;
+  opacity: clamp(0,(var(--proximity) - .55) / .45,1);
+  pointer-events: none;
 }
 
-.portal-enter-ring-inner {
-  inset: -5%;
-  border-top-color: transparent;
-  border-left-color: #e2b47080;
-  border-bottom-color: #9ee9ff90;
-  animation-direction: reverse;
-  animation-duration: 24s;
-}
-
-.portal-enter-ring-inner:after {
-  width: 3px;
-  height: 3px;
-  background: #ffdfa4;
-  box-shadow: 0 0 9px #ffbf6b;
-}
-
-.portal-enter-core {
+.portal-enter-bloom {
   position: absolute;
-  inset: 8%;
-  display: grid;
-  place-items: center;
-  border: 1px solid #bde6ff40;
+  inset: 0;
   border-radius: 50%;
-  background: radial-gradient(circle at 38% 28%,#69b9e530,transparent 48%),radial-gradient(circle,#0b1928 12%,#102c4580 55%,#93d7ff15 76%);
-  box-shadow: inset 0 1px 10px #9cdcff24,inset 0 -12px 22px #0006,0 0 28px #67bfff35,0 0 80px #5bbaff12;
-  transition: transform .2s,box-shadow .2s;
+  background: radial-gradient(circle,#fff3dc80,#c9e9ff45 16%,#91c7ff16 38%,transparent 70%);
+  opacity: 0;
+  pointer-events: none;
 }
 
-.portal-nucleus {
-  width: 13%;
-  aspect-ratio: 1;
-  border-radius: 50%;
-  background: #e2f7ff;
-  box-shadow: 0 0 12px #fff,0 0 30px #a3ddff,0 0 55px #66bcff;
-  position: relative;
+.portal-enter:focus-visible {
+  outline: 1px solid #cbe7ff80;
+  outline-offset: 12px;
 }
 
-.portal-nucleus:before,
-.portal-nucleus:after {
-  content: "";
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 420%;
-  height: 1px;
-  transform: translate(-50%,-50%);
-  background: linear-gradient(90deg,transparent,#d3efffcc,transparent);
-}
-
-.portal-nucleus:after {
-  transform: translate(-50%,-50%) rotate(90deg);
-  width: 280%;
-}
-
-.portal-enter-core:before,
-.portal-enter-core:after {
-  content: "";
-  position: absolute;
-  inset: 18%;
-  border: 1px solid #8aceff55;
-  border-radius: 50%;
-  transform: rotate(-35deg) scaleY(.48);
-  box-shadow: 0 0 9px #69c4ff18;
-}
-
-.portal-enter-core:after {
-  transform: rotate(35deg) scaleY(.48);
-  border-color: #ebc98a50;
-}
-
-.portal-enter:hover .portal-enter-core,
-.portal-enter:focus-visible .portal-enter-core {
-  transform: scale(1.09);
-  border-color: #d8f2ff;
-  box-shadow: inset 0 0 18px #8bd5ff33,0 0 40px #8bd5ff66,0 0 90px #5bbaff26;
-}
-
-.portal-scene:has(.portal-enter:hover) .portal-touch,
-.portal-scene:has(.portal-enter:focus-visible) .portal-touch {
-  box-shadow: 0 0 12px #fff,0 0 35px #ffc575,0 0 85px #ffb559c9;
+.portal-ready.portal-open .portal-arm {
+  will-change: transform;
 }
 
 /* Hash-addressable views. A failed/disabled script leaves both sections readable. */
@@ -456,16 +348,40 @@
 
 .portal.is-leaving {
   pointer-events: none;
-  animation: portal-depart .5s ease-in forwards;
+  animation: portal-depart .56s ease-in forwards;
 }
 
-.portal.is-leaving .portal-enter:after {
-  animation: portal-open .5s ease-out forwards;
+.portal.is-leaving.has-view-transition {
+  animation: none;
 }
 
-.portal.is-leaving .portal-enter-core {
-  transform: scale(1.15);
-  box-shadow: 0 0 65px #aae4ffbb,0 0 170px #74b8ff70;
+.portal.is-leaving .portal-enter {
+  pointer-events: none;
+}
+
+.portal.is-leaving .portal-enter-bloom {
+  animation: portal-bloom .65s cubic-bezier(.2,.65,.3,1) both;
+}
+
+.portal.is-leaving .portal-enter-label,
+.portal.is-leaving .portal-tagline {
+  opacity: 0;
+  transition: opacity .18s;
+}
+
+/* Light carries the transition; the destination has no visible aperture edge. */
+.portal-view-transition::view-transition-group(root) {
+  animation: none;
+}
+
+.portal-view-transition::view-transition-old(root) {
+  animation: portal-view-out .5s ease-in both;
+  mix-blend-mode: normal;
+}
+
+.portal-view-transition::view-transition-new(root) {
+  animation: portal-view-in .58s ease-out both;
+  mix-blend-mode: normal;
 }
 
 #research-content.is-arriving {
@@ -558,68 +474,50 @@
   opacity: 1;
 }
 
-@keyframes portal-atmosphere {
-  to {
-    transform: translate(-1.8%,1.2%) scale(1.04);
-  }
-}
-
-@keyframes portal-stars {
-  to {
-    opacity: .2;
-    transform: translateY(-6px);
-  }
-}
-
-@keyframes portal-orbit {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes portal-breathe {
-  50% {
-    opacity: .55;
-    transform: scale(.9);
-  }
-}
-
-@keyframes portal-contact {
-  50% {
-    opacity: .4;
-    transform: scaleX(.86);
-  }
-}
-
-@keyframes portal-ripple {
-  0%,
-  15% {
-    transform: scale(.82);
+@keyframes portal-bloom {
+  from {
+    transform: scale(.5);
     opacity: 0;
   }
 
-  30% {
+  35% {
     opacity: .8;
   }
 
-  90%,
-  100% {
-    transform: scale(1.35);
+  to {
+    transform: scale(9);
     opacity: 0;
   }
 }
 
-@keyframes portal-open {
+@keyframes portal-view-out {
   to {
-    transform: scale(8);
     opacity: 0;
+    filter: blur(3px);
+  }
+}
+
+@keyframes portal-view-in {
+  from {
+    opacity: 0;
+  }
+
+  18% {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
   }
 }
 
 @keyframes portal-depart {
+  45% {
+    opacity: 1;
+  }
+
   to {
     opacity: 0;
-    transform: scale(1.025);
   }
 }
 
@@ -639,11 +537,6 @@
   .portal-enter .portal-tagline {
     font-size: 23px;
   }
-
-  .portal-enter-core {
-    font-size: 12px;
-    letter-spacing: 2.2px;
-  }
 }
 
 @media (max-width:780px) {
@@ -656,12 +549,7 @@
   }
 
   .portal-enter {
-    width: 76px;
-  }
-
-  .portal-enter-core {
-    font-size: 11px;
-    letter-spacing: 1.7px;
+    width: 96px;
   }
 
   .network-view-head {
@@ -700,13 +588,14 @@
   }
 
   .portal-scene {
-    --touch-x: 40%;
+    --touch-x: 57%;
+    --rest-gap: clamp(24px,8vw,40px);
     --touch-y: 50%;
-    --enter-x: 49%;
+    --enter-x: 57%;
   }
 
   .portal-arm {
-    width: 62%;
+    width: var(--arm-width,62%);
   }
 
   .portal-globe:is([data-globe-state=fallback],[data-globe-state=static]) .portal-globe-fallback {
@@ -714,28 +603,25 @@
   }
 
   .portal-globe-sun {
-    --sun-size: 180px;
+    --sun-size: 240px;
   }
 
   .portal-enter {
-    width: 66px;
+    width: 88px;
   }
 
-  .portal-enter-core {
-    font-size: 10px;
-    letter-spacing: 1.7px;
-    gap: 3px;
+  .portal-enter-label {
+    font-size: 9px;
+    top: calc(100% + 25px);
   }
 
-  .portal-contact {
-    width: 27%;
-    transform: rotate(-30deg);
-    transform-origin: left center;
+  .portal-enter .portal-tagline {
+    top: calc(100% + 56px);
   }
 
   .portal-touch {
-    width: 5px;
-    height: 5px;
+    width: 3px;
+    height: 3px;
   }
 
   .network-view-head {
@@ -760,7 +646,7 @@
 
 @media (max-width:360px) {
   .portal-enter {
-    width: 58px;
+    width: 84px;
   }
 
   .portal-enter .portal-tagline {
@@ -769,9 +655,15 @@
 }
 
 @media (prefers-reduced-motion:reduce) {
+  .portal-arm {
+    transform: translate(-94.38%,-31.24%) rotate(2deg);
+  }
+
   .portal *,
   #research-content.is-arriving,
-  .portal.is-leaving {
+  .portal.is-leaving,
+  .portal-view-transition::view-transition-old(root),
+  .portal-view-transition::view-transition-new(root) {
     animation: none !important;
     transition: none !important;
   }
@@ -795,8 +687,19 @@
   .portal-atmosphere {
     filter: none;
   }
+}
 
-  .portal-enter:after {
-    animation: none;
+body:not(.portal-ready) .portal {
+  --hand-progress: 1;
+}
+
+/* Touch and script-free visits retain a visible entry cue. */
+@media (hover:none) {
+  .portal-enter-label {
+    opacity: .85;
   }
+}
+
+body:not(.portal-ready) .portal-enter-label {
+  opacity: .85;
 }

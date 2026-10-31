@@ -5,6 +5,7 @@ import {
   SRGBColorSpace, Texture, TextureLoader, Vector3
 } from '../vendor/globe.gl.js?v=__ASSET_VERSION__';
 import { createNightTiles } from './globe-tiles.js?v=__ASSET_VERSION__';
+import { contactLight, earthGeometry, layoutEntrance } from './portal-scene.js?v=__ASSET_VERSION__';
 
 const globe = document.querySelector('.portal-globe');
 const host = globe?.querySelector('.portal-globe-view');
@@ -91,10 +92,11 @@ async function initialize() {
   material.onBeforeCompile = shader => {
     shader.uniforms.uSunDirection = { value: sunDirection };
     shader.uniforms.uSunriseDirection = { value: sunriseDirection };
+    shader.uniforms.uContactStrength = contactLight;
     shader.vertexShader = 'varying vec3 vEarthNormal;\nvarying vec3 vEarthPosition;\n' + shader.vertexShader;
     shader.vertexShader = shader.vertexShader.replace('#include <beginnormal_vertex>',
       '#include <beginnormal_vertex>\nvEarthNormal = mat3(modelMatrix) * objectNormal;\nvEarthPosition = (modelMatrix * vec4(position, 1.0)).xyz;');
-    shader.fragmentShader = 'uniform vec3 uSunDirection;\nuniform vec3 uSunriseDirection;\nvarying vec3 vEarthNormal;\nvarying vec3 vEarthPosition;\n' + shader.fragmentShader;
+    shader.fragmentShader = 'uniform vec3 uSunDirection;\nuniform vec3 uSunriseDirection;\nuniform float uContactStrength;\nvarying vec3 vEarthNormal;\nvarying vec3 vEarthPosition;\n' + shader.fragmentShader;
     shader.fragmentShader = shader.fragmentShader.replace('#include <roughnessmap_fragment>',
       '#include <roughnessmap_fragment>\nroughnessFactor = clamp(roughnessFactor, 0.42, 0.9);');
     shader.fragmentShader = shader.fragmentShader.replace('#include <lights_fragment_end>',
@@ -107,12 +109,17 @@ async function initialize() {
     nightTiles.patch(shader);
     shader.fragmentShader = shader.fragmentShader.replace('#include <opaque_fragment>', `
       float facing = max(0.0, dot(normalize(vEarthNormal), normalize(cameraPosition - vEarthPosition)));
-      float limb = pow(1.0 - facing, 5.0);
       float scatteredLight = 0.16 + 0.84 * smoothstep(-0.45, 0.65, sunOrientation);
       float sunrise = exp((dot(normalize(vEarthNormal), uSunriseDirection) - 1.0) * 95.0);
       vec3 airglow = mix(vec3(0.025, 0.16, 0.52), vec3(0.16, 0.52, 1.0), scatteredLight);
-      outgoingLight += airglow * limb * scatteredLight * 0.7;
-      outgoingLight += vec3(1.0, 0.54, 0.19) * sunrise * pow(1.0 - facing, 7.0) * 1.2;
+      // Blue air scatters across a wider part of the limb; the warm contact
+      // light stays thin. Both respect the terrain's remaining colour headroom.
+      float blueRim = pow(1.0 - facing, 5.0);
+      float surfaceRim = pow(1.0 - facing, 10.0);
+      vec3 scattering = airglow * blueRim * scatteredLight * 0.7;
+      scattering += vec3(1.0, 0.54, 0.19) * sunrise * surfaceRim * (0.35 + uContactStrength * 0.55);
+      vec3 headroom = max(vec3(0.9) - outgoingLight, vec3(0.0));
+      outgoingLight += min(scattering, vec3(0.65)) * headroom;
       #include <opaque_fragment>
     `);
     surfaceCompiled = true;
@@ -136,11 +143,14 @@ async function initialize() {
   clouds.rotation.y = -Math.PI / 2;
   clouds.renderOrder = 2;
   scene.add(clouds);
-  const atmosphere = new Mesh(new SphereGeometry(radius * 1.028, 192, 96), new ShaderMaterial({
+  // The mesh extends well beyond the visible scattering tail. Its silhouette
+  // must never be visible as the edge of a translucent shell.
+  const atmosphere = new Mesh(new SphereGeometry(radius * 1.06, 192, 96), new ShaderMaterial({
     side: BackSide, transparent: true, depthWrite: false,
     uniforms: {
       uSunDirection: { value: sunDirection },
       uSunriseDirection: { value: sunriseDirection },
+      uContactStrength: contactLight,
       uRadius: { value: radius }
     },
     vertexShader: `varying vec3 vNormalWorld; varying vec3 vPositionWorld;
@@ -149,7 +159,7 @@ async function initialize() {
         vPositionWorld = (modelMatrix * vec4(position, 1.0)).xyz;
         gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
       }`,
-    fragmentShader: `uniform vec3 uSunDirection; uniform vec3 uSunriseDirection; uniform float uRadius;
+    fragmentShader: `uniform vec3 uSunDirection; uniform vec3 uSunriseDirection; uniform float uRadius; uniform float uContactStrength;
       varying vec3 vNormalWorld; varying vec3 vPositionWorld;
       void main() {
         vec3 viewDirection = normalize(cameraPosition - vPositionWorld);
@@ -157,13 +167,19 @@ async function initialize() {
         // optical falloff, including with this off-axis, close orbital crop.
         vec3 closest = vPositionWorld - viewDirection * dot(vPositionWorld, viewDirection);
         vec3 horizonNormal = normalize(closest);
-        float height = clamp((length(closest) / uRadius - 1.0) / 0.028, 0.0, 1.0);
-        float density = exp(-height * 4.5) * (1.0 - smoothstep(0.65, 1.0, height));
+        float altitude = max(length(closest) / uRadius - 1.0, 0.0);
+        float density = exp(-altitude / 0.0085);
+        float outerTail = 1.0 - smoothstep(0.04, 0.06, altitude);
         float lit = 0.18 + 0.82 * smoothstep(-0.45, 0.65, dot(horizonNormal, uSunDirection));
         float sunrise = exp((dot(horizonNormal, uSunriseDirection) - 1.0) * 95.0);
+        float response = uContactStrength * sunrise;
         vec3 blue = mix(vec3(0.08, 0.28, 0.8), vec3(0.28, 0.66, 1.0), lit);
-        vec3 color = mix(blue, vec3(1.0, 0.68, 0.32), sunrise * exp(-height * 2.0));
-        gl_FragColor = vec4(color, density * min(0.9, lit * 0.82 + sunrise * 0.2));
+        float warmth = sunrise * exp(-altitude / 0.016) * (0.7 + uContactStrength * 0.15);
+        vec3 color = mix(blue, vec3(1.0, 0.68, 0.32), warmth);
+        // Bounded optical depth retains colour instead of turning the limb white.
+        float opticalDepth = density * (0.45 + lit * 0.9 + sunrise * 0.4 + response * 0.4);
+        float opacity = (1.0 - exp(-opticalDepth)) * outerTail;
+        gl_FragColor = vec4(color, opacity);
         #include <tonemapping_fragment>
         #include <colorspace_fragment>
       }`
@@ -218,8 +234,7 @@ async function initialize() {
     const ratio = Math.min(devicePixelRatio || 1, mobile ? 1.5 : 2, Math.sqrt(4_500_000 / (width * height)));
     renderer.setPixelRatio(ratio);
     world.width(width).height(height);
-    const projectedRadius = width * (mobile ? 1.1 : .69);
-    const center = [width * (mobile ? 1.58 : 1.2), height * (mobile ? .92 : 1.18)];
+    const { radius: projectedRadius, center } = earthGeometry(width, height);
     world.globeOffset([center[0] - width / 2, center[1] - height / 2]);
     // Kapsule batches the setters above. Apply the same projection now so a
     // first frame or a resize cannot expose its default centred blue sphere.
@@ -234,14 +249,8 @@ async function initialize() {
     camera.updateMatrixWorld();
     geometry = { width, height, center, radius: projectedRadius };
     nightTiles.dirty = true;
-    const enter = portal.querySelector('.portal-enter').getBoundingClientRect();
-    const sunY = Math.max(height * .36, enter.top + enter.height / 2 - host.getBoundingClientRect().top - Math.min(92, width * .065));
-    const dy = Math.max(-projectedRadius * .96, Math.min(projectedRadius * .96, sunY - center[1]));
-    const sunX = center[0] - Math.sqrt(projectedRadius ** 2 - dy ** 2);
-    globe.style.setProperty('--sun-x', `${sunX}px`);
-    globe.style.setProperty('--sun-y', `${center[1] + dy}px`);
-    globe.style.setProperty('--sun-angle', `${Math.atan2(dy, sunX - center[0]) * 180 / Math.PI + 90}deg`);
-    viewRay.set(sunX / width * 2 - 1, 1 - (center[1] + dy) / height * 2, .5)
+    const { contact } = layoutEntrance(portal, true);
+    viewRay.set(contact.x / width * 2 - 1, 1 - contact.y / height * 2, .5)
       .unproject(camera).sub(camera.position).normalize();
     sunriseDirection.copy(camera.position).addScaledVector(viewRay, -camera.position.dot(viewRay)).normalize();
     sunriseLocal.copy(sunriseDirection).applyQuaternion(camera.quaternion.clone().invert());
@@ -333,6 +342,9 @@ async function initialize() {
     syncAnimation();
   }, { threshold: .05 }).observe(globe);
   document.addEventListener('visibilitychange', syncAnimation);
+  document.addEventListener('aisle:proximitychange', () => {
+    if (!canAnimate()) requestDraw();
+  });
   document.addEventListener('aisle:viewchange', () => { resize(); syncAnimation(); });
   reduced.addEventListener('change', syncAnimation);
   canvas.addEventListener('webglcontextlost', event => {

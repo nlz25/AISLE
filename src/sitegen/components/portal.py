@@ -16,17 +16,15 @@ def entrance():
           <div class="portal-globe-fallback" aria-hidden="true"></div>
           <noscript><picture class="portal-globe-static" aria-hidden="true"><source media="(max-width:500px)" srcset="assets/globe/earth-poster-mobile.webp"><img src="assets/globe/earth-poster.webp" alt="" width="1440" height="821"></picture></noscript>
           <div class="portal-globe-view"></div>
-          <div class="portal-globe-sun" aria-hidden="true"></div>
         </div>
       <div class="portal-scene">
+        <div class="portal-limb-glow" aria-hidden="true"></div>
+        <div class="portal-globe-sun" aria-hidden="true"></div>
         <div class="portal-arm" aria-hidden="true"><img src="assets/portal/robot-hand.webp" width="1672" height="941" alt="" fetchpriority="high" decoding="async"></div>
-        <div class="portal-contact" aria-hidden="true"></div>
         <div class="portal-touch" aria-hidden="true"></div>
-        <a class="portal-enter" href="#network" aria-label="Explore the global research network">
-          <span class="portal-enter-halo" aria-hidden="true"></span>
-          <span class="portal-enter-ring" aria-hidden="true"></span>
-          <span class="portal-enter-ring portal-enter-ring-inner" aria-hidden="true"></span>
-          <span class="portal-enter-core" aria-hidden="true"><span class="portal-nucleus"></span></span>
+        <a class="portal-enter" href="#network" aria-label="Touch the Earth to enter the global research network">
+          <span class="portal-enter-bloom" aria-hidden="true"></span>
+          <span class="portal-enter-label" aria-hidden="true">Touch to enter</span>
           <span class="portal-tagline">Nature as the Verifier</span>
         </a>
       </div>
