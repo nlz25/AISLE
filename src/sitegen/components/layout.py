@@ -17,7 +17,7 @@ def header(page):
     )
     return f'''<a class="skip" href="#main">Skip to content</a>
     <header class="site-header"><div class="wrap header-inner">
-      <a class="brand" href="index.html" aria-label="AISLE home"><img class="brand-logo" src="{root("assets/brand/aisle-a-pivot-symmetric.webp")}" alt="AISLE logo" width="48" height="48"><span class="brand-full">AI Scientists' Last Exam</span></a>
+      <a class="brand" href="index.html" aria-label="AISLE home"><img class="brand-logo" src="{root("assets/brand/aisle-a-pivot-symmetric.webp")}" alt="AISLE logo" width="48" height="48"><span class="brand-full">AISLE</span></a>
       <nav class="nav-links" id="main-navigation" aria-label="Main navigation">{nav}</nav>
       <div class="nav-side">
       <button class="menu-toggle" aria-controls="main-navigation" aria-expanded="false">Menu +</button></div>

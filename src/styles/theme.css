@@ -17,14 +17,14 @@
 .experiment-quotation {
   pointer-events: auto;
   max-width: 800px;
-  margin: 0 auto;
+  margin: 0;
   padding: 24px 0 0;
   text-align: left;
 }
 
 .experiment-quotation blockquote {
   margin: 0;
-  color: #d5dce6;
+  color: #929eaf;
   font-family: Georgia, "Times New Roman", serif;
   font-size: clamp(16px, 1.55vw, 21px);
   font-weight: 400;
@@ -42,14 +42,14 @@
 }
 
 .experiment-quotation figcaption {
-  text-align: right;
+  text-align: left;
   margin-top: 20px;
   font-family: "Dancing Script", cursive;
   font-size: clamp(24px, 2.4vw, 32px);
   font-weight: 500;
   line-height: 1.35;
   letter-spacing: 0;
-  color: #c5cfde;
+  color: #a4afc0;
 }
 
 .experiment-quotation figcaption span {
