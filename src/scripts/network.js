@@ -95,64 +95,143 @@
   });
   selectCountry(selected.country, false);
 
-  // Decorative traveling lights, not live experimental traffic. Geometry is sampled
-  // once, then only transforms/opacity change at 30 fps while the map is visible.
+  // Decorative peer-to-peer transfers, not live experimental traffic. A faint
+  // link accompanies each meteor and disappears with it; idle regions have no links.
   const svg = document.querySelector('.network-arcs');
   const particles = svg.querySelector('.network-flow-particles');
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
-  const routes = [...svg.querySelectorAll('.network-route')].map((path, index) => {
-    const length = path.getTotalLength();
-    const samples = Array.from({
-      length: 301
-    }, (_, i) => path.getPointAtLength(length * i / 300));
-    const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-    const dots = Array.from({
-      length: 8
-    }, (_, i) => {
-      const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-      dot.setAttribute('r', i === 0 ? '7' : i === 1 ? '2.4' : String(2.1 - (i - 2) * .22));
-      dot.setAttribute('class', i === 0 ? 'network-flow-halo' : i === 1 ? 'network-flow' : 'network-flow-tail');
-      if (index === 3) dot.classList.add('network-flow-warm');
-      group.append(dot);
-      return dot;
-    });
-    particles.append(group);
-    return {
-      samples,
-      dots,
-      duration: 9000 + index * 1200,
-      offset: index * .21
-    };
-  });
+  const { width, height } = svg.viewBox.baseVal;
+  const locations = network.countries.map(country => ({
+    id: country.id,
+    x: (country.lon + 180) / 360 * width,
+    y: (85 - country.lat) / 145 * height
+  }));
+  const maxMeteors = Math.min(5, locations.length, locations.length * (locations.length - 1) / 2);
+  const meteors = [];
   let visible = false,
     frame = 0,
     lastTime = 0,
-    elapsed = 0;
-  const canAnimate = () => visible && !document.hidden && !reduced.matches && !document.getElementById('research-content')?.hidden;
+    elapsed = 0,
+    nextLaunch = 120,
+    meteorId = 0;
+  const canAnimate = () => maxMeteors > 0 && visible && !document.hidden && !reduced.matches && !document.getElementById('research-content')?.hidden;
+  const element = (tag, attributes = {}) => {
+    const node = document.createElementNS('http://www.w3.org/2000/svg', tag);
+    Object.entries(attributes).forEach(([name, value]) => node.setAttribute(name, value));
+    return node;
+  };
+
+  function pointAt({ start, control, end }, t) {
+    const u = 1 - t;
+    return {
+      x: u * u * start.x + 2 * u * t * control.x + t * t * end.x,
+      y: u * u * start.y + 2 * u * t * control.y + t * t * end.y
+    };
+  }
+
+  function chooseEndpoints() {
+    // Sample peer regions uniformly, retrying occupied pairs so frequent
+    // launches don't stack the same link or favour the selected film.
+    for (let attempt = 0; attempt < 12; attempt++) {
+      const from = Math.floor(Math.random() * locations.length);
+      const to = (from + 1 + Math.floor(Math.random() * (locations.length - 1))) % locations.length;
+      const start = locations[from], end = locations[to];
+      if (!meteors.some(meteor =>
+        (meteor.start === start && meteor.end === end) ||
+        (meteor.start === end && meteor.end === start))) return { start, end };
+    }
+    return null;
+  }
+
+  function launchMeteor(delay) {
+    const endpoints = chooseEndpoints();
+    if (!endpoints) return;
+    const { start, end } = endpoints;
+
+    const distance = Math.hypot(end.x - start.x, end.y - start.y);
+    const control = {
+      x: (start.x + end.x) / 2,
+      y: Math.max(8, Math.min(start.y, end.y) - Math.min(110, distance * .13))
+    };
+    const gradientId = `network-meteor-${++meteorId}`;
+    const group = element('g', {
+      'data-route-from': start.id,
+      'data-route-to': end.id
+    });
+    group.style.opacity = '0';
+    const defs = element('defs');
+    const gradient = element('linearGradient', {
+      id: gradientId,
+      class: 'network-flow-gradient',
+      gradientUnits: 'userSpaceOnUse'
+    });
+    [[0, 0], [.55, .35], [1, .95]].forEach(([offset, opacity]) => {
+      gradient.append(element('stop', { offset, 'stop-opacity': opacity }));
+    });
+    defs.append(gradient);
+    const link = element('path', {
+      class: 'network-flow-link',
+      d: `M${start.x} ${start.y} Q${control.x} ${control.y} ${end.x} ${end.y}`
+    });
+    const tail = element('path', {
+      class: 'network-flow-tail',
+      stroke: `url(#${gradientId})`
+    });
+    const head = element('g');
+    head.append(
+      element('circle', { r: 7, class: 'network-flow-halo' }),
+      element('circle', { r: 2.3, class: 'network-flow' })
+    );
+    group.append(defs, link, tail, head);
+    particles.append(group);
+    meteors.push({
+      start, control, end, group, gradient, tail, head,
+      started: elapsed + delay,
+      duration: 1600 + distance * .8 + Math.random() * 500,
+      tailSpan: Math.min(.22, 50 / Math.max(1, distance))
+    });
+  }
+
+  function paintMeteor(meteor, progress) {
+    const { start, control, end, group, gradient, tail, head, tailSpan } = meteor;
+    const t0 = Math.max(0, progress - tailSpan), t1 = Math.min(1, progress);
+    const a = pointAt(meteor, t0), b = pointAt(meteor, t1);
+    // The visible tail is a short subcurve, never the complete transfer path.
+    const cx = a.x + (t1 - t0) * ((1 - t0) * (control.x - start.x) + t0 * (end.x - control.x));
+    const cy = a.y + (t1 - t0) * ((1 - t0) * (control.y - start.y) + t0 * (end.y - control.y));
+    tail.setAttribute('d', `M${a.x.toFixed(2)} ${a.y.toFixed(2)} Q${cx.toFixed(2)} ${cy.toFixed(2)} ${b.x.toFixed(2)} ${b.y.toFixed(2)}`);
+    gradient.setAttribute('x1', a.x);
+    gradient.setAttribute('y1', a.y);
+    gradient.setAttribute('x2', b.x);
+    gradient.setAttribute('y2', b.y);
+    head.setAttribute('transform', `translate(${b.x} ${b.y})`);
+    group.style.opacity = String(Math.min(1, progress / .045, (1 + tailSpan - progress) / tailSpan));
+  }
 
   function draw(time) {
     if (!canAnimate()) {
-      frame = 0;
-      lastTime = 0;
+      syncMotion();
       return;
     }
     if (!lastTime) lastTime = time - 34;
     if (time - lastTime >= 32) {
       elapsed += Math.min(time - lastTime, 100);
       lastTime = time;
-      routes.forEach(route => {
-        const progress = (elapsed / route.duration + route.offset) % 1;
-        route.dots.forEach((dot, index) => {
-          const p = (progress - Math.max(0, index - 1) * .009 + 1) % 1;
-          const position = p * 300,
-            from = Math.floor(position),
-            mix = position - from;
-          const a = route.samples[from],
-            b = route.samples[Math.min(300, from + 1)];
-          dot.setAttribute('transform', `translate(${a.x+(b.x-a.x)*mix} ${a.y+(b.y-a.y)*mix})`);
-          dot.style.opacity = String(Math.min(1, p * 16, (1 - p) * 16) * (index > 1 ? (8 - index) / 7 : 1));
-        });
+      meteors.slice().forEach(meteor => {
+        const progress = (elapsed - meteor.started) / meteor.duration;
+        if (progress < 0) return;
+        if (progress >= 1 + meteor.tailSpan) {
+          meteor.group.remove();
+          meteors.splice(meteors.indexOf(meteor), 1);
+        } else paintMeteor(meteor, progress);
       });
+      // Refill at independent random times instead of waiting for a whole
+      // burst to finish, keeping transfers staggered and the map active.
+      if (elapsed >= nextLaunch) {
+        const count = Math.min(maxMeteors - meteors.length, 1 + Math.floor(Math.random() * 2));
+        for (let i = 0; i < count; i++) launchMeteor(i * (80 + Math.random() * 140));
+        nextLaunch = elapsed + 320 + Math.random() * 500;
+      }
     }
     frame = requestAnimationFrame(draw);
   }
@@ -161,10 +240,14 @@
     const moving = canAnimate();
     particles.classList.toggle('is-moving', moving);
     if (moving && !frame) frame = requestAnimationFrame(draw);
-    else if (!moving && frame) {
+    else if (!moving) {
       cancelAnimationFrame(frame);
       frame = 0;
       lastTime = 0;
+      elapsed = 0;
+      nextLaunch = 120;
+      meteors.forEach(meteor => meteor.group.remove());
+      meteors.length = 0;
     }
   }
   new IntersectionObserver(entries => {

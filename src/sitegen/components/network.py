@@ -32,22 +32,6 @@ def network_hero():
             f'<button class="country-option" data-country="{c["id"]}" aria-pressed="{str(active).lower()}" aria-controls="network-inspector">{esc(label)}{badge}</button>'
         )
     first = data["institutions"][0]
-    # Paths share coordinates with the country pins; curves are visual network links.
-    points = {
-        c["id"]: ((c["lon"] + 180) / 360 * 1200, (85 - c["lat"]) / 145 * 560)
-        for c in data["countries"]
-    }
-    arcs = []
-    location_ids = list(points)
-    for index, (start, end) in enumerate(zip(location_ids, location_ids[1:])):
-        lift = -45
-        x1, y1 = points[start]
-        x2, y2 = points[end]
-        d = f"M{x1:.2f} {y1:.2f} Q{(x1 + x2) / 2:.2f} {min(y1, y2) + lift:.2f} {x2:.2f} {y2:.2f}"
-        arcs.append(
-            f'<path class="network-route" id="network-route-{index}" data-route-from="{start}" data-route-to="{end}" d="{d}"/>'
-        )
-    routes = "".join(arcs)
     map_version = hashlib.sha256(
         (PUBLIC / "assets/map/world.svg").read_bytes()
     ).hexdigest()[:10]
@@ -57,7 +41,7 @@ def network_hero():
       <div class="network-view-head wrap"><div><h2 id="network-title" tabindex="-1">Global research network</h2></div><a class="network-return" href="#entrance">← Back to entrance</a></div>
       <div class="network-shell wrap">
         <div class="network-stage">
-          <div class="world-map" aria-hidden="true"><div class="map-glow"></div><img loading="lazy" decoding="async" src="{asset("map/world.svg")}?v={map_version}" alt="" width="1200" height="560"><svg class="network-arcs" viewBox="0 0 1200 560" preserveAspectRatio="none">{routes}<g class="network-flow-particles"></g></svg><div class="map-equator"></div></div>
+          <div class="world-map" aria-hidden="true"><div class="map-glow"></div><img loading="lazy" decoding="async" src="{asset("map/world.svg")}?v={map_version}" alt="" width="1200" height="560"><svg class="network-arcs" viewBox="0 0 1200 560" preserveAspectRatio="none"><g class="network-flow-particles"></g></svg><div class="map-equator"></div></div>
           <div class="map-markers">{"".join(pins)}</div>
           <aside id="network-inspector" class="network-inspector" aria-label="Research films">
             <div class="research-options" role="group" aria-label="Choose a research direction" hidden></div>

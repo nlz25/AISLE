@@ -231,9 +231,7 @@ body {
   width: 100%;
   height: 100%;
   fill: none;
-  stroke: #8facdd40;
-  stroke-width: 1;
-  stroke-dasharray: 3 6;
+  stroke: none;
 }
 
 .map-pin {

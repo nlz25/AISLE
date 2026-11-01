@@ -573,9 +573,8 @@
   margin-top: 24px;
 }
 
-.network-arcs {
-  stroke-dasharray: none;
-  stroke: #a4c5ff45;
+.network-arcs .network-flow-link {
+  stroke: #a4c5ff55;
   stroke-width: 1.1;
 }
 
@@ -592,13 +591,13 @@
 }
 
 .network-arcs .network-flow-tail {
-  stroke: none;
-  fill: #a6dfff;
-  opacity: .55;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
 }
 
-.network-arcs .network-flow-warm {
-  fill: #ffe4af;
+.network-flow-gradient stop {
+  stop-color: #a6dfff;
 }
 
 .network-flow-particles {
