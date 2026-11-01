@@ -1,6 +1,7 @@
 /* The hash is the view state; pointer distance guides the hand and atmosphere. */
 import { contactLight, layoutEntrance } from './portal-scene.js?v=__ASSET_VERSION__';
 import { createHandRig } from './portal-hand.js?v=__ASSET_VERSION__';
+import { portalCounter } from './counter.js?v=__ASSET_VERSION__';
 
 (() => {
   const portal = document.getElementById('entrance');
@@ -8,6 +9,7 @@ import { createHandRig } from './portal-hand.js?v=__ASSET_VERSION__';
   if (!portal || !content) return;
   const enter = portal.querySelector('.portal-enter');
   const globe = portal.querySelector('.portal-globe');
+  const countClick = portalCounter(portal);
   const heading = document.getElementById('network-title');
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
   const poseHand = createHandRig(portal);
@@ -143,6 +145,7 @@ import { createHandRig } from './portal-hand.js?v=__ASSET_VERSION__';
   }
 
   enter.addEventListener('click', event => {
+    void countClick();
     if (event.defaultPrevented || event.button > 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     event.preventDefault();
     if (portal.classList.contains('is-leaving')) return;

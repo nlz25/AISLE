@@ -5,3 +5,5 @@ dist/
 .venv/
 node_modules/
 design/explorations/
+.wrangler/
+.dev.vars

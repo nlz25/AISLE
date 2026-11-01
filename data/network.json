@@ -1,57 +1,32 @@
 {
   "countries": [
     {
-      "id": "us",
-      "en": "United States",
-      "lat": 37.87,
-      "lon": -122.26,
-      "institutions": [
-        "berkeley"
-      ]
-    },
-    {
-      "id": "ca",
-      "en": "Canada",
+      "id": "north-america",
+      "en": "North America",
       "lat": 43.66,
       "lon": -79.4,
-      "institutions": [
-        "toronto"
-      ]
+      "institutions": []
     },
     {
-      "id": "ch",
-      "en": "Switzerland",
+      "id": "europe",
+      "en": "Europe",
       "lat": 46.52,
       "lon": 6.57,
-      "institutions": [
-        "epfl"
-      ]
+      "institutions": []
     },
     {
-      "id": "cn",
-      "en": "China",
+      "id": "asia",
+      "en": "Asia",
       "lat": 31.3,
       "lon": 120.58,
       "institutions": [
         "suzhou",
-        "csu",
-        "ustc",
-        "szu"
+        "bears"
       ]
     },
     {
-      "id": "sg",
-      "en": "Singapore",
-      "lat": 1.3,
-      "lon": 103.78,
-      "institutions": [
-        "bears",
-        "ntu"
-      ]
-    },
-    {
-      "id": "au",
-      "en": "Australia",
+      "id": "pacific",
+      "en": "Pacific",
       "lat": -33.92,
       "lon": 151.23,
       "institutions": [
@@ -64,9 +39,9 @@
       "id": "suzhou",
       "name": "Suzhou National Laboratory",
       "short": "Suzhou National Laboratory",
-      "logo": "SZLAB.webp",
+      "logo": "SZLAB-V1.png",
       "city": "Suzhou",
-      "country": "cn",
+      "country": "asia",
       "video": "suzhou",
       "topic": "Colour matching",
       "description": "Robotic liquid handling and experimental colour matching.",
@@ -78,23 +53,11 @@
       "short": "BEARS",
       "logo": "BEARS.webp",
       "city": "Singapore",
-      "country": "sg",
+      "country": "asia",
       "video": "bears",
       "topic": "Colour matching & resin transfer",
       "description": "Colour formulation and resin-transfer experiments.",
       "duration": "00:25"
-    },
-    {
-      "id": "csu",
-      "name": "Central South University",
-      "short": "Central South University",
-      "logo": "CSU.webp",
-      "city": "Changsha",
-      "country": "cn",
-      "video": "csu",
-      "topic": "Copper-alloy heat treatment",
-      "description": "Experimental heat treatment of copper-based alloys.",
-      "duration": "00:07"
     },
     {
       "id": "unsw",
@@ -102,59 +65,11 @@
       "short": "UNSW Sydney",
       "logo": "UNSW.webp",
       "city": "Sydney",
-      "country": "au",
+      "country": "pacific",
       "video": "unsw",
       "topic": "Coloured photovoltaics",
       "description": "Experimental research on coloured photovoltaic devices.",
       "duration": "00:25"
-    },
-    {
-      "id": "ustc",
-      "name": "University of Science and Technology of China",
-      "short": "USTC",
-      "logo": "USTC.webp",
-      "city": "Hefei",
-      "country": "cn"
-    },
-    {
-      "id": "szu",
-      "name": "Shenzhen University",
-      "short": "Shenzhen University",
-      "logo": "SZU.webp",
-      "city": "Shenzhen",
-      "country": "cn"
-    },
-    {
-      "id": "ntu",
-      "name": "Nanyang Technological University",
-      "short": "NTU Singapore",
-      "logo": "NTU.webp",
-      "city": "Singapore",
-      "country": "sg"
-    },
-    {
-      "id": "epfl",
-      "name": "École polytechnique fédérale de Lausanne",
-      "short": "EPFL",
-      "logo": "EPFL.webp",
-      "city": "Lausanne",
-      "country": "ch"
-    },
-    {
-      "id": "berkeley",
-      "name": "University of California, Berkeley",
-      "short": "UC Berkeley",
-      "logo": "UCBerkeley.webp",
-      "city": "Berkeley",
-      "country": "us"
-    },
-    {
-      "id": "toronto",
-      "name": "University of Toronto",
-      "short": "University of Toronto",
-      "logo": "UofT.webp",
-      "city": "Toronto",
-      "country": "ca"
     }
   ]
 }

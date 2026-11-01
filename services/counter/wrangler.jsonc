@@ -1,0 +1,13 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "aisle-counter",
+  "main": "worker.js",
+  "compatibility_date": "2026-08-01",
+  "workers_dev": true,
+  "vars": { "ALLOWED_ORIGINS": "https://aisle.science,https://www.aisle.science" },
+  "durable_objects": {
+    "bindings": [{ "name": "COUNTER", "class_name": "PortalCounter" }]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["PortalCounter"] }],
+  "observability": { "enabled": false }
+}

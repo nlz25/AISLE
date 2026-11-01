@@ -62,6 +62,7 @@ Push to `main` to run `.github/workflows/pages.yml`: build → validate → uplo
 - [Score provenance](docs/data-provenance.md)
 - [Research films](docs/network-media.md)
 - [Entrance artwork](docs/portal-art.md)
+- [Portal click counter](docs/counter.md)
 - [Roadmap](docs/roadmap.md)
 
-Scores describe an evaluated research cohort, not a live ranking of current models. The research network's six countries and ten institutions do not describe coverage of the scored benchmark. Original logos and laboratory footage retain their respective owners' rights.
+Scores describe an evaluated research cohort, not a live ranking of current models. The research network's four regions and supplied films do not describe coverage of the scored benchmark. Original logos and laboratory footage retain their respective owners' rights.

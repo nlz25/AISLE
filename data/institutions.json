@@ -1,14 +1,9 @@
 {
   "academic": [
     {
-      "logo": "SZLAB.webp",
+      "logo": "SZLAB-V1.png",
       "en": "Suzhou National Laboratory",
       "shape": "wide"
-    },
-    {
-      "logo": "USTC.webp",
-      "en": "USTC",
-      "shape": ""
     },
     {
       "logo": "BEARS.webp",
@@ -24,11 +19,6 @@
       "logo": "EPFL.webp",
       "en": "EPFL",
       "shape": "wide"
-    },
-    {
-      "logo": "CSU.webp",
-      "en": "Central South University",
-      "shape": ""
     },
     {
       "logo": "SZU.webp",
