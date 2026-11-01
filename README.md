@@ -36,7 +36,7 @@ src/
     pages/          # home, leaderboard and tasks
     components/     # layout, portal, map, result tables, institutions
     context.py      # build paths, study data and HTML escaping
-  styles/           # base components, dark theme, entrance
+  styles/           # base components, dark theme, entrance, research network
   scripts/          # navigation, view loading, portal, globe, research, map
 public/             # files copied into the deployed website
   assets/           # optimized artwork, fonts, logos, map, films

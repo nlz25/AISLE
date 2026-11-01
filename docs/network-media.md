@@ -4,6 +4,8 @@ The map shows research directions and supplied experiment films, without institu
 
 ## Supplied footage
 
+Asia is selected initially. The film card floats beside the selected regional pin with a short connector, avoiding other pins and labels. Placement updates when the region, film direction or viewport changes. Clicking the map background clears the selection and hides the card and connector; selecting a regional pin or navigation button opens it again. On narrow screens the section reserves room for the card while preserving the map's aspect ratio. The section heading remains available to screen readers; the visible heading and return-to-entrance link are omitted.
+
 | Institution | Supplied file | Website copy | Subject indicated by the supplied material |
 | --- | --- | --- | --- |
 | Suzhou National Laboratory | SZLAB素材.mp4 | `public/assets/experiments/suzhou.mp4` | Colour matching |
@@ -24,6 +26,6 @@ The three viewing copies are loaded on demand. The initial page only requests th
 
 GreenDynamics remains in the Industry strip. Its map location is not inferred from its name; add it to the appropriate country group once that location is confirmed.
 
-The world silhouette is derived from Natural Earth land polygons, using the projection documented in `design/originals/map/README.md`. Decorative meteors travel between randomly selected peer regions, with either direction equally likely. Every 320–820 ms, one or two staggered transfers can launch without waiting for earlier transfers to finish. There are at most four active transfers with the current four regions, with an overall limit of five as regions are added; the same pair is never drawn twice simultaneously. A faint connection arc accompanies each moving head and fading tail, then disappears with the transfer; idle pairs have no connections. These animations do not represent measured traffic, infrastructure or a claim about a specific pair of institutions. The displayed network counts are derived from the metadata.
+The map combines Natural Earth land polygons with a graphite relief rendering of the existing Earth surface, elevation and historical night imagery, using the projection and attribution documented in `design/originals/map/README.md`. The warm city lights are geographic texture and do not represent research coverage. Decorative meteors travel between randomly selected peer regions, with either direction equally likely. Every 320–820 ms, one or two staggered transfers can launch without waiting for earlier transfers to finish. There are at most four active transfers with the current four regions, with an overall limit of five as regions are added; the same pair is never drawn twice simultaneously. A faint connection arc accompanies each moving head and fading tail, then disappears with the transfer; idle pairs have no connections. These animations do not represent measured traffic, infrastructure or a claim about a specific pair of institutions. The displayed network counts are derived from the metadata.
 
 The Suzhou Laboratory logo in the institution strip uses the supplied `SZLAB-V1.png` without image modification. Removed institutions and footage are no longer included in the public asset directory.

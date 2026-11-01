@@ -17,7 +17,7 @@ def header(page):
     )
     return f'''<a class="skip" href="#main">Skip to content</a>
     <header class="site-header"><div class="wrap header-inner">
-      <a class="brand" href="index.html" aria-label="AISLE home"><img class="brand-logo" src="{root("assets/brand/aisle-a-pivot-symmetric.webp")}" alt="AISLE logo" width="48" height="48"><span class="brand-full">AISLE</span></a>
+      <a class="brand" href="index.html" aria-label="AISLE home"><img class="brand-logo" src="{root("assets/brand/aisle-logo-white.svg")}" alt="AISLE logo" width="1226" height="222"></a>
       <nav class="nav-links" id="main-navigation" aria-label="Main navigation">{nav}</nav>
       <div class="nav-side">
       <button class="menu-toggle" aria-controls="main-navigation" aria-expanded="false">Menu +</button></div>
@@ -41,7 +41,7 @@ def shell(page, title, description, body, version):
     url = f"https://aisle.science/{page}"
     portal = page == "index.html"
     portal_style = (
-        f'<link rel="stylesheet" href="assets/css/portal.css?v={version}">'
+        f'<link rel="stylesheet" href="assets/css/portal.css?v={version}"><link rel="stylesheet" href="assets/css/network.css?v={version}">'
         if portal
         else ""
     )

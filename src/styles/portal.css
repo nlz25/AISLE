@@ -524,91 +524,6 @@
   animation: network-arrive .7s ease-out both;
 }
 
-.network-view-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 30px;
-  position: relative;
-  z-index: 2;
-  padding-block: 10px 8px;
-}
-
-.network-view-head p {
-  font: 9px/1.5 ui-monospace,monospace;
-  letter-spacing: 1.6px;
-  color: #92acd0;
-  margin: 0 0 12px;
-}
-
-.network-view-head h2 {
-  font: 400 clamp(32px,3.6vw,46px)/1.16 "Space Grotesk",var(--sans);
-  letter-spacing: -.025em;
-  color: #eaf2ff;
-  margin: 0;
-}
-
-.network-view-head h2:focus {
-  outline: 0;
-}
-
-.network-return {
-  font-size: 11px;
-  color: #adbed4;
-  white-space: nowrap;
-  border-bottom: 1px solid #91b2ee50;
-  padding-block: 6px;
-}
-
-.network-return:hover {
-  color: #fff;
-}
-
-.network-hero {
-  scroll-margin-top: 78px;
-}
-
-.network-stage {
-  height: clamp(440px,calc(100svh - 265px),620px);
-  margin-top: 24px;
-}
-
-.network-arcs .network-flow-link {
-  stroke: #a4c5ff55;
-  stroke-width: 1.1;
-}
-
-.network-arcs .network-flow {
-  stroke: none;
-  fill: #e0f4ff;
-  opacity: .95;
-}
-
-.network-arcs .network-flow-halo {
-  stroke: none;
-  fill: #86c7ff;
-  opacity: .22;
-}
-
-.network-arcs .network-flow-tail {
-  fill: none;
-  stroke-width: 2;
-  stroke-linecap: round;
-}
-
-.network-flow-gradient stop {
-  stop-color: #a6dfff;
-}
-
-.network-flow-particles {
-  opacity: 0;
-  transition: opacity .2s;
-}
-
-.network-flow-particles.is-moving {
-  opacity: 1;
-}
-
 @keyframes portal-hand-arrive {
   from {
     transform: translate(-110%,24px) rotate(-7deg);
@@ -714,35 +629,6 @@
   .portal-enter {
     width: 96px;
   }
-
-  .network-view-head {
-    gap: 15px;
-    padding-top: 0;
-  }
-
-  .network-view-head h2 {
-    font-size: 34px;
-    max-width: 420px;
-  }
-
-  .network-view-head p {
-    font-size: 8px;
-    margin-bottom: 10px;
-  }
-
-  .network-return {
-    font-size: 10px;
-  }
-
-  .network-stage {
-    height: auto;
-    min-height: 0;
-    margin-top: 20px;
-  }
-
-  .network-hero {
-    scroll-margin-top: 70px;
-  }
 }
 
 @media (max-width:500px) {
@@ -779,25 +665,6 @@
   .portal-enter .portal-tagline {
     top: calc(100% + 56px);
   }
-
-  .network-view-head {
-    align-items: flex-start;
-  }
-
-  .network-view-head h2 {
-    font-size: 30px;
-    letter-spacing: -1px;
-  }
-
-  .network-return {
-    margin-top: 24px;
-    font-size: 9px;
-  }
-
-  .network-view-head p {
-    font-size: 7px;
-    letter-spacing: 1.2px;
-  }
 }
 
 @media (max-width:360px) {
@@ -826,10 +693,6 @@
   .portal-view-transition::view-transition-new(root) {
     animation: none !important;
     transition: none !important;
-  }
-
-  .network-flow-particles {
-    display: none;
   }
 }
 

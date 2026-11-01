@@ -38,6 +38,7 @@ def main():
         )
     )
     shutil.copy2(ROOT / "src/styles/portal.css", css / "portal.css")
+    shutil.copy2(ROOT / "src/styles/network.css", css / "network.css")
     for source in (ROOT / "src/scripts").glob("*.js"):
         (js / source.name).write_text(
             source.read_text().replace("__ASSET_VERSION__", version)
