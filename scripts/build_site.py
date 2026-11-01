@@ -19,8 +19,11 @@ def main():
     sources = sorted((ROOT / "src").rglob("*.css")) + sorted(
         (ROOT / "src").rglob("*.js")
     ) + sorted((PUBLIC / "assets/vendor").glob("*.js")) + [
-        PUBLIC / "assets/globe/night-tiles/manifest.json"
-    ]
+        PUBLIC / "assets/globe/night-tiles/manifest.json",
+        PUBLIC / "assets/globe/earth-land-mask.webp"
+    ] + sorted((PUBLIC / "assets/hand-rig").glob("*.webp")) + sorted(
+        (PUBLIC / "assets/globe/base").glob("*.webp")
+    )
     version = hashlib.sha256(b"".join(p.read_bytes() for p in sources)).hexdigest()[:12]
     if DIST.exists():
         shutil.rmtree(DIST)

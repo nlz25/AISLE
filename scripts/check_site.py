@@ -43,8 +43,11 @@ class Page(HTMLParser):
             "data-texture-hd",
             "data-night-tiles",
             "data-detail",
+            "data-detail-base",
+            "data-land-mask",
             "data-clouds",
             "data-night",
+            "data-atlas",
         ]:
             if a.get(key):
                 self.refs.append(a[key])
@@ -190,6 +193,11 @@ for path in ROOT.glob("*.html"):
 portal_bytes = sum(p.stat().st_size for p in (ROOT / "assets/portal").glob("*.webp"))
 if portal_bytes > 1_000_000:
     errors.append(f"Portal media exceeds 1 MB: {portal_bytes}")
+# The optional articulated hand shares a single transparent atlas across all
+# rigid parts. The original complete hand remains the failed-load fallback.
+hand_atlas = ROOT / "assets/hand-rig/hand-v4.webp"
+if not hand_atlas.is_file() or hand_atlas.stat().st_size > 350_000:
+    errors.append("Missing articulated-hand atlas or atlas exceeds 350 KB")
 # Globe.gl is optional and loaded after the entrance artwork. Keep its local
 # dependency bundle bounded; ordinary Python builds never need npm or a CDN.
 vendor = ROOT / "assets/vendor/globe.gl.js"
@@ -200,6 +208,9 @@ elif len(gzip.compress(vendor.read_bytes(), compresslevel=6)) > 600_000:
 hd_bytes = sum(p.stat().st_size for p in (ROOT / "assets/globe").glob("*.webp"))
 if hd_bytes > 2_000_000:
     errors.append(f"Optional desktop Earth media exceeds 2 MB: {hd_bytes}")
+base_maps = list((ROOT / "assets/globe/base").glob("*.webp"))
+if len(base_maps) != 2 or sum(p.stat().st_size for p in base_maps) > 350_000:
+    errors.append("Missing coherent initial Earth maps or maps exceed 350 KB")
 tile_root = ROOT / "assets/globe/night-tiles"
 try:
     manifest = json.loads((tile_root / "manifest.json").read_text())

@@ -31,9 +31,20 @@ export function layoutEntrance(portal, live = false) {
   const stage = scene.getBoundingClientRect();
   const poster = !live && ['fallback', 'static'].includes(globe.dataset.globeState);
   const geometry = earthGeometry(bounds.width, bounds.height, poster);
-  const y = stage.top - bounds.top + stage.height / 2;
-  const dy = Math.max(-geometry.radius * .96, Math.min(geometry.radius * .96, y - geometry.center[1]));
-  const x = geometry.center[0] - Math.sqrt(geometry.radius ** 2 - dy ** 2);
+  let y = stage.top - bounds.top + stage.height / 2;
+  let dy = Math.max(-geometry.radius * .96, Math.min(geometry.radius * .96, y - geometry.center[1]));
+  let x = geometry.center[0] - Math.sqrt(geometry.radius ** 2 - dy ** 2);
+  // In tall tablet windows the horizon at the scene midpoint can be offscreen.
+  // Move the shared contact down the limb, keeping the whole entry target and
+  // its label reachable without changing the Earth or the hand's contact pose.
+  const rightLimit = bounds.width * .78;
+  const reach = geometry.center[0] - rightLimit;
+  if (x > rightLimit && reach < geometry.radius) {
+    dy = Math.sign(dy) * Math.sqrt(geometry.radius ** 2 - reach ** 2);
+    y = geometry.center[1] + dy;
+    x = rightLimit;
+  }
+  scene.style.setProperty('--touch-y', `${bounds.top + y - stage.top}px`);
   const angle = Math.atan2(dy, x - geometry.center[0]) * 180 / Math.PI + 180;
   scene.style.setProperty('--enter-x', `${x}px`);
   scene.style.setProperty('--touch-x', `${x}px`);

@@ -1,6 +1,7 @@
 /* Three.js's official optical sprites share the globe's render loop. */
 import {
-  CanvasTexture, Color, Lensflare, LensflareElement, TextureLoader
+  CanvasTexture, Color, DataTexture, Lensflare, LensflareElement, LinearFilter,
+  RGBAFormat, TextureLoader, UnsignedByteType
 } from '../vendor/globe.gl.js?v=__ASSET_VERSION__';
 
 // The example textures have black RGB backgrounds. Recover their additive
@@ -23,6 +24,27 @@ function transparentTexture(source) {
   return new CanvasTexture(canvas);
 }
 
+// A compact, monotonic source glow has no broad tinted disc or dark-looking
+// sectors between diffraction rays. The CSS horizon cap supplies the core and
+// horizontal streak; the official aperture texture remains on the ghosts.
+function sourceBloom() {
+  const size = 128;
+  const pixels = new Uint8Array(size * size * 4);
+  for (let y = 0; y < size; y++) for (let x = 0; x < size; x++) {
+    const dx = (x + .5 - size / 2) / (size / 2);
+    const dy = (y + .5 - size / 2) / (size / 2);
+    const r2 = dx * dx + dy * dy;
+    const alpha = .9 * Math.exp(-r2 / .012) + .12 * Math.exp(-r2 / .08);
+    const offset = (y * size + x) * 4;
+    pixels[offset] = pixels[offset + 1] = pixels[offset + 2] = 255;
+    pixels[offset + 3] = Math.round(Math.min(1, alpha) * 255);
+  }
+  const texture = new DataTexture(pixels, size, size, RGBAFormat, UnsignedByteType);
+  texture.minFilter = texture.magFilter = LinearFilter;
+  texture.needsUpdate = true;
+  return texture;
+}
+
 export function createSunriseFlare({ scene, renderer, radius, onChange, onState }) {
   const flare = new Lensflare();
   flare.material.depthWrite = false;
@@ -33,17 +55,18 @@ export function createSunriseFlare({ scene, renderer, radius, onChange, onState 
   onState('loading');
 
   const loader = new TextureLoader();
-  Promise.allSettled(['glare', 'ghost'].map(name => loader.loadAsync(
+  Promise.allSettled(['ghost'].map(name => loader.loadAsync(
     new URL(`../globe/lensflare-${name}.png?v=__ASSET_VERSION__`, import.meta.url).href
   ))).then(results => {
     const sources = results.filter(result => result.status === 'fulfilled').map(result => result.value);
     const maps = [];
     try {
-      if (sources.length !== 2) throw new Error('Optional lens textures unavailable');
+      if (sources.length !== 1) throw new Error('Optional aperture texture unavailable');
+      maps.push(sourceBloom());
       for (const source of sources) maps.push(transparentTexture(source));
       // Size, position along the optical axis, tint and relative energy.
       const optics = [
-        [0, 210, 0, [1, .96, .86], .85],
+        [0, 170, 0, [1, .96, .86], .7],
         [1, 160, .32, [.64, .86, 1], 1.15],
         [1, 76, .62, [1, .76, .46], .9],
         [1, 230, .88, [.58, .8, .65], .48]

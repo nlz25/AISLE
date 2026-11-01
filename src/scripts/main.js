@@ -4,6 +4,7 @@ import './navigation.js?v=__ASSET_VERSION__';
 const entrance = document.getElementById('entrance');
 if (entrance) {
   await import('./portal.js?v=__ASSET_VERSION__');
+  const { loadHandRig } = await import('./portal-hand.js?v=__ASSET_VERSION__');
   let research;
   const loadResearch = () => {
     if (!entrance.hidden || research) return;
@@ -43,10 +44,10 @@ if (entrance) {
     });
     else setTimeout(loadGlobe, 600);
   };
-  const artwork = entrance.querySelector('.portal-arm img');
+  const artwork = entrance.querySelector('.portal-hand-fallback');
   const afterArtwork = async () => {
     // Start the hand's entrance only once its pixels can actually be painted.
-    try { await artwork.decode(); } catch { /* A failed image must not block the globe. */ }
+    await Promise.allSettled([artwork.decode(), loadHandRig(entrance)]);
     entrance.classList.add('has-artwork');
     requestAnimationFrame(() => requestAnimationFrame(scheduleGlobe));
   };

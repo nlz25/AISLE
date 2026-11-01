@@ -170,7 +170,7 @@ class NightTiles {
     for (let row = 0; row < 24; row++) for (let col = 0; col < 32; col++) {
       const x = (col + .5) / 32 * width, y = (row + .5) / 24 * height;
       const p = this.sample(x, y, width, height, sun);
-      if (!p || p.day > .22) continue;
+      if (!p || p.day > .1) continue;
       const px = this.sample(x + delta, y, width, height, sun);
       const py = this.sample(x, y + delta, width, height, sun);
       let level = 1;

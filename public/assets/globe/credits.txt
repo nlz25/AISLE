@@ -5,8 +5,11 @@ https://threejs.org/examples/webgl_lensflares.html
 https://raw.githubusercontent.com/mrdoob/three.js/r183/examples/textures/lensflare/lensflare0.png
 https://raw.githubusercontent.com/mrdoob/three.js/r183/examples/textures/lensflare/lensflare3.png
 Stored as lensflare-glare.png and lensflare-ghost.png without file changes.
-The live renderer converts black RGB backgrounds to equivalent additive alpha
-in memory for the transparent canvas. Static fallbacks use the original textures.
+Only lensflare-ghost.png is used at runtime. The broad glare bitmap is archived.
+The source bloom is a numerical Gaussian texture; the static source is a CSS
+radial gradient. Aperture RGB is converted to additive alpha in memory, and
+optical drawing preserves the canvas's existing alpha instead of covering
+the background. Static fallbacks use the same aperture texture as a mask.
 Three.js MIT license: ../vendor/globe.LICENSES.txt
 
 Desktop surface, night imagery, height, roughness and clouds: Solar System Scope / INOVE.
@@ -19,6 +22,13 @@ https://threejs.org/examples/textures/planets/earth_night_4096.jpg
 https://threejs.org/examples/textures/planets/earth_bump_roughness_clouds_4096.jpg
 https://threejs.org/examples/webgpu_tsl_earth.html
 Changes: converted to WebP for delivery. No geographic features were repainted.
+Initial 2048 x 1024 surface and 1024 x 512 packed terrain/cloud maps are
+downsampled from those same originals, keeping the first and HD frames coherent.
+
+Land/ocean material mask: derived from the packed source's green channel above.
+The land mask is thresholded, resized to 1024 x 512, quantized to sixteen coast
+coverage levels and stored losslessly as earth-land-mask.webp. It supplies stable
+sea/land material classification at every surface-texture resolution.
 
 Night imagery pyramid: Solar System Scope / INOVE's original 8192 x 4096
 night map, under the same CC BY 4.0 license above.

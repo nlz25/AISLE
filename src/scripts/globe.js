@@ -25,9 +25,11 @@ async function initialize() {
   const useHD = innerWidth > 900 && (!connection?.effectiveType || connection.effectiveType === '4g');
   // The first complete scene needs only small, global images. Larger surface
   // and cloud detail are optional upgrades after the entrance has been visible.
-  let [surface, cloudMap, night] = await Promise.all([
-    loader.loadAsync(globe.dataset.texture), loader.loadAsync(globe.dataset.clouds),
-    loader.loadAsync(`${globe.dataset.night}?v=__ASSET_VERSION__`)
+  let [surface, cloudMap, night, landMask] = await Promise.all([
+    loader.loadAsync(`${globe.dataset.texture}?v=__ASSET_VERSION__`),
+    loader.loadAsync(`${globe.dataset.detailBase}?v=__ASSET_VERSION__`),
+    loader.loadAsync(`${globe.dataset.night}?v=__ASSET_VERSION__`),
+    loader.loadAsync(`${globe.dataset.landMask}?v=__ASSET_VERSION__`)
   ]);
   globe.dataset.textureResolution = String(surface.image.width);
   surface.colorSpace = night.colorSpace = SRGBColorSpace;
@@ -44,7 +46,7 @@ async function initialize() {
       .globeCurvatureResolution(1)
       .showAtmosphere(false);
   } catch (error) {
-    [surface, cloudMap, night].forEach(texture => texture.dispose());
+    [surface, cloudMap, night, landMask].forEach(texture => texture.dispose());
     throw error;
   }
 
@@ -71,10 +73,11 @@ async function initialize() {
   const sunriseLocal = new Vector3();
   const viewRay = new Vector3();
   const sun = new DirectionalLight(0xfff4e6, 3.2);
-  world.lights([new AmbientLight(0x7395bb, .025), sun]);
+  world.lights([new AmbientLight(0x89a9ce, .025), sun]);
+  globe.dataset.lightingModel = 'cinematic';
   const material = new MeshStandardMaterial({
-    map: surface, roughness: .85, metalness: 0,
-    bumpScale: .004,
+    map: surface, roughnessMap: landMask, roughness: 1, metalness: 0,
+    bumpMap: cloudMap, bumpScale: .004,
     emissive: 0xffffff, emissiveMap: night, emissiveIntensity: .85
   });
   const nightTiles = createNightTiles({
@@ -87,8 +90,8 @@ async function initialize() {
       globe.dataset.nightTilesPending = String(stats.pending);
     }
   });
-  // Extend the standard PBR material with night-side emission and atmospheric
-  // limb scattering, following the lighting model in Three.js's Earth example.
+  // Use an illustrative orbital exposure: readable terrain, selective water
+  // reflections, a soft dusk transition and a warm contact on the limb.
   let surfaceCompiled = false;
   material.onBeforeCompile = shader => {
     shader.uniforms.uSunDirection = { value: sunDirection };
@@ -98,20 +101,42 @@ async function initialize() {
     shader.vertexShader = shader.vertexShader.replace('#include <beginnormal_vertex>',
       '#include <beginnormal_vertex>\nvEarthNormal = mat3(modelMatrix) * objectNormal;\nvEarthPosition = (modelMatrix * vec4(position, 1.0)).xyz;');
     shader.fragmentShader = 'uniform vec3 uSunDirection;\nuniform vec3 uSunriseDirection;\nuniform float uContactStrength;\nvarying vec3 vEarthNormal;\nvarying vec3 vEarthPosition;\n' + shader.fragmentShader;
-    shader.fragmentShader = shader.fragmentShader.replace('#include <roughnessmap_fragment>',
-      '#include <roughnessmap_fragment>\nroughnessFactor = clamp(roughnessFactor, 0.42, 0.9);');
-    shader.fragmentShader = shader.fragmentShader.replace('#include <lights_fragment_end>',
-      '#include <lights_fragment_end>\nreflectedLight.directSpecular *= 0.16;');
+    shader.fragmentShader = shader.fragmentShader.replace('#include <roughnessmap_fragment>', `
+      #include <roughnessmap_fragment>
+      float earthOcean = 0.0;
+      #ifdef USE_ROUGHNESSMAP
+        earthOcean = 1.0 - smoothstep(0.15, 0.85, texelRoughness.g);
+      #endif
+      // Stable sea/land materials at both image resolutions; wind-roughened
+      // water keeps a soft reflection rather than a broad metallic sheen.
+      roughnessFactor = mix(0.9, 0.5, earthOcean);
+    `);
+    shader.fragmentShader = shader.fragmentShader.replace('#include <normal_fragment_maps>', `
+      #include <normal_fragment_maps>
+      normal = normalize(mix(normal, nonPerturbedNormal, earthOcean));
+    `);
+    shader.fragmentShader = shader.fragmentShader.replace('#include <lights_physical_fragment>', `
+      #include <lights_physical_fragment>
+      material.specularColor = mix(vec3(0.04), vec3(0.0204), earthOcean);
+      material.specularColorBlended = material.specularColor;
+    `);
+    shader.fragmentShader = shader.fragmentShader.replace('#include <lights_fragment_end>', `
+      #include <lights_fragment_end>
+      // Art-directed reflections belong near the warm contact. Attenuate the
+      // off-source lobe instead of clipping it into a flat grey sea-shaped patch.
+      float contactReflection = exp((dot(normalize(vEarthNormal), uSunriseDirection) - 1.0) * 80.0);
+      reflectedLight.directSpecular *= mix(0.035, 0.06 * (0.12 + 0.88 * contactReflection), earthOcean);
+    `);
     shader.fragmentShader = shader.fragmentShader.replace('#include <emissivemap_fragment>', `
       #include <emissivemap_fragment>
       float sunOrientation = dot(normalize(vEarthNormal), uSunDirection);
-      totalEmissiveRadiance *= 1.0 - smoothstep(-0.2, 0.18, sunOrientation);
+      totalEmissiveRadiance *= 1.0 - smoothstep(-0.12, 0.08, sunOrientation);
     `);
     nightTiles.patch(shader);
     shader.fragmentShader = shader.fragmentShader.replace('#include <opaque_fragment>', `
       vec3 earthNormal = normalize(vEarthNormal);
       float facing = clamp(dot(earthNormal, normalize(cameraPosition - vEarthPosition)), 0.0, 1.0);
-      float scatteredLight = 0.16 + 0.84 * smoothstep(-0.45, 0.65, sunOrientation);
+      float scatteredLight = 0.06 + 0.94 * smoothstep(-0.15, 0.55, sunOrientation);
       vec3 horizonTangent = normalize(cross(uSunriseDirection, normalize(cameraPosition)));
       float poolWidth = mix(0.055, 0.12, uContactStrength);
       float alongPool = dot(earthNormal, horizonTangent) / poolWidth;
@@ -126,10 +151,15 @@ async function initialize() {
       scattering += vec3(1.0, 0.57, 0.23) * sunrise * surfaceRim * (0.2 + uContactStrength * 0.65);
       // The warm reflection remains on the surface. Ocean colour and texture
       // break it up naturally instead of painting a white spot over the terrain.
-      float ocean = smoothstep(0.01, 0.075, diffuseColor.b - diffuseColor.r);
       float seaDetail = 0.65 + 0.35 * smoothstep(0.015, 0.12, diffuseColor.g);
       scattering += vec3(1.0, 0.76, 0.4) * sunrise * pow(1.0 - facing, 18.0)
-        * ocean * seaDetail * (0.1 + uContactStrength * 0.55);
+        * earthOcean * seaDetail * (0.06 + uContactStrength * 0.24);
+      // A restrained twilight fill reveals the terrain through the transition.
+      // It follows the albedo, so clouds/coasts retain their own shape and colour.
+      float twilightAngle = sunOrientation / 0.14;
+      float twilight = exp(-twilightAngle * twilightAngle);
+      vec3 twilightColor = mix(vec3(0.025, 0.065, 0.13), vec3(0.2, 0.1, 0.035), sunrise);
+      outgoingLight += diffuseColor.rgb * twilightColor * twilight * 0.45;
       vec3 headroom = max(vec3(0.9) - outgoingLight, vec3(0.0));
       outgoingLight += min(scattering, vec3(0.65)) * headroom;
       #include <opaque_fragment>
@@ -140,16 +170,13 @@ async function initialize() {
 
   const radius = world.getGlobeRadius();
   globe.dataset.nightRenderer = 'tiles';
-  const cloudPacked = { value: 0 };
   const cloudMaterial = new MeshPhongMaterial({
     color: 0xdceaff, alphaMap: cloudMap, transparent: true,
-    opacity: .82, depthWrite: false, shininess: 0
+    opacity: .76, depthWrite: false, shininess: 0
   });
   cloudMaterial.onBeforeCompile = shader => {
-    shader.uniforms.uCloudPacked = cloudPacked;
-    shader.fragmentShader = 'uniform float uCloudPacked;\n' + shader.fragmentShader;
     shader.fragmentShader = shader.fragmentShader.replace('#include <alphamap_fragment>',
-      'vec4 cloudSample = texture2D(alphaMap, vAlphaMapUv);\ndiffuseColor.a *= mix(cloudSample.g, smoothstep(0.2, 0.95, cloudSample.b), uCloudPacked);');
+      'float cloudDensity = texture2D(alphaMap, vAlphaMapUv).b;\ndiffuseColor.a *= smoothstep(0.2, 0.95, cloudDensity);');
   };
   const clouds = new Mesh(new SphereGeometry(radius * 1.002, 192, 96), cloudMaterial);
   clouds.rotation.y = -Math.PI / 2;
@@ -182,7 +209,7 @@ async function initialize() {
         float altitude = max(length(closest) / uRadius - 1.0, 0.0);
         float density = exp(-altitude / 0.0085);
         float outerTail = 1.0 - smoothstep(0.04, 0.06, altitude);
-        float lit = 0.18 + 0.82 * smoothstep(-0.45, 0.65, dot(horizonNormal, uSunDirection));
+        float lit = 0.08 + 0.92 * smoothstep(-0.25, 0.55, dot(horizonNormal, uSunDirection));
         float sunrise = exp((dot(horizonNormal, uSunriseDirection) - 1.0) * mix(240.0, 95.0, uContactStrength));
         float response = uContactStrength * sunrise;
         vec3 blue = mix(vec3(0.08, 0.28, 0.8), vec3(0.28, 0.66, 1.0), lit);
@@ -205,7 +232,7 @@ async function initialize() {
     onState: state => { globe.dataset.lensflareState = state; }
   });
   const anisotropy = Math.min(16, renderer.capabilities.getMaxAnisotropy());
-  [surface, cloudMap, night].forEach(texture => { texture.anisotropy = anisotropy; });
+  [surface, cloudMap, night, landMask].forEach(texture => { texture.anisotropy = anisotropy; });
 
   let ready = false, presented = false, inView = true, paused = false, dragging = false;
   let frame = 0, last = 0, inputFrame = 0, resumeAt = 0;
@@ -217,6 +244,14 @@ async function initialize() {
 
   function draw() {
     if (!visible() || !geometry) return;
+    // Globe.gl's initial bumpImageUrl update clears a custom material's map.
+    // Restore our shared terrain/cloud map before the first visible frame so
+    // HD loading changes texels, not the shader's feature set.
+    if (material.bumpMap !== cloudMap) {
+      const missingBump = !material.bumpMap;
+      material.bumpMap = cloudMap;
+      if (missingBump) material.needsUpdate = true;
+    }
     // Lighting stays in the same part of the composition as the camera orbits.
     sunDirection.set(-.8, .4, -.95).normalize().applyQuaternion(camera.quaternion);
     sunriseDirection.copy(sunriseLocal).applyQuaternion(camera.quaternion);
@@ -412,11 +447,9 @@ async function initialize() {
     }
     if (results[1].status === 'fulfilled') {
       const detail = results[1].value;
-      material.bumpMap = material.roughnessMap = detail;
-      material.needsUpdate = true;
+      material.bumpMap = detail;
       cloudMap.dispose();
       cloudMap = cloudMaterial.alphaMap = detail;
-      cloudPacked.value = 1;
     }
     requestDraw();
   }

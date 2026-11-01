@@ -15,6 +15,32 @@ const result = await build({
   format: 'esm',
   target: 'es2022',
   minify: true,
+  // The example addon targets opaque canvases. Its additive sprites must
+  // preserve destination alpha on our transparent canvas, otherwise their
+  // footprint can occlude the CSS background even at very low light energy.
+  plugins: [{
+    name: 'lensflare-preserve-canvas-alpha',
+    setup(plugin) {
+      plugin.onLoad({ filter: /[/\\]objects[/\\]Lensflare\.js$/ }, async ({ path }) => {
+        const original = await readFile(path, 'utf8');
+        const importMarker = '\tAdditiveBlending,';
+        const blendMarker = '\t\t\tblending: AdditiveBlending,';
+        if (!original.includes(importMarker) || !original.includes(blendMarker)) {
+          throw new Error('Review the transparent-alpha Lensflare patch after upgrading Three.js.');
+        }
+        const contents = original
+          .replace(importMarker, '\tCustomBlending,\n\tAddEquation,\n\tSrcAlphaFactor,\n\tOneFactor,\n\tZeroFactor,')
+          .replace(blendMarker, `\t\t\tblending: CustomBlending,
+            blendEquation: AddEquation,
+            blendSrc: SrcAlphaFactor,
+            blendDst: OneFactor,
+            blendEquationAlpha: AddEquation,
+            blendSrcAlpha: ZeroFactor,
+            blendDstAlpha: OneFactor,`);
+        return { contents, loader: 'js', resolveDir: dirname(path) };
+      });
+    }
+  }],
   legalComments: 'eof',
   metafile: true,
   banner: { js: '/* Globe.gl local bundle. Versions and licenses: globe.LICENSES.txt. */' }

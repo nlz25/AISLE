@@ -1,5 +1,6 @@
 /* The hash is the view state; pointer distance guides the hand and atmosphere. */
 import { contactLight, layoutEntrance } from './portal-scene.js?v=__ASSET_VERSION__';
+import { createHandRig } from './portal-hand.js?v=__ASSET_VERSION__';
 
 (() => {
   const portal = document.getElementById('entrance');
@@ -9,6 +10,7 @@ import { contactLight, layoutEntrance } from './portal-scene.js?v=__ASSET_VERSIO
   const globe = portal.querySelector('.portal-globe');
   const heading = document.getElementById('network-title');
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+  const poseHand = createHandRig(portal);
   const pointer = { known: false, x: 0, y: 0 };
   let center, strength = 0, target = 0, frame = 0, lastTime = 0, lastNotified = -1;
   let keyboardFocus = false, pressing = false, transitionTimer, viewTransition;
@@ -17,6 +19,7 @@ import { contactLight, layoutEntrance } from './portal-scene.js?v=__ASSET_VERSIO
     strength = value;
     portal.style.setProperty('--proximity', value.toFixed(4));
     portal.style.setProperty('--hand-progress', reduced.matches ? '1' : value.toFixed(4));
+    poseHand(reduced.matches ? 1 : value, value);
     contactLight.value = value;
     if (Math.abs(value - lastNotified) >= .025 || value === target) {
       lastNotified = value;
