@@ -6,5 +6,6 @@ build:
 check: build
 	$(PYTHON) scripts/check_site.py
 	@for file in src/scripts/*.js; do node --check "$$file"; done
+serve: export AISLE_COUNTER_ENDPOINT ?= http://127.0.0.1:8787/count
 serve: build
 	$(PYTHON) -m http.server 4173 --bind 127.0.0.1 --directory dist

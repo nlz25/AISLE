@@ -15,6 +15,7 @@ export function portalCounter(portal) {
     total = value;
     output.textContent = format.format(value);
     output.setAttribute('aria-label', `${value.toLocaleString('en-US')} total portal clicks`);
+    output.setAttribute('title', 'Total portal clicks');
     output.hidden = false;
     if (changed && !reduced.matches) output.animate([
       { opacity: .35, transform: 'translate(-50%, 8px)', filter: 'blur(2px)' },
@@ -30,7 +31,15 @@ export function portalCounter(portal) {
       const response = await fetch(endpoint, { credentials: 'omit', cache: 'no-store', signal: AbortSignal.timeout(5000) });
       if (response.ok) show((await response.json()).total);
     } catch { /* Keep the artwork usable when the counter is unreachable. */ }
-    finally { reading = false; }
+    finally {
+      reading = false;
+      if (total < 0) {
+        output.textContent = '—';
+        output.setAttribute('aria-label', 'Total portal clicks currently unavailable');
+        output.setAttribute('title', 'Total portal clicks currently unavailable');
+        output.hidden = false;
+      }
+    }
   }
 
   async function record() {

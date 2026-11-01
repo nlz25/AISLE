@@ -104,7 +104,8 @@
   z-index: auto;
   flex: 1 0 220px;
   min-height: 220px;
-  margin-bottom: 30px;
+  /* Reserve space for the tagline and counter below the touch target. */
+  margin-bottom: 96px;
   pointer-events: none;
 }
 
@@ -862,17 +863,17 @@ body:not(.portal-ready) .portal-enter-label {
   opacity: .85;
 }
 
-/* A small instrument readout sits above the touch point. */
+/* The readout follows the tagline's height at every screen size. */
 .portal-count {
   position: absolute;
-  bottom: calc(100% + 28px);
+  top: calc(100% + 12px);
   left: 50%;
   transform: translateX(-50%);
   pointer-events: none;
   white-space: nowrap;
-  font: 400 clamp(18px, 2.1vw, 26px)/1.1 ui-monospace, SFMono-Regular, Consolas, monospace;
+  font: 400 clamp(14px, 1.4vw, 18px)/1.2 ui-monospace, SFMono-Regular, Consolas, monospace;
   font-variant-numeric: tabular-nums;
   letter-spacing: .16em;
-  color: #c7eaff;
-  text-shadow: 0 0 16px #6cbcff70;
+  color: #9eafc8;
+  text-shadow: 0 0 12px #6cbcff30;
 }

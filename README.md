@@ -13,6 +13,8 @@ make serve     # serve dist/ at http://127.0.0.1:4173
 
 If your default Python is older, use `make check PYTHON=/path/to/python3.12` (and the same for `make serve`).
 
+`make serve` connects the optional entrance counter to a separate local Worker. See [Portal click counter](docs/counter.md) for startup instructions. Local preview clicks do not affect the production total.
+
 The checked-in globe bundle needs no npm install for ordinary builds or deployment.
 To regenerate it after changing dependencies:
 
