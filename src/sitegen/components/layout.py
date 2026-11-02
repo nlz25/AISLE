@@ -25,11 +25,10 @@ def header(page):
     </div></header>'''
 
 
-def footer(earth_credits=False):
-    credits = '<a href="assets/globe/credits.txt">Earth imagery</a>' if earth_credits else ""
+def footer():
     return f"""<footer class="site-footer"><div class="wrap footer-top">
       <a href="index.html" class="wordmark">© 2026 AISLE</a>
-      <div class="footer-links"><a href="leaderboard.html">Leaderboard</a><a href="tasks.html">Tasks</a>{credits}</div>
+      <div class="footer-links"><a href="leaderboard.html">Leaderboard</a><a href="tasks.html">Tasks</a></div>
     </div></footer>"""
 
 
@@ -71,5 +70,5 @@ def shell(page, title, description, body, version):
   {portal_style}
   <script type="module" src="assets/js/main.js?v={version}"></script>
 </head>
-<body>{header(page)}{body}{results_data() if page != "tasks.html" else ""}{footer(earth_credits=portal)}</body>
+<body>{header(page)}{body}{results_data() if page != "tasks.html" else ""}{footer()}</body>
 </html>'''
