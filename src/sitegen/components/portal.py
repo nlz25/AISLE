@@ -31,10 +31,14 @@ def entrance():
         <div class="portal-globe-sun" aria-hidden="true"></div>
         <div class="portal-lens-flare" aria-hidden="true"><span class="portal-lens-ghosts"></span></div>
         <div class="portal-arm" aria-hidden="true"><div class="portal-hand">{articulated_hand()}</div></div>
-        <a class="portal-enter" href="#network" aria-label="Touch the Earth to enter the global research network">
+        <a class="portal-enter" href="#network" aria-label="Explore the global research network">
           <span class="portal-enter-bloom" aria-hidden="true"></span>
-          <span class="portal-enter-label" aria-hidden="true">Touch to enter</span>
-          <span class="portal-tagline">Nature as the Verifier<span class="portal-count" data-endpoint="{esc(endpoint)}" role="status" aria-label="Loading total portal clicks" title="Loading total portal clicks"{" hidden" if not endpoint else ""}>···</span></span>
+          <span class="portal-enter-halo" aria-hidden="true"></span>
+          <span class="portal-enter-ring" aria-hidden="true"></span>
+          <span class="portal-enter-ring portal-enter-ring-inner" aria-hidden="true"></span>
+          <span class="portal-enter-core" aria-hidden="true"><span class="portal-nucleus"></span></span>
+          <span class="portal-count" data-endpoint="{esc(endpoint)}" role="status" title="Total portal clicks" hidden></span>
+          <span class="portal-tagline">Nature as the Verifier</span>
         </a>
       </div>
     </section>"""

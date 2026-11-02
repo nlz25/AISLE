@@ -71,7 +71,7 @@
 
 .portal-enter .portal-tagline {
   position: absolute;
-  top: calc(100% + 62px);
+  top: calc(100% + 34px);
   left: 50%;
   transform: translateX(-50%);
   white-space: nowrap;
@@ -102,7 +102,7 @@
   z-index: auto;
   flex: 1 0 220px;
   min-height: 220px;
-  /* Reserve space for the tagline and counter below the touch target. */
+  /* Reserve space for the tagline below the orbital entrance. */
   margin-bottom: 96px;
   pointer-events: none;
 }
@@ -391,7 +391,7 @@
   outline: 1px solid #b4dcff55;
 }
 
-/* The light itself is the entrance. Its hit target has no visible surface. */
+/* The orbital entrance is centred on the shared fingertip/Earth contact. */
 .portal-enter {
   position: absolute;
   z-index: 5;
@@ -399,29 +399,141 @@
   left: var(--enter-x);
   top: var(--touch-y);
   transform: translate(-50%,-50%);
-  width: clamp(88px,8vw,120px);
+  width: clamp(84px,8.1vw,124px);
   aspect-ratio: 1;
-  display: block;
+  display: grid;
+  place-items: center;
   border-radius: 50%;
-  color: #e9f3fa;
-  outline-offset: 6px;
+  outline-offset: 15px;
   cursor: pointer;
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
 }
 
-.portal-enter-label {
+.portal-enter-halo {
   position: absolute;
-  top: calc(100% + 31px);
-  left: 50%;
-  transform: translateX(-50%);
-  font: 500 10px/1.4 var(--sans);
-  letter-spacing: .16em;
-  text-transform: uppercase;
-  white-space: nowrap;
-  color: #d6e5f1;
-  opacity: clamp(0,(var(--proximity) - .55) / .45,1);
+  inset: -72%;
+  border-radius: 50%;
+  background: radial-gradient(circle,#a0dfff30 8%,#62acff16 35%,transparent 69%);
   pointer-events: none;
+  animation: portal-breathe 8s ease-in-out infinite;
+}
+
+.portal-enter:before,
+.portal-enter:after {
+  content: "";
+  position: absolute;
+  inset: -16%;
+  border-radius: 50%;
+  border: 1px solid #bedfff30;
+  pointer-events: none;
+}
+
+.portal-enter:after {
+  inset: -30%;
+  border-color: #c5dfff15;
+  animation: portal-ripple 8s ease-out infinite;
+}
+
+.portal-enter-ring {
+  position: absolute;
+  inset: -12%;
+  border: 1px solid #94cbff26;
+  border-radius: 50%;
+  border-top-color: #d7f3ff;
+  border-left-color: #f6ce86b3;
+  box-shadow: -2px 0 8px #e8b06c24,1px -1px 9px #a4deff22;
+  animation: portal-orbit 18s linear infinite;
+  pointer-events: none;
+}
+
+.portal-enter-ring:after {
+  content: "";
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  left: 50%;
+  top: -3px;
+  border-radius: 50%;
+  background: #f3fcff;
+  box-shadow: 0 0 9px #fff,0 0 20px #83d5ff;
+}
+
+.portal-enter-ring-inner {
+  inset: -5%;
+  border-top-color: transparent;
+  border-left-color: #e2b47080;
+  border-bottom-color: #9ee9ff90;
+  animation-direction: reverse;
+  animation-duration: 24s;
+}
+
+.portal-enter-ring-inner:after {
+  width: 3px;
+  height: 3px;
+  background: #ffdfa4;
+  box-shadow: 0 0 9px #ffbf6b;
+}
+
+.portal-enter-core {
+  position: absolute;
+  inset: 8%;
+  display: grid;
+  place-items: center;
+  border: 1px solid #bde6ff40;
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 28%,#69b9e530,transparent 48%),radial-gradient(circle,#0b1928 12%,#102c4580 55%,#93d7ff15 76%);
+  box-shadow: inset 0 1px 10px #9cdcff24,inset 0 -12px 22px #0006,0 0 28px #67bfff35,0 0 80px #5bbaff12;
+  transition: transform .2s,box-shadow .2s;
+}
+
+.portal-nucleus {
+  width: 13%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #e2f7ff;
+  box-shadow: 0 0 12px #fff,0 0 30px #a3ddff,0 0 55px #66bcff;
+  position: relative;
+}
+
+.portal-nucleus:before,
+.portal-nucleus:after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 420%;
+  height: 1px;
+  transform: translate(-50%,-50%);
+  background: linear-gradient(90deg,transparent,#d3efffcc,transparent);
+}
+
+.portal-nucleus:after {
+  transform: translate(-50%,-50%) rotate(90deg);
+  width: 280%;
+}
+
+.portal-enter-core:before,
+.portal-enter-core:after {
+  content: "";
+  position: absolute;
+  inset: 18%;
+  border: 1px solid #8aceff55;
+  border-radius: 50%;
+  transform: rotate(-35deg) scaleY(.48);
+  box-shadow: 0 0 9px #69c4ff18;
+}
+
+.portal-enter-core:after {
+  transform: rotate(35deg) scaleY(.48);
+  border-color: #ebc98a50;
+}
+
+.portal-enter:hover .portal-enter-core,
+.portal-enter:focus-visible .portal-enter-core {
+  transform: scale(1.09);
+  border-color: #d8f2ff;
+  box-shadow: inset 0 0 18px #8bd5ff33,0 0 40px #8bd5ff66,0 0 90px #5bbaff26;
 }
 
 .portal-enter-bloom {
@@ -494,7 +606,7 @@
   animation: portal-bloom .65s cubic-bezier(.2,.65,.3,1) both;
 }
 
-.portal.is-leaving .portal-enter-label,
+.portal.is-leaving .portal-count,
 .portal.is-leaving .portal-tagline {
   animation: none;
   opacity: 0;
@@ -623,7 +735,7 @@
   }
 
   .portal-enter {
-    width: 96px;
+    width: 76px;
   }
 }
 
@@ -650,22 +762,14 @@
   }
 
   .portal-enter {
-    width: 88px;
+    width: 66px;
   }
 
-  .portal-enter-label {
-    font-size: 9px;
-    top: calc(100% + 25px);
-  }
-
-  .portal-enter .portal-tagline {
-    top: calc(100% + 56px);
-  }
 }
 
 @media (max-width:360px) {
   .portal-enter {
-    width: 84px;
+    width: 58px;
   }
 
   .portal-enter .portal-tagline {
@@ -712,41 +816,48 @@ body:not(.portal-ready) .portal {
   --hand-progress: 1;
 }
 
-/* A translucent touch target surrounds the shared fingertip/light position.
-   Its caption stays below the circle, separate from the clickable surface. */
-@media (max-width:780px), (pointer:coarse) {
-  .portal-enter {
-    border: 1px solid rgb(198 226 250 / calc(.3 + var(--proximity) * .25));
-    background: radial-gradient(circle,#c6e2fa05 45%,#c6e2fa12 100%);
-    box-shadow: 0 0 24px #93c9ff14,inset 0 0 14px #93c9ff0a;
-    transition: border-color .18s, background-color .18s;
-  }
-
-  .portal-enter-label {
-    opacity: .9;
-  }
-
-  .portal-enter:active {
-    background-color: #c6e2fa14;
-    border-color: #c6e2fa99;
-  }
-}
-
-body:not(.portal-ready) .portal-enter-label {
-  opacity: .85;
-}
-
-/* The readout follows the tagline's height at every screen size. */
+/* A small instrument readout sits above the touch point. */
 .portal-count {
   position: absolute;
-  top: calc(100% + 12px);
+  bottom: calc(100% + 28px);
   left: 50%;
   transform: translateX(-50%);
   pointer-events: none;
   white-space: nowrap;
-  font: 500 clamp(14px, 1.4vw, 18px)/1.2 var(--sans);
-  font-variant-numeric: lining-nums tabular-nums;
-  letter-spacing: .1em;
-  color: #9eafc8;
-  text-shadow: 0 0 12px #6cbcff30;
+  font: 400 clamp(18px, 2.1vw, 26px)/1.1 ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: .16em;
+  color: #c7eaff;
+  text-shadow: 0 0 16px #6cbcff70;
+}
+
+@keyframes portal-orbit {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes portal-breathe {
+  50% {
+    opacity: .55;
+    transform: scale(.9);
+  }
+}
+
+@keyframes portal-ripple {
+  0%,
+  15% {
+    transform: scale(.82);
+    opacity: 0;
+  }
+
+  30% {
+    opacity: .8;
+  }
+
+  90%,
+  100% {
+    transform: scale(1.35);
+    opacity: 0;
+  }
 }

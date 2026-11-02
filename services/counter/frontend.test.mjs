@@ -7,7 +7,7 @@ const source = (await readFile(new URL('../../src/scripts/counter.js', import.me
 function setup(fetch) {
   let idle;
   const output = {
-    hidden: false, textContent: '···', dataset: { endpoint: 'https://counter.example/count' },
+    hidden: true, textContent: '', dataset: { endpoint: 'https://counter.example/count' },
     attributes: {}, setAttribute(name, value) { this.attributes[name] = value; }, animate() {}
   };
   const portal = { hidden: false, querySelector: () => output };
@@ -33,7 +33,7 @@ test('late initial read cannot replace a newer click total', async () => {
   assert.equal(ui.output.textContent, '000,011');
 });
 
-test('failed reads stay visible; retry reuses ID, next click gets a new ID', async () => {
+test('failed reads stay hidden; retry reuses ID, next click gets a new ID', async () => {
   const ids = [];
   const ui = setup(async (url, options) => {
     if (!options.method) throw new Error('Offline');
@@ -42,31 +42,28 @@ test('failed reads stay visible; retry reuses ID, next click gets a new ID', asy
     return response(ids.length);
   });
   await ui.read();
-  assert.equal(ui.output.hidden, false);
-  assert.equal(ui.output.textContent, '—');
-  assert.equal(ui.output.attributes['aria-label'], 'Total portal clicks currently unavailable');
+  assert.equal(ui.output.hidden, true);
+  assert.equal(ui.output.textContent, '');
   await ui.record();
   assert.equal(ids[0], ids[1]);
   await ui.record();
   assert.notEqual(ids[1], ids[2]);
   assert.equal(ui.output.hidden, false);
-  assert.equal(ui.output.attributes.title, 'Total portal clicks');
 });
 
-test('pending reads keep a placeholder; rejected and invalid totals show unavailable', async () => {
+test('pending, rejected and invalid initial reads keep the readout hidden', async () => {
   let resolveRead;
   const ui = setup(() => new Promise(resolve => { resolveRead = resolve; }));
   const reading = ui.read();
-  assert.equal(ui.output.hidden, false);
-  assert.equal(ui.output.textContent, '···');
+  assert.equal(ui.output.hidden, true);
+  assert.equal(ui.output.textContent, '');
   resolveRead({ ok: false, status: 403 });
   await reading;
-  assert.equal(ui.output.textContent, '—');
+  assert.equal(ui.output.hidden, true);
   for (const total of [-1, null, '7']) {
     const invalid = setup(async () => response(total));
     await invalid.read();
-    assert.equal(invalid.output.hidden, false);
-    assert.equal(invalid.output.textContent, '—');
+    assert.equal(invalid.output.hidden, true);
   }
 });
 
@@ -80,5 +77,4 @@ test('a failed late read preserves a successful click total', async () => {
   rejectRead(new Error('Offline'));
   await reading;
   assert.equal(ui.output.textContent, '000,011');
-  assert.equal(ui.output.attributes.title, 'Total portal clicks');
 });
