@@ -21,7 +21,7 @@ the existing shell ends. The original ceramic panels, pointing gesture and
 blue wrist accents are retained. The base light is now cool and subdued, with
 softer ceramic highlights and a blue environmental rim. Earlier `parts-v1.png`, `parts-v2.png` and `hand-v3.png`
 iterations remain archived. The supplied hand above is unchanged and remains
-the script-free and failed-image fallback.
+the failed-image fallback. The script-free first paint now reuses the assembled atlas below, so an ordinary visit downloads only one hand image.
 
 The eight views are the forearm, palm, three index phalanges, thumb, middle
 finger and grouped ring/little fingers. They all sample

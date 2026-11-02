@@ -194,7 +194,7 @@ portal_bytes = sum(p.stat().st_size for p in (ROOT / "assets/portal").glob("*.we
 if portal_bytes > 1_000_000:
     errors.append(f"Portal media exceeds 1 MB: {portal_bytes}")
 # The optional articulated hand shares a single transparent atlas across all
-# rigid parts. The original complete hand remains the failed-load fallback.
+# rigid parts. The static hand reuses this atlas; the original is an error fallback.
 hand_atlas = ROOT / "assets/hand-rig/hand-v4.webp"
 if not hand_atlas.is_file() or hand_atlas.stat().st_size > 350_000:
     errors.append("Missing articulated-hand atlas or atlas exceeds 350 KB")

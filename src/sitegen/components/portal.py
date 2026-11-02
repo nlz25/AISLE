@@ -23,7 +23,7 @@ def entrance():
       </div>
         <div class="portal-globe" data-texture="assets/globe/base/earth-surface.webp" data-texture-hd="assets/globe/earth-surface-hd.webp" data-detail-base="assets/globe/base/earth-detail.webp" data-land-mask="assets/globe/earth-land-mask.webp" data-night="assets/globe/night-tiles/base.webp" data-night-tiles="assets/globe/night-tiles/manifest.json" data-detail="assets/globe/earth-detail-hd.webp">
           <div class="portal-globe-fallback" aria-hidden="true"></div>
-          <noscript><style>.portal-hand-art{{animation:none}}</style><picture class="portal-globe-static" aria-hidden="true"><source media="(max-width:500px)" srcset="assets/globe/earth-poster-mobile.webp"><img src="assets/globe/earth-poster.webp" alt="" width="1440" height="821"></picture></noscript>
+          <noscript><picture class="portal-globe-static" aria-hidden="true"><source media="(max-width:500px)" srcset="assets/globe/earth-poster-mobile.webp"><img src="assets/globe/earth-poster.webp" alt="" width="1440" height="821"></picture></noscript>
           <div class="portal-globe-view"></div>
         </div>
       <div class="portal-scene">

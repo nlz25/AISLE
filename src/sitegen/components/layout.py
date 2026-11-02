@@ -2,6 +2,7 @@
 
 import json
 from ..context import DATA, esc
+from .hand import HAND_ATLAS
 
 
 def header(page):
@@ -47,6 +48,7 @@ def shell(page, title, description, body, version):
     )
     preload = '<link rel="preload" href="assets/fonts/dm-sans-400.woff2" as="font" type="font/woff2" crossorigin>'
     if portal:
+        preload = f'<link rel="preload" href="assets/hand-rig/{HAND_ATLAS}" as="image" type="image/webp" fetchpriority="high">\n  ' + preload
         preload += '\n  <link rel="preload" href="assets/fonts/source-serif-4-latin-variable.woff2" as="font" type="font/woff2" crossorigin>'
     return f'''<!doctype html>
 <html lang="en">

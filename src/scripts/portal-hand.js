@@ -43,16 +43,16 @@ export function createHandRig(portal) {
 export async function loadHandRig(portal) {
   const rig = portal.querySelector('.portal-hand-rig');
   if (!rig) return false;
-  const atlas = new Image();
-  atlas.decoding = 'async';
-  atlas.src = rig.dataset.atlas;
+  const atlas = portal.querySelector('.portal-hand-fallback');
+  if (!atlas) return false;
   try {
     await atlas.decode();
-    rig.querySelector('#hand-atlas').setAttribute('href', atlas.src);
+    rig.querySelector('#hand-atlas').setAttribute('href', atlas.currentSrc || atlas.src);
     portal.classList.add('has-hand-rig');
     return true;
   } catch {
-    // The supplied, complete hand stays visible if the optional atlas fails.
+    // Fetch the original only if the shared image failed, never on the hot path.
+    if (!atlas.naturalWidth && atlas.dataset.fallback) atlas.src = atlas.dataset.fallback;
     return false;
   }
 }

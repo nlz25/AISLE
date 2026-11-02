@@ -44,18 +44,8 @@ if (entrance) {
     });
     else setTimeout(loadGlobe, 600);
   };
-  const artwork = entrance.querySelector('.portal-hand-fallback');
-  const afterArtwork = async () => {
-    // Show the complete hand first; an optional rig must never hide it.
-    try { await artwork.decode(); } catch { /* The rig may still be available. */ }
-    entrance.classList.add('has-artwork');
-    void loadHandRig(entrance);
-  };
-  if (artwork.complete) afterArtwork();
-  else {
-    artwork.addEventListener('load', afterArtwork, { once: true });
-    artwork.addEventListener('error', afterArtwork, { once: true });
-  }
+  // The static image paints without JS; articulation reuses that decoded image.
+  void loadHandRig(entrance);
   scheduleGlobe();
   document.addEventListener('aisle:viewchange', scheduleGlobe);
   reduced.addEventListener('change', scheduleGlobe);

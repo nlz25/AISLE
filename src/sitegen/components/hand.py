@@ -71,7 +71,7 @@ def articulated_hand():
         return f'<g transform="{transform}"><use href="#hand-atlas" {masks[name][1]}/></g>'
 
     return f"""<div class="portal-hand-art">
-      <img class="portal-hand-fallback" src="assets/portal/robot-hand.webp" width="1672" height="941" alt="" fetchpriority="high" decoding="async">
+      <img class="portal-hand-fallback" src="assets/hand-rig/{HAND_ATLAS}" data-fallback="assets/portal/robot-hand.webp" width="1672" height="941" alt="" fetchpriority="high" decoding="async">
       <svg class="portal-hand-rig" viewBox="0 0 1672 941" aria-hidden="true" focusable="false" data-atlas="assets/hand-rig/{HAND_ATLAS}">
         <defs>
           <image id="hand-atlas" width="1672" height="941"/>
