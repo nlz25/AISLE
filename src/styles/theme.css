@@ -289,7 +289,9 @@ body {
   margin-top: 3px;
 }
 
-.pin-pacific .pin-label {
+.pin-asia .pin-label,
+.pin-singapore .pin-label,
+.pin-oceania .pin-label {
   left: auto;
   right: 32px;
   text-align: right;
@@ -946,11 +948,12 @@ body {
   }
 
   .pin-asia .pin-label {
-    left: -8px;
+    left: auto;
+    right: 28px;
     top: -12px;
   }
 
-  .pin-pacific .pin-label {
+  .pin-oceania .pin-label {
     right: 28px;
   }
 
@@ -1054,11 +1057,12 @@ body {
   }
 
   .pin-asia .pin-label {
-    left: -20px;
+    left: auto;
+    right: 24px;
     top: -12px;
   }
 
-  .pin-pacific .pin-label {
+  .pin-oceania .pin-label {
     right: 20px;
     top: 20px;
   }

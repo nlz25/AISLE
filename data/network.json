@@ -20,13 +20,21 @@
       "lat": 31.3,
       "lon": 120.58,
       "institutions": [
-        "suzhou",
+        "suzhou"
+      ]
+    },
+    {
+      "id": "singapore",
+      "en": "Singapore",
+      "lat": 1.3,
+      "lon": 103.78,
+      "institutions": [
         "bears"
       ]
     },
     {
-      "id": "pacific",
-      "en": "Pacific",
+      "id": "oceania",
+      "en": "Oceania",
       "lat": -33.92,
       "lon": 151.23,
       "institutions": [
@@ -53,7 +61,7 @@
       "short": "BEARS",
       "logo": "BEARS.webp",
       "city": "Singapore",
-      "country": "asia",
+      "country": "singapore",
       "video": "bears",
       "topic": "Colour matching & resin transfer",
       "description": "Colour formulation and resin-transfer experiments.",
@@ -65,7 +73,7 @@
       "short": "UNSW Sydney",
       "logo": "UNSW.webp",
       "city": "Sydney",
-      "country": "pacific",
+      "country": "oceania",
       "video": "unsw",
       "topic": "Coloured photovoltaics",
       "description": "Experimental research on coloured photovoltaic devices.",
