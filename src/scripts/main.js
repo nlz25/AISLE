@@ -4,6 +4,7 @@ import './navigation.js?v=__ASSET_VERSION__';
 const entrance = document.getElementById('entrance');
 if (entrance) {
   await import('./portal.js?v=__ASSET_VERSION__');
+  const { loadHandRig } = await import('./portal-hand.js?v=__ASSET_VERSION__');
   let research;
   const loadResearch = () => {
     if (!entrance.hidden || research) return;
@@ -18,14 +19,22 @@ if (entrance) {
   document.addEventListener('aisle:viewchange', loadResearch);
   loadResearch();
 
-  // Let the artwork and heading paint before compiling the optional WebGL scene.
+  // Defer WebGL work without waiting for either hand image to download.
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
   const connection = navigator.connection;
+  const globeElement = entrance.querySelector('.portal-globe');
   let globe;
   const loadGlobe = () => {
-    if (entrance.hidden || globe || reduced.matches || connection?.saveData) return;
+    if (globe) return;
+    if (reduced.matches || connection?.saveData) {
+      globeElement.dataset.globeState = 'static';
+      return;
+    }
+    if (entrance.hidden) return;
+    globeElement.dataset.globeState = 'loading';
     globe = import('./globe.js?v=__ASSET_VERSION__').catch(error => {
       globe = null;
+      globeElement.dataset.globeState = 'fallback';
       console.warn('Using static Earth artwork', error);
     });
   };
@@ -35,12 +44,19 @@ if (entrance) {
     });
     else setTimeout(loadGlobe, 600);
   };
-  const artwork = entrance.querySelector('.portal-arm img');
-  const afterArtwork = () => requestAnimationFrame(() => requestAnimationFrame(scheduleGlobe));
+  const artwork = entrance.querySelector('.portal-hand-fallback');
+  const afterArtwork = async () => {
+    // Show the complete hand first; an optional rig must never hide it.
+    try { await artwork.decode(); } catch { /* The rig may still be available. */ }
+    entrance.classList.add('has-artwork');
+    void loadHandRig(entrance);
+  };
   if (artwork.complete) afterArtwork();
-  else artwork.addEventListener('load', afterArtwork, {
-    once: true
-  });
+  else {
+    artwork.addEventListener('load', afterArtwork, { once: true });
+    artwork.addEventListener('error', afterArtwork, { once: true });
+  }
+  scheduleGlobe();
   document.addEventListener('aisle:viewchange', scheduleGlobe);
   reduced.addEventListener('change', scheduleGlobe);
 } else if (document.getElementById('results-data')) {

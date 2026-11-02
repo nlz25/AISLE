@@ -1,0 +1,17 @@
+Built-in image_gen edit, 2026-11-01.
+Edit target: parts-v1.png. Design reference: ../assets/portal/robot-hand.png.
+Selected output: parts-v2.png. The previous parts-v1.png is preserved.
+The new ceramic joint housings and recessed titanium hinges are generated artwork.
+Production SVG contour masks exclude stray background pixels without repainting the raster source.
+A later alpha-cleanup candidate was rejected because it shifted the original part layout.
+
+Final selected prompt:
+Use case: precise-object-edit.
+Asset type: transparent mechanical-hand articulation atlas, revision 2.
+Input image 1 is the EDIT TARGET (the existing eight-part atlas). Input image 2 is the ORIGINAL HAND and the PRIMARY visual design reference for joint proportions, shell design, materials and perspective.
+Primary request: redraw/refine the eight parts in image 1 so that their joints feel designed as one coherent product with the pearl-white ceramic finger shells, as in image 2. The current large exposed bronze bearing disks look oversized and attached on top; replace them with compact, partially enclosed titanium hinges recessed into smoothly fitted white ceramic joint housings. Make all knuckles visually quieter and smaller. Small understated bronze bearing centers may remain, but no oversized gold rings, no giant black circular eyes on the sides. The shell edges should overlap/recess around each hinge, with narrow dark articulation gaps and smooth continuity from segment to segment. Maintain rigid believable hard-surface mechanics, fine seams, subtle blue edge light, brushed dark titanium internals and cool pearl-white ceramic, matching original image 2.
+Critical layout invariants: preserve image 1's exact 1448 x 1086 landscape canvas, all eight separated parts, their positions, scale, orientation and connection pivot centers. This is an in-place refinement of the existing atlas, NOT a new arrangement. Top row: forearm, palm, index proximal phalanx, index middle phalanx. Bottom row: index fingertip, complete curled thumb, complete curled middle finger, grouped curled ring/little fingers. No assembled hand. Do not join any pieces together.
+Keep approximate hinge centers in the unchanged atlas: index proximal (917,375); index middle (1238,370); fingertip (87,804); thumb root (472,675); middle finger root (826,658); rear pair root (1200,660). The finger segment axes and distances between hinge centers must remain unchanged even as the exposed discs are reduced and integrated into the shells. Keep the fingertip's rounded outline and restrained blue rim. The forearm and palm should retain their exact silhouettes and diagonal orientation; refine their wrist joint detailing to match the smaller finger joints. Avoid adding enlarged cylinders at the ends.
+Lighting: retain the same soft upper-left studio illumination, realistic but restrained highlights and fine texture across every piece. Match white shells and joints for roughness and reflection, so they do not look like unrelated materials from different assets.
+Background: actual transparent alpha, including every gap; no checkerboard printed into the image.
+Constraints: exactly eight separated parts, no new objects, no letters or numbers, no labels, no arrows, no grid, no watermark, no floor, no glow halo extending far from the parts. Preserve gutters and the spatial layout of image 1.

@@ -1,6 +1,8 @@
 /* Entrance artwork is a conceptual image; all controls and typography are live HTML. */
 
 .portal {
+  --proximity: 0;
+  --hand-progress: 0;
   position: relative;
   isolation: isolate;
   display: flex;
@@ -43,6 +45,8 @@
 .portal-heading {
   position: relative;
   flex: 0 0 auto;
+  width: 100%;
+  padding-inline: clamp(12px, 2vw, 32px);
   padding-top: clamp(32px, 6svh, 72px);
   z-index: 3;
   text-align: center;
@@ -52,14 +56,10 @@
 .portal-heading h1 {
   margin: 0;
   color: #f6faff;
-  font: 400 clamp(18px,6.25vw,94px)/1.12 "Space Grotesk",var(--sans);
+  font: 400 clamp(18px,6.25vw,94px)/1.12 var(--sans);
   letter-spacing: -.035em;
   white-space: nowrap;
   text-shadow: 0 0 50px #6ba9ff15;
-}
-
-.portal-apostrophe {
-  font-family: Arial,Helvetica,sans-serif;
 }
 
 .portal-title-ending {
@@ -71,7 +71,7 @@
 
 .portal-enter .portal-tagline {
   position: absolute;
-  top: calc(100% + 34px);
+  top: calc(100% + 62px);
   left: 50%;
   transform: translateX(-50%);
   white-space: nowrap;
@@ -79,39 +79,92 @@
   pointer-events: none;
   font: 400 25px/1.4 var(--serif);
   letter-spacing: .2px;
-  color: #bccde5;
+  color: #c2cfdf;
   margin: 0;
 }
 
 /* Independent layers keep the forearm attached to the viewport edge. */
 
 .portal-scene {
+  --touch-x: 56.4%;
+  --rest-gap: clamp(56px,8vw,120px);
+  --rest-tilt: -6deg;
   --touch-y: 50%;
-  --enter-x: 52%;
+  --enter-x: 56.4%;
+  --contact-angle: 22deg;
+  --earth-radius: 69vw;
+  --flare-axis: -118deg;
+  --flare-reach: 280px;
   position: relative;
-  z-index: 1;
+  /* Keep Earth's canvas in the backdrop used by the screened light layers.
+     A stacking context here would flatten them over transparency, then cover
+     the brighter limb with ordinary source-over alpha. */
+  z-index: auto;
   flex: 1 0 220px;
   min-height: 220px;
-  margin-bottom: 30px;
+  /* Reserve space for the tagline and counter below the touch target. */
+  margin-bottom: 96px;
   pointer-events: none;
 }
 
 .portal-arm {
   position: absolute;
-  left: -.5%;
-  top: calc(var(--touch-y) - 28.1vw);
-  width: 96%;
+  z-index: 1;
+  left: var(--touch-x);
+  top: var(--touch-y);
+  width: var(--arm-width,60%);
   aspect-ratio: 1672/941;
-  clip-path: inset(0 48.5% 0 0);
+  /* Anchor the supplied image's fingertip (1578, 294) to the contact light. */
+  transform-origin: 94.38% 31.24%;
+  transform: translate(calc(-94.38% - var(--rest-gap) * (1 - var(--hand-progress))),-31.24%) rotate(2deg);
   pointer-events: none;
 }
 
-.portal-arm img {
+.portal-hand {
+  /* Turn around the forearm; zero tilt keeps the fingertip on the contact light. */
+  transform-origin: 12% 68%;
+  transform: rotate(calc(var(--rest-tilt) * (1 - var(--hand-progress))));
+}
+
+.portal-hand-art {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1672/941;
+  position: relative;
+  /* Blend the source's cropped forearm edge into the scene. */
+  mask-image: linear-gradient(#000 92%,transparent);
+  /* Animate the artwork independently of the pointer-driven pose. */
+  transform-origin: 12% 68%;
+  animation: portal-hand-arrive .78s cubic-bezier(.2,.8,.2,1) .08s backwards paused;
+}
+
+.portal.has-artwork .portal-hand-art {
+  animation-play-state: running;
+}
+
+.portal-hand-fallback,
+.portal-hand-rig {
   display: block;
   width: 100%;
   height: auto;
   max-width: none;
-  filter: drop-shadow(0 16px 24px #0005);
+}
+
+.portal-hand-fallback {
+  filter: brightness(.8) saturate(.8);
+}
+
+.portal-hand-rig {
+  display: none;
+  overflow: visible;
+}
+
+.has-hand-rig .portal-hand-rig {
+  display: block;
+}
+
+.has-hand-rig .portal-hand-fallback {
+  display: none;
 }
 
 /* A close orbital view: the planet's centre is beyond the bottom-right edge. */
@@ -133,16 +186,186 @@
 }
 
 .portal-globe-fallback {
+  display: none;
   position: absolute;
-  width: 138vw;
-  height: 138vw;
-  left: calc(120% - 69vw);
-  top: calc(118% - 69vw);
-  border-radius: 50%;
-  background: url("../portal/robot-earth.webp") 98% 93% / 250% auto no-repeat;
-  filter: brightness(.65) saturate(.8);
-  transition: opacity .4s;
+  inset: 0;
   pointer-events: none;
+}
+
+.portal-globe:not([data-globe-state=ready]) .portal-globe-fallback {
+  display: block;
+  background: url("../globe/earth-poster.webp") center / cover no-repeat;
+}
+
+.portal-globe-static,
+.portal-globe-static img {
+  display: block;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+.portal-globe-view {
+  position: absolute;
+  inset: 0;
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.portal-globe[data-globe-state=ready] .portal-globe-view {
+  visibility: visible;
+  opacity: 1;
+  pointer-events: auto;
+  transition: opacity .55s;
+}
+
+/* Local x points into Earth; local y follows its horizon. Both masks use
+   the projected planet radius, so the light stays attached during resize. */
+.portal-limb-glow {
+  position: absolute;
+  left: var(--enter-x);
+  top: var(--touch-y);
+  width: clamp(140px,16vw,230px);
+  height: clamp(300px,34vw,490px);
+  transform: translate(-50%,-50%) rotate(var(--contact-angle));
+  background:
+    radial-gradient(ellipse calc(24px + var(--proximity) * 22px) calc(70px + var(--proximity) * 90px) at 50% 50%,#ffedcde0,#ffc67d7a 25%,#e5b16a24 56%,transparent 82%),
+    radial-gradient(ellipse at 50% 50%,#b7e4ff77,#80bcf92b 36%,transparent 72%);
+  mask-image: radial-gradient(circle var(--earth-radius) at calc(50% + var(--earth-radius)) 50%,transparent calc(100% - 28px),#000 calc(100% - 5px),#000 calc(100% + 3px),transparent calc(100% + 62px));
+  mix-blend-mode: screen;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.portal-globe-sun {
+  position: absolute;
+  z-index: 2;
+  left: var(--enter-x);
+  top: var(--touch-y);
+  width: clamp(180px,20vw,290px);
+  height: clamp(280px,31vw,450px);
+  transform: translate(-50%,-50%) rotate(var(--contact-angle));
+  background: radial-gradient(ellipse calc(30px + var(--proximity) * 20px) calc(68px + var(--proximity) * 66px) at 50% 50%,#ffe8b887,#f6be7552 24%,#d89a5021 48%,transparent 80%);
+  /* The planet hides the lower half of the source, exposing a low cap. */
+  mask-image: radial-gradient(circle var(--earth-radius) at calc(50% + var(--earth-radius)) 50%,transparent calc(100% - .5px),#000 calc(100% + 1px));
+  mix-blend-mode: screen;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.portal-globe-sun:before,
+.portal-globe-sun:after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+.portal-globe-sun:before {
+  background: radial-gradient(ellipse calc(8px + var(--proximity) * 9px) calc(32px + var(--proximity) * 34px) at calc(50% + 4px) 50%,#fffef4 4%,#fff4d3f5 24%,#ffdc9cc9 43%,#ffbf6352 66%,transparent 94%);
+  opacity: calc(.48 + var(--proximity) * .52);
+}
+
+.portal-globe-sun:after {
+  background: radial-gradient(ellipse calc(18px + var(--proximity) * 12px) calc(50px + var(--proximity) * 58px) at calc(50% + 4px) 50%,#fff1ca9c,#ffd08952 36%,transparent 78%);
+  filter: blur(3px);
+  opacity: calc(.22 + var(--proximity) * .78);
+}
+
+.portal:has(.portal-globe:is([data-globe-state=ready],[data-globe-state=fallback],[data-globe-state=static])) .portal-globe-sun,
+.portal:has(.portal-globe-static) .portal-globe-sun {
+  opacity: calc(.46 + var(--proximity) * .54);
+}
+
+.portal:has(.portal-globe:is([data-globe-state=ready],[data-globe-state=fallback],[data-globe-state=static])) .portal-limb-glow,
+.portal:has(.portal-globe-static) .portal-limb-glow {
+  opacity: calc(.18 + var(--proximity) * .82);
+}
+
+/* Optical flare crosses the image horizontally; the source stays on the
+   horizon. Faint lens reflections follow the optical centre on a separate axis. */
+.portal-lens-flare {
+  position: absolute;
+  z-index: 2;
+  left: var(--enter-x);
+  top: var(--touch-y);
+  width: clamp(220px,38vw,580px);
+  height: clamp(90px,12vw,170px);
+  transform: translate(-50%,-50%);
+  mix-blend-mode: screen;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.portal-lens-flare:before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: calc(50% - .5px);
+  width: 100%;
+  height: 1px;
+  transform: scaleX(calc(.72 + var(--proximity) * .28));
+  background: linear-gradient(90deg,transparent,#8fbfe919 14%,#a7d5ff59 34%,#e0efffb3 46%,#fff9e8 50%,#ffe0a4b3 54%,#add5ff52 69%,#8fbfe914 88%,transparent);
+  filter: drop-shadow(0 0 3px #a8d4ff66);
+}
+
+.portal-lens-flare:after {
+  content: "";
+  display: none;
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse clamp(18px,2.2vw,30px) clamp(18px,2.2vw,30px) at 50% 50%,#fff5dd9c,#ffdda645 24%,#ffd28a0d 52%,transparent 88%);
+}
+
+/* Static and unavailable-WebGL visits reuse the official optical textures.
+   Live ghosts are rendered by Three.js Lensflare, including depth occlusion. */
+.portal-lens-ghosts {
+  --lens-size: clamp(96px,14.5vw,160px);
+  display: none;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--flare-reach);
+  height: clamp(140px,19vw,250px);
+  transform-origin: 0 50%;
+  transform: translateY(-50%) rotate(var(--flare-axis));
+  opacity: clamp(0,(var(--proximity) - .1) * 1.1,.99);
+}
+
+.portal-lens-ghosts:before,
+.portal-lens-ghosts:after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  aspect-ratio: 1;
+  transform: translate(-50%,-50%);
+  mask: url("../globe/lensflare-ghost.png") center / contain no-repeat;
+  mask-mode: luminance;
+}
+
+.portal-lens-ghosts:before {
+  left: 32%;
+  width: var(--lens-size);
+  background: #a8cde0bf;
+}
+
+.portal-lens-ghosts:after {
+  left: 62%;
+  width: calc(var(--lens-size) * .475);
+  background: #ffc888a6;
+}
+
+.portal:has(.portal-globe:is([data-globe-state=fallback],[data-globe-state=static],[data-lensflare-state=fallback]),.portal-globe-static) .portal-lens-ghosts,
+.portal:has(.portal-globe:is([data-globe-state=fallback],[data-globe-state=static],[data-lensflare-state=fallback]),.portal-globe-static) .portal-lens-flare:after {
+  display: block;
+}
+
+.portal:has(.portal-globe:is([data-globe-state=ready],[data-globe-state=fallback],[data-globe-state=static])) .portal-lens-flare,
+.portal:has(.portal-globe-static) .portal-lens-flare {
+  opacity: calc(.04 + var(--proximity) * var(--proximity) * .86);
 }
 
 .portal-globe-canvas {
@@ -151,19 +374,9 @@
   inset: 0;
   width: 100%;
   height: 100%;
-  opacity: 0;
   touch-action: pan-y;
   outline-offset: -14px;
   cursor: grab;
-  transition: opacity .4s;
-}
-
-.portal-globe[data-globe-state=ready] .portal-globe-canvas {
-  opacity: 1;
-}
-
-.portal-globe[data-globe-state=ready] .portal-globe-fallback {
-  opacity: 0;
 }
 
 .portal-globe-canvas[hidden] {
@@ -178,58 +391,7 @@
   outline: 1px solid #b4dcff55;
 }
 
-.portal-contact {
-  position: absolute;
-  left: 45.7%;
-  top: var(--touch-y);
-  width: 19%;
-  height: 1px;
-  background: linear-gradient(90deg,#ffd6a6cc,#f4f1db,#9ce5ff99,transparent);
-  box-shadow: 0 0 10px #86cfff9c;
-  pointer-events: none;
-}
-
-.portal-contact:before {
-  content: "";
-  position: absolute;
-  left: -10%;
-  top: -22px;
-  width: 110%;
-  height: 44px;
-  background: radial-gradient(ellipse,#9fddff35,transparent 69%);
-  animation: portal-contact 8s ease-in-out infinite;
-}
-
-.portal-touch {
-  position: absolute;
-  left: 45.7%;
-  top: var(--touch-y);
-  width: 8px;
-  height: 8px;
-  transform: translate(-50%,-50%);
-  border-radius: 50%;
-  background: #fff1cb;
-  box-shadow: 0 0 9px #fff,0 0 24px #ffbd65,0 0 55px #ffb55999;
-  pointer-events: none;
-}
-
-.portal-touch:before,
-.portal-touch:after {
-  content: "";
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 72px;
-  height: 1px;
-  transform: translate(-50%,-50%);
-  background: linear-gradient(90deg,transparent,#ffe2a9,transparent);
-}
-
-.portal-touch:after {
-  width: 32px;
-  transform: translate(-50%,-50%) rotate(90deg);
-}
-
+/* The light itself is the entrance. Its hit target has no visible surface. */
 .portal-enter {
   position: absolute;
   z-index: 5;
@@ -237,144 +399,67 @@
   left: var(--enter-x);
   top: var(--touch-y);
   transform: translate(-50%,-50%);
-  width: clamp(84px,8.1vw,124px);
+  width: clamp(88px,8vw,120px);
   aspect-ratio: 1;
-  display: grid;
-  place-items: center;
+  display: block;
   border-radius: 50%;
-  outline-offset: 15px;
+  color: #e9f3fa;
+  outline-offset: 6px;
+  cursor: pointer;
+  touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
 }
 
-.portal-enter-halo {
+.portal-enter-label {
   position: absolute;
-  inset: -72%;
-  border-radius: 50%;
-  background: radial-gradient(circle,#a0dfff30 8%,#62acff16 35%,transparent 69%);
-  pointer-events: none;
-  animation: portal-breathe 8s ease-in-out infinite;
-}
-
-.portal-enter:before,
-.portal-enter:after {
-  content: "";
-  position: absolute;
-  inset: -16%;
-  border-radius: 50%;
-  border: 1px solid #bedfff30;
-  pointer-events: none;
-}
-
-.portal-enter:after {
-  inset: -30%;
-  border-color: #c5dfff15;
-  animation: portal-ripple 8s ease-out infinite;
-}
-
-.portal-enter-ring {
-  position: absolute;
-  inset: -12%;
-  border: 1px solid #94cbff26;
-  border-radius: 50%;
-  border-top-color: #d7f3ff;
-  border-left-color: #f6ce86b3;
-  box-shadow: -2px 0 8px #e8b06c24,1px -1px 9px #a4deff22;
-  animation: portal-orbit 18s linear infinite;
-  pointer-events: none;
-}
-
-.portal-enter-ring:after {
-  content: "";
-  position: absolute;
-  width: 5px;
-  height: 5px;
+  top: calc(100% + 31px);
   left: 50%;
-  top: -3px;
-  border-radius: 50%;
-  background: #f3fcff;
-  box-shadow: 0 0 9px #fff,0 0 20px #83d5ff;
+  transform: translateX(-50%);
+  font: 500 10px/1.4 var(--sans);
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: #d6e5f1;
+  opacity: clamp(0,(var(--proximity) - .55) / .45,1);
+  pointer-events: none;
 }
 
-.portal-enter-ring-inner {
-  inset: -5%;
-  border-top-color: transparent;
-  border-left-color: #e2b47080;
-  border-bottom-color: #9ee9ff90;
-  animation-direction: reverse;
-  animation-duration: 24s;
-}
-
-.portal-enter-ring-inner:after {
-  width: 3px;
-  height: 3px;
-  background: #ffdfa4;
-  box-shadow: 0 0 9px #ffbf6b;
-}
-
-.portal-enter-core {
+.portal-enter-bloom {
   position: absolute;
-  inset: 8%;
-  display: grid;
-  place-items: center;
-  border: 1px solid #bde6ff40;
+  inset: 0;
   border-radius: 50%;
-  background: radial-gradient(circle at 38% 28%,#69b9e530,transparent 48%),radial-gradient(circle,#0b1928 12%,#102c4580 55%,#93d7ff15 76%);
-  box-shadow: inset 0 1px 10px #9cdcff24,inset 0 -12px 22px #0006,0 0 28px #67bfff35,0 0 80px #5bbaff12;
-  transition: transform .2s,box-shadow .2s;
+  background: radial-gradient(circle,#fff3dc80,#c9e9ff45 16%,#91c7ff16 38%,transparent 70%);
+  opacity: 0;
+  pointer-events: none;
 }
 
-.portal-nucleus {
-  width: 13%;
-  aspect-ratio: 1;
-  border-radius: 50%;
-  background: #e2f7ff;
-  box-shadow: 0 0 12px #fff,0 0 30px #a3ddff,0 0 55px #66bcff;
-  position: relative;
+.portal-enter:focus-visible {
+  outline: 1px solid #cbe7ff80;
+  outline-offset: 12px;
 }
 
-.portal-nucleus:before,
-.portal-nucleus:after {
-  content: "";
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 420%;
-  height: 1px;
-  transform: translate(-50%,-50%);
-  background: linear-gradient(90deg,transparent,#d3efffcc,transparent);
+.portal-heading h1,
+.portal-heading .experiment-quotation blockquote,
+.portal-heading .experiment-quotation figcaption,
+.portal-enter .portal-tagline {
+  animation: portal-text-arrive .7s cubic-bezier(.22,1,.36,1) var(--arrival-delay,.06s) backwards;
 }
 
-.portal-nucleus:after {
-  transform: translate(-50%,-50%) rotate(90deg);
-  width: 280%;
+.portal-heading .experiment-quotation blockquote {
+  --arrival-delay: .18s;
 }
 
-.portal-enter-core:before,
-.portal-enter-core:after {
-  content: "";
-  position: absolute;
-  inset: 18%;
-  border: 1px solid #8aceff55;
-  border-radius: 50%;
-  transform: rotate(-35deg) scaleY(.48);
-  box-shadow: 0 0 9px #69c4ff18;
+.portal-heading .experiment-quotation figcaption {
+  --arrival-delay: .3s;
 }
 
-.portal-enter-core:after {
-  transform: rotate(35deg) scaleY(.48);
-  border-color: #ebc98a50;
+.portal-enter .portal-tagline {
+  --arrival-delay: .46s;
 }
 
-.portal-enter:hover .portal-enter-core,
-.portal-enter:focus-visible .portal-enter-core {
-  transform: scale(1.09);
-  border-color: #d8f2ff;
-  box-shadow: inset 0 0 18px #8bd5ff33,0 0 40px #8bd5ff66,0 0 90px #5bbaff26;
-}
-
-.portal-scene:has(.portal-enter:hover) .portal-touch,
-.portal-scene:has(.portal-enter:focus-visible) .portal-touch {
-  box-shadow: 0 0 12px #fff,0 0 35px #ffc575,0 0 85px #ffb559c9;
+.portal-ready.portal-open .portal-arm,
+.portal-ready.portal-open .portal-hand {
+  will-change: transform;
 }
 
 /* Hash-addressable views. A failed/disabled script leaves both sections readable. */
@@ -394,170 +479,119 @@
 
 .portal.is-leaving {
   pointer-events: none;
-  animation: portal-depart .5s ease-in forwards;
+  animation: portal-depart .56s ease-in forwards;
 }
 
-.portal.is-leaving .portal-enter:after {
-  animation: portal-open .5s ease-out forwards;
+.portal.is-leaving.has-view-transition {
+  animation: none;
 }
 
-.portal.is-leaving .portal-enter-core {
-  transform: scale(1.15);
-  box-shadow: 0 0 65px #aae4ffbb,0 0 170px #74b8ff70;
+.portal.is-leaving .portal-enter {
+  pointer-events: none;
+}
+
+.portal.is-leaving .portal-enter-bloom {
+  animation: portal-bloom .65s cubic-bezier(.2,.65,.3,1) both;
+}
+
+.portal.is-leaving .portal-enter-label,
+.portal.is-leaving .portal-tagline {
+  animation: none;
+  opacity: 0;
+  transition: opacity .18s;
+}
+
+/* Light carries the transition; the destination has no visible aperture edge. */
+.portal-view-transition::view-transition-group(root) {
+  animation: none;
+}
+
+.portal-view-transition::view-transition-old(root) {
+  animation: portal-view-out .5s ease-in both;
+  mix-blend-mode: normal;
+}
+
+.portal-view-transition::view-transition-new(root) {
+  animation: portal-view-in .58s ease-out both;
+  mix-blend-mode: normal;
 }
 
 #research-content.is-arriving {
   animation: network-arrive .7s ease-out both;
 }
 
-.network-view-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 30px;
-  position: relative;
-  z-index: 2;
-  padding-block: 10px 8px;
-}
-
-.network-view-head p {
-  font: 9px/1.5 ui-monospace,monospace;
-  letter-spacing: 1.6px;
-  color: #92acd0;
-  margin: 0 0 12px;
-}
-
-.network-view-head h2 {
-  font: 400 clamp(32px,3.6vw,46px)/1.16 "Space Grotesk",var(--sans);
-  letter-spacing: -.025em;
-  color: #eaf2ff;
-  margin: 0;
-}
-
-.network-view-head h2:focus {
-  outline: 0;
-}
-
-.network-return {
-  font-size: 11px;
-  color: #adbed4;
-  white-space: nowrap;
-  border-bottom: 1px solid #91b2ee50;
-  padding-block: 6px;
-}
-
-.network-return:hover {
-  color: #fff;
-}
-
-.network-hero {
-  scroll-margin-top: 78px;
-}
-
-.network-stage {
-  height: clamp(440px,calc(100svh - 265px),620px);
-  margin-top: 24px;
-}
-
-.network-arcs {
-  stroke-dasharray: none;
-  stroke: #a4c5ff45;
-  stroke-width: 1.1;
-}
-
-.network-arcs .network-flow {
-  stroke: none;
-  fill: #e0f4ff;
-  opacity: .95;
-}
-
-.network-arcs .network-flow-halo {
-  stroke: none;
-  fill: #86c7ff;
-  opacity: .22;
-}
-
-.network-arcs .network-flow-tail {
-  stroke: none;
-  fill: #a6dfff;
-  opacity: .55;
-}
-
-.network-arcs .network-flow-warm {
-  fill: #ffe4af;
-}
-
-.network-flow-particles {
-  opacity: 0;
-  transition: opacity .2s;
-}
-
-.network-flow-particles.is-moving {
-  opacity: 1;
-}
-
-@keyframes portal-atmosphere {
-  to {
-    transform: translate(-1.8%,1.2%) scale(1.04);
-  }
-}
-
-@keyframes portal-stars {
-  to {
-    opacity: .2;
-    transform: translateY(-6px);
-  }
-}
-
-@keyframes portal-orbit {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes portal-breathe {
-  50% {
-    opacity: .55;
-    transform: scale(.9);
-  }
-}
-
-@keyframes portal-contact {
-  50% {
-    opacity: .4;
-    transform: scaleX(.86);
-  }
-}
-
-@keyframes portal-ripple {
-  0%,
-  15% {
-    transform: scale(.82);
+@keyframes portal-hand-arrive {
+  from {
+    transform: translate(-110%,24px) rotate(-7deg);
     opacity: 0;
   }
 
-  30% {
+  22% {
+    opacity: 1;
+  }
+
+  to {
+    transform: translate(0,0) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+@keyframes portal-text-arrive {
+  from {
+    opacity: 0;
+    translate: 0 12px;
+  }
+
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+@keyframes portal-bloom {
+  from {
+    transform: scale(.5);
+    opacity: 0;
+  }
+
+  35% {
     opacity: .8;
   }
 
-  90%,
-  100% {
-    transform: scale(1.35);
+  to {
+    transform: scale(9);
     opacity: 0;
   }
 }
 
-@keyframes portal-open {
+@keyframes portal-view-out {
   to {
-    transform: scale(8);
     opacity: 0;
+    filter: blur(3px);
+  }
+}
+
+@keyframes portal-view-in {
+  from {
+    opacity: 0;
+  }
+
+  18% {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
   }
 }
 
 @keyframes portal-depart {
+  45% {
+    opacity: 1;
+  }
+
   to {
     opacity: 0;
-    transform: scale(1.025);
   }
 }
 
@@ -577,11 +611,6 @@
   .portal-enter .portal-tagline {
     font-size: 23px;
   }
-
-  .portal-enter-core {
-    font-size: 12px;
-    letter-spacing: 2.2px;
-  }
 }
 
 @media (max-width:780px) {
@@ -594,41 +623,7 @@
   }
 
   .portal-enter {
-    width: 76px;
-  }
-
-  .portal-enter-core {
-    font-size: 11px;
-    letter-spacing: 1.7px;
-  }
-
-  .network-view-head {
-    gap: 15px;
-    padding-top: 0;
-  }
-
-  .network-view-head h2 {
-    font-size: 34px;
-    max-width: 420px;
-  }
-
-  .network-view-head p {
-    font-size: 8px;
-    margin-bottom: 10px;
-  }
-
-  .network-return {
-    font-size: 10px;
-  }
-
-  .network-stage {
-    height: auto;
-    min-height: 0;
-    margin-top: 20px;
-  }
-
-  .network-hero {
-    scroll-margin-top: 70px;
+    width: 96px;
   }
 }
 
@@ -638,69 +633,39 @@
   }
 
   .portal-scene {
+    --touch-x: 57%;
+    --rest-gap: clamp(28px,9vw,44px);
+    --rest-tilt: -5deg;
     --touch-y: 50%;
-    --enter-x: 49%;
+    --enter-x: 57%;
+    --earth-radius: 110vw;
   }
 
   .portal-arm {
-    left: -19.5%;
-    width: 124%;
-    top: calc(var(--touch-y) - 36.28vw);
+    width: var(--arm-width,62%);
   }
 
-  .portal-globe-fallback {
-    width: 220vw;
-    height: 220vw;
-    left: calc(158% - 110vw);
-    top: calc(92% - 110vw);
+  .portal-globe:not([data-globe-state=ready]) .portal-globe-fallback {
+    background-image: url("../globe/earth-poster-mobile.webp");
   }
 
   .portal-enter {
-    width: 66px;
+    width: 88px;
   }
 
-  .portal-enter-core {
-    font-size: 10px;
-    letter-spacing: 1.7px;
-    gap: 3px;
-  }
-
-  .portal-contact {
-    left: 40%;
-    width: 27%;
-    transform: rotate(-30deg);
-    transform-origin: left center;
-  }
-
-  .portal-touch {
-    left: 40%;
-    width: 5px;
-    height: 5px;
-  }
-
-  .network-view-head {
-    align-items: flex-start;
-  }
-
-  .network-view-head h2 {
-    font-size: 30px;
-    letter-spacing: -1px;
-  }
-
-  .network-return {
-    margin-top: 24px;
+  .portal-enter-label {
     font-size: 9px;
+    top: calc(100% + 25px);
   }
 
-  .network-view-head p {
-    font-size: 7px;
-    letter-spacing: 1.2px;
+  .portal-enter .portal-tagline {
+    top: calc(100% + 56px);
   }
 }
 
 @media (max-width:360px) {
   .portal-enter {
-    width: 58px;
+    width: 84px;
   }
 
   .portal-enter .portal-tagline {
@@ -709,15 +674,21 @@
 }
 
 @media (prefers-reduced-motion:reduce) {
-  .portal *,
-  #research-content.is-arriving,
-  .portal.is-leaving {
-    animation: none !important;
-    transition: none !important;
+  .portal-arm {
+    transform: translate(-94.38%,-31.24%) rotate(2deg);
   }
 
-  .network-flow-particles {
-    display: none;
+  .portal-hand {
+    transform: none;
+  }
+
+  .portal *,
+  #research-content.is-arriving,
+  .portal.is-leaving,
+  .portal-view-transition::view-transition-old(root),
+  .portal-view-transition::view-transition-new(root) {
+    animation: none !important;
+    transition: none !important;
   }
 }
 
@@ -735,23 +706,47 @@
   .portal-atmosphere {
     filter: none;
   }
+}
 
-  .portal-enter:after {
-    animation: none;
+body:not(.portal-ready) .portal {
+  --hand-progress: 1;
+}
+
+/* A translucent touch target surrounds the shared fingertip/light position.
+   Its caption stays below the circle, separate from the clickable surface. */
+@media (max-width:780px), (pointer:coarse) {
+  .portal-enter {
+    border: 1px solid rgb(198 226 250 / calc(.3 + var(--proximity) * .25));
+    background: radial-gradient(circle,#c6e2fa05 45%,#c6e2fa12 100%);
+    box-shadow: 0 0 24px #93c9ff14,inset 0 0 14px #93c9ff0a;
+    transition: border-color .18s, background-color .18s;
+  }
+
+  .portal-enter-label {
+    opacity: .9;
+  }
+
+  .portal-enter:active {
+    background-color: #c6e2fa14;
+    border-color: #c6e2fa99;
   }
 }
 
-/* A small instrument readout sits above the touch point. */
+body:not(.portal-ready) .portal-enter-label {
+  opacity: .85;
+}
+
+/* The readout follows the tagline's height at every screen size. */
 .portal-count {
   position: absolute;
-  bottom: calc(100% + 28px);
+  top: calc(100% + 12px);
   left: 50%;
   transform: translateX(-50%);
   pointer-events: none;
   white-space: nowrap;
-  font: 400 clamp(18px, 2.1vw, 26px)/1.1 ui-monospace, SFMono-Regular, Consolas, monospace;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: .16em;
-  color: #c7eaff;
-  text-shadow: 0 0 16px #6cbcff70;
+  font: 500 clamp(14px, 1.4vw, 18px)/1.2 var(--sans);
+  font-variant-numeric: lining-nums tabular-nums;
+  letter-spacing: .1em;
+  color: #9eafc8;
+  text-shadow: 0 0 12px #6cbcff30;
 }

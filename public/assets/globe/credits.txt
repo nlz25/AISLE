@@ -1,0 +1,50 @@
+AISLE Earth imagery
+
+Optical flare textures: Three.js r183 lens flare example, credited to ro.me.
+https://threejs.org/examples/webgl_lensflares.html
+https://raw.githubusercontent.com/mrdoob/three.js/r183/examples/textures/lensflare/lensflare3.png
+Stored as lensflare-ghost.png without file changes.
+The source bloom is a numerical Gaussian texture; the static source is a CSS
+radial gradient. Aperture RGB is converted to additive alpha in memory, and
+optical drawing preserves the canvas's existing alpha instead of covering
+the background. Static fallbacks use the same aperture texture as a mask.
+Three.js MIT license: ../vendor/globe.LICENSES.txt
+
+Desktop surface, night imagery, height, roughness and clouds: Solar System Scope / INOVE.
+Source collection: https://www.solarsystemscope.com/textures/
+License: Creative Commons Attribution 4.0 International
+https://creativecommons.org/licenses/by/4.0/
+Original 4096 x 2048 JPEGs distributed with the Three.js Earth example:
+https://threejs.org/examples/textures/planets/earth_day_4096.jpg
+https://threejs.org/examples/textures/planets/earth_night_4096.jpg
+https://threejs.org/examples/textures/planets/earth_bump_roughness_clouds_4096.jpg
+https://threejs.org/examples/webgpu_tsl_earth.html
+Changes: converted to WebP for delivery. No geographic features were repainted.
+Research network relief map (../map/world.svg): the same surface and red
+elevation channel are cropped to 85 degrees north–60 degrees south, rendered
+with directional hill shading and a graphite colour treatment, and embedded
+as WebP inside Natural Earth's public-domain vector land outlines.
+City-light overlay (../map/world-lights.svg): the historical night image above
+is cropped to the same projection, with background suppression, an adjusted
+intensity curve and soft warm bloom. It is embedded as transparent WebP in an
+SVG with the same land outline and displayed separately above the terrain.
+Initial 2048 x 1024 surface and 1024 x 512 packed terrain/cloud maps are
+downsampled from those same originals, keeping the first and HD frames coherent.
+
+Land/ocean material mask: derived from the packed source's green channel above.
+The land mask is thresholded, resized to 1024 x 512, quantized to sixteen coast
+coverage levels and stored losslessly as earth-land-mask.webp. It supplies stable
+sea/land material classification at every surface-texture resolution.
+
+Night imagery pyramid: Solar System Scope / INOVE's original 8192 x 4096
+night map, under the same CC BY 4.0 license above.
+https://www.solarsystemscope.com/textures/download/8k_earth_nightmap.jpg
+Changes: resized to a 1024 x 512 global base and 2K/4K/8K tiled WebP levels,
+with neighbouring-image gutters for filtering. City lights were not repositioned.
+The complete source remains outside website delivery.
+
+Archived surface, clouds and historical city lights: NASA Goddard Space Flight
+Center; Reto Stockli and Robert Simmon. NASA Earth Observatory, The Blue Marble
+(2002). These originals are preserved outside website delivery; current browser
+textures use the Solar System Scope imagery credited above.
+https://science.nasa.gov/earth/earth-observatory/the-blue-marble-true-color-global-imagery-at-1km-resolution/

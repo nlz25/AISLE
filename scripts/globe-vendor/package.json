@@ -1,0 +1,8 @@
+{
+  "name": "aisle-globe-vendor",
+  "private": true,
+  "type": "module",
+  "scripts": { "build": "node build.mjs" },
+  "dependencies": { "globe.gl": "2.46.2", "three": "0.183.2" },
+  "devDependencies": { "esbuild": "0.25.12" }
+}

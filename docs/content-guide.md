@@ -19,6 +19,23 @@
 
 The site is English only. Keep the original study scores and task claims intact. Seven models share three categories; five have full coverage. Unmeasured results stay N/A. The network's institution counts are independent of benchmark coverage.
 
+## Typography
+
+Use **DM Sans** for all headings, body copy, navigation, controls and data. Use its
+local 400, 500, 600 and 700 weights. Section headings share
+`--section-heading-size` in `src/styles/base.css`.
+
+Reserve **Source Serif 4** for the entrance quotation, attribution and
+"Nature as the Verifier" tagline. The locally hosted Latin variable font supports
+weights 200–900 and optical sizes 8–60, so the quotation's bold emphasis uses a
+real font weight. Both families use the SIL Open Font License; licenses are
+included in `public/assets/fonts/`.
+
+Source Serif 4 comes from [Adobe's open-source family](https://github.com/adobe-fonts/source-serif),
+delivered as the [Google Fonts v15 Latin WOFF2](https://fonts.gstatic.com/s/sourceserif4/v15/vEFI2_tTDB4M7-auWDN0ahZJW1gb8tc.woff2).
+Its license is copied from [Google Fonts](https://github.com/google/fonts/blob/main/ofl/sourceserif4/OFL.txt).
+The site serves this file locally; visitors do not request fonts from Google.
+
 ## Workflow
 
 1. Edit source files or data, then run `make check` with Python 3.12+.
@@ -27,6 +44,24 @@ The site is English only. Keep the original study scores and task claims intact.
 4. For network changes, check locations, institution identity and film playback.
 5. Commit the source changes and push to `main`. The Pages workflow builds and deploys `dist/`.
 
-Do not commit generated `dist/` files. Add delivery assets to `public/assets/`, originals to `design/originals/`, and record their provenance. Optional regeneration of the current image/font delivery copies uses `python scripts/optimize_assets.py` after installing `requirements-dev.txt`.
+Do not commit generated `dist/` files. Add current browser assets to
+`public/assets/`, originals to `design/originals/`, and record their provenance.
+Keep authoring intermediates and standalone previews in `design/generated/`;
+everything under `public/` is copied into the deployed site.
+
+After installing `requirements-dev.txt`, optional asset regeneration uses:
+
+```sh
+python scripts/optimize_assets.py    # current image recipes, DM Sans, map-night input
+python scripts/build_map.py          # map SVGs from current textures and map-night input
+python scripts/build_hand_assets.py  # current hand atlas, standalone SVGs and offline preview
+python scripts/build_night_tiles.py  # night imagery pyramid from the preserved 8K source
+```
+
+`optimize_assets.py` lists the supported source files explicitly. Add or remove
+recipes when changing delivery assets; archived fonts, artwork and institutions
+are excluded. Source Serif 4, the supplied Suzhou logo, the brand SVG, fallback
+posters, films and license files are preserved directly rather than recreated
+by that script. Retired font licenses remain with their originals.
 
 The entrance title remains a single line with a straight apostrophe. Branding stays at the left edge and navigation at the right. Category colors in `src/sitegen/components/results.py` and `src/scripts/research.js` must agree; bar lengths must always represent the underlying scores.

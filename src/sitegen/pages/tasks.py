@@ -1,14 +1,6 @@
 """English tasks page."""
 
-from ..context import ROOT, PUBLIC, DATA, MODELS, esc, root
-from ..components.ui import link, specs
-from ..components.results import (
-    chart,
-    chart_tabs,
-    category_ranking,
-    category_names,
-    table,
-)
+from ..components.ui import specs
 
 
 def tasks():

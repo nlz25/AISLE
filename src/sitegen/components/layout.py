@@ -1,7 +1,7 @@
 """Shared page chrome and metadata."""
 
 import json
-from ..context import ROOT, PUBLIC, DATA, MODELS, esc, root
+from ..context import DATA, esc
 
 
 def header(page):
@@ -17,17 +17,18 @@ def header(page):
     )
     return f'''<a class="skip" href="#main">Skip to content</a>
     <header class="site-header"><div class="wrap header-inner">
-      <a class="brand" href="index.html" aria-label="AISLE home"><img class="brand-logo" src="{root("assets/brand/aisle-a-pivot-symmetric.webp")}" alt="AISLE logo" width="48" height="48"><span class="brand-full">AI Scientists' Last Exam</span></a>
+      <a class="brand" href="index.html" aria-label="AISLE home"><img class="brand-logo" src="assets/brand/aisle-logo-white.svg" alt="AISLE logo" width="1226" height="222"></a>
       <nav class="nav-links" id="main-navigation" aria-label="Main navigation">{nav}</nav>
       <div class="nav-side">
       <button class="menu-toggle" aria-controls="main-navigation" aria-expanded="false">Menu +</button></div>
     </div></header>'''
 
 
-def footer():
-    return """<footer class="site-footer"><div class="wrap footer-top">
+def footer(earth_credits=False):
+    credits = '<a href="assets/globe/credits.txt">Earth imagery</a>' if earth_credits else ""
+    return f"""<footer class="site-footer"><div class="wrap footer-top">
       <a href="index.html" class="wordmark">© 2026 AISLE</a>
-      <div class="footer-links"><a href="leaderboard.html">Leaderboard</a><a href="tasks.html">Tasks</a></div>
+      <div class="footer-links"><a href="leaderboard.html">Leaderboard</a><a href="tasks.html">Tasks</a>{credits}</div>
     </div></footer>"""
 
 
@@ -40,15 +41,13 @@ def shell(page, title, description, body, version):
     url = f"https://aisle.science/{page}"
     portal = page == "index.html"
     portal_style = (
-        f'<link rel="stylesheet" href="assets/css/portal.css?v={version}">'
+        f'<link rel="stylesheet" href="assets/css/portal.css?v={version}"><link rel="stylesheet" href="assets/css/network.css?v={version}">'
         if portal
         else ""
     )
-    preload = (
-        '<link rel="preload" href="assets/fonts/space-grotesk.woff2" as="font" type="font/woff2" crossorigin>'
-        if portal
-        else ""
-    )
+    preload = '<link rel="preload" href="assets/fonts/dm-sans-400.woff2" as="font" type="font/woff2" crossorigin>'
+    if portal:
+        preload += '\n  <link rel="preload" href="assets/fonts/source-serif-4-latin-variable.woff2" as="font" type="font/woff2" crossorigin>'
     return f'''<!doctype html>
 <html lang="en">
 <head>
@@ -70,5 +69,5 @@ def shell(page, title, description, body, version):
   {portal_style}
   <script type="module" src="assets/js/main.js?v={version}"></script>
 </head>
-<body>{header(page)}{body}{results_data() if page != "tasks.html" else ""}{footer()}</body>
+<body>{header(page)}{body}{results_data() if page != "tasks.html" else ""}{footer(earth_credits=portal)}</body>
 </html>'''

@@ -1,0 +1,19 @@
+Built-in image_gen lighting edit, 2026-11-01.
+Edit target: hand-v3.png. Context: an existing entrance screenshot.
+Selected output: hand-v4.png, 1672 x 941 RGBA, generated alpha preserved.
+The earlier originals remain preserved. Geometry and silver couplings are retained.
+Cold environmental fill and softer highlights are baked into this base image.
+The runtime SVG renderer adds a local, textured warm reflection with screen
+blending and the existing scene-light strength; it never subtracts base light.
+The hand has no artificial cast shadow onto the background or Earth.
+The whole upper cap of the middle index joint belongs to its moving layer;
+this removes the former palm-layer sliver when that finger section bends.
+
+Final selected prompt:
+Use case: lighting-weather.
+Asset type: relit transparent layered mechanical-hand source for a dark orbital website.
+Input image 1 is the EDIT TARGET, the complete assembled silver-and-white robotic hand. Input image 2 is the CONTEXT REFERENCE showing the actual dark navy website, Earth on the RIGHT, cool blue atmospheric horizon, and a small warm sunrise contact light near the fingertip. Do not edit image 2.
+Primary request: change ONLY the illumination and color grading of image 1 to belong naturally in the environment of image 2. The current bright neutral product-studio lighting feels pasted into space. Relight the same hand with restrained cinematic low-key illumination: a soft cool-blue environmental fill from Earth on the upper-right; gently darker ceramic plate faces and metal surfaces toward the lower-left; a narrow soft icy-blue rim on upper/right-facing edges. Let broad highlights roll off gently and retain fine white ceramic texture instead of near-white flat clipped patches. Keep the silver mechanical couplings clearly readable as light titanium, never black or sooty. The hand should remain elegant and visible against dark navy; moderate the exposure, not a silhouette.
+The original cyan wrist and forearm light strips should be dimmer, thinner and softer so they read as tiny embedded light guides, not bright blue neon strips. Reduce the baked-in blue fingertip ring/halo substantially; keep only a subtle blue edge without a large glow. No baked warm-orange pool: the site's runtime renderer will add the local warm contact reflection, so leave the neutral base primarily cool.
+CRITICAL invariants: keep the exact 1672 x 941 canvas, original silhouette and framing, every ceramic panel contour and seam, material identity, wrist angle, all joint-centre coordinates, the same gently bent pointing index finger and all curled-finger poses, fingertip at (1578,294), and precise proportions. Keep the satin-silver couplings that connect both neighboring segments. No added caps, skins, hubs, bumps, rods, extra parts or fingers. No redesign, no change to pose, shape, perspective, camera or layout.
+Output: image 1 alone, genuinely transparent background with clean natural antialiased edges and no floating specks, ghosts of highlights, white fringe, baked checkerboard or wide glow. Preserve clean alpha between the fingers. No added text, logos, grid, arrows, background, floor, stars, planet or other objects.

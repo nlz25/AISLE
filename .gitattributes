@@ -1,0 +1,2 @@
+# Generated upstream shader template strings retain their original whitespace.
+public/assets/vendor/*.js -whitespace

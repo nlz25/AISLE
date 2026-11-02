@@ -1,14 +1,7 @@
 """English home page."""
 
-from ..context import ROOT, PUBLIC, DATA, MODELS, esc, root
 from ..components.ui import link, specs
-from ..components.results import (
-    chart,
-    chart_tabs,
-    category_ranking,
-    category_names,
-    table,
-)
+from ..components.results import chart_tabs, category_ranking
 from ..components.portal import entrance
 from ..components.network import network_hero
 from ..components.institutions import institutions
@@ -89,8 +82,13 @@ def home():
     <noscript><style>#research-content[hidden]{{display:block!important}}</style></noscript>
     <div id="research-content" hidden>
     {network_hero()}
-    <div class="wrap">
-      <div class="stats"><div class="stat"><strong><span data-count="4079" data-count-digits="1" aria-hidden="true">4,079</span><span class="sr-only">4,079</span></strong><span>Physical experiments</span></div><div class="stat"><strong><span data-count="2" data-count-digits="2" aria-hidden="true">02</span><span class="sr-only">02</span></strong><span>Laboratories</span></div><div class="stat"><strong><span data-count="7" data-count-digits="2" aria-hidden="true">07</span><span class="sr-only">07</span></strong><span>Models evaluated</span></div><div class="stat"><strong><span data-count="4" data-count-digits="2" aria-hidden="true">04</span><span class="sr-only">04</span></strong><span>Task categories</span></div></div>
+    <div class="wrap research-stream">
+      <div class="stats">
+        <div class="stat"><strong><span data-count="4079" data-count-digits="1" aria-hidden="true">4,079</span><span class="sr-only">4,079</span></strong><span class="stat-label">Physical experiments</span></div>
+        <div class="stat"><strong><span data-count="2" data-count-digits="2" aria-hidden="true">02</span><span class="sr-only">02</span></strong><span class="stat-label">Laboratories</span></div>
+        <div class="stat"><strong><span data-count="7" data-count-digits="2" aria-hidden="true">07</span><span class="sr-only">07</span></strong><span class="stat-label">Models evaluated</span></div>
+        <div class="stat"><strong><span data-count="4" data-count-digits="2" aria-hidden="true">04</span><span class="sr-only">04</span></strong><span class="stat-label">Task categories</span></div>
+      </div>
       <p class="scope-note">AISLE includes physical experiments and simulated tasks.</p>
       <section class="section home-leaderboard" id="results"><div class="section-head"><h2>Leaderboard</h2>{link("Full leaderboard", "leaderboard.html")}</div>{chart_tabs()}</section>
       <section class="section" id="experiments"><div class="section-head"><div><h2>Task Breakdown</h2></div></div><div data-tabs><div class="tabs" role="tablist" aria-label="Task categories">{tabs}</div>{panels}</div></section>

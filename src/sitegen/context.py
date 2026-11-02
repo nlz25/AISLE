@@ -13,7 +13,3 @@ MODELS = DATA["models"]
 
 def esc(value):
     return html.escape(str(value), quote=True)
-
-
-def root(path):
-    return path
