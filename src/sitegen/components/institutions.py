@@ -1,7 +1,7 @@
 """Institution credits from data/institutions.json."""
 
 import json
-from ..context import ROOT, PUBLIC, DATA, MODELS, esc, root
+from ..context import ROOT, esc
 
 
 def institutions():
@@ -9,7 +9,7 @@ def institutions():
     groups = ""
     for key, en in [("academic", "Academic Institutions"), ("industry", "Industry")]:
         cards = "".join(
-            f'<li class="institution {esc(item["shape"])}"><div class="institution-logo"><img src="{root("assets/institutions/" + item["logo"])}" alt="{esc(item["en"])}" loading="lazy" decoding="async"></div><span>{esc(item["en"])}</span></li>'
+            f'<li class="institution {esc(item["shape"])}"><div class="institution-logo"><img src="assets/institutions/{esc(item["logo"])}" alt="{esc(item["en"])}" loading="lazy" decoding="async"></div><span>{esc(item["en"])}</span></li>'
             for item in data[key]
         )
         single = len(data[key]) == 1

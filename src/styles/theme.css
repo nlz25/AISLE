@@ -466,3 +466,195 @@ body {
 .score-number {
   color: #c3dcff;
 }
+
+/* Soft fields of light carry the reading flow between homepage sections. */
+#research-content {
+  --research-gutter: 48px;
+  --research-section-gap: 48px;
+  --research-heading-gap: 24px;
+  --section-tint: 146 176 198;
+  overflow-x: clip;
+}
+
+.research-stream {
+  width: min(1240px, calc(100% - 2 * var(--research-gutter)));
+}
+
+.research-stream > .section,
+#research-content .network-heading {
+  position: relative;
+  isolation: isolate;
+  padding-top: var(--research-heading-gap);
+  border: 0;
+}
+
+.research-stream > .section {
+  padding-bottom: var(--research-section-gap);
+  scroll-margin-top: 0;
+}
+
+.research-stream > .section::before,
+#research-content .network-heading::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: -32px;
+  left: calc((100% - 100vw) / 2);
+  width: 100vw;
+  height: 260px;
+  background: radial-gradient(ellipse at 18% 34%, rgb(var(--section-tint) / .14), transparent 68%);
+  mask-image: linear-gradient(180deg, transparent, #000 24%, #000 65%, transparent);
+  pointer-events: none;
+}
+
+.research-stream > #experiments {
+  --section-tint: 192 171 143;
+}
+
+.research-stream > #institutions {
+  --section-tint: 143 179 173;
+}
+
+.research-stream > #join {
+  --section-tint: 194 174 148;
+}
+
+.research-stream .section-head,
+#research-content .network-heading {
+  flex-direction: row;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+  margin-bottom: var(--research-heading-gap);
+}
+
+.research-stream .section-head h2,
+.research-stream .join-copy h2,
+#research-content .network-heading h2 {
+  margin: 0;
+  width: fit-content;
+  max-width: 100%;
+  font: 500 clamp(27px, 2.7vw, 34px)/1.25 var(--sans);
+  letter-spacing: -.035em;
+  text-wrap: balance;
+}
+
+@supports (background-clip: text) or (-webkit-background-clip: text) {
+  .research-stream .section-head h2,
+  .research-stream .join-copy h2,
+  #research-content .network-heading h2 {
+    background: linear-gradient(110deg, #f4f2ed 8%, #e0e8eb 48%, rgb(var(--section-tint)) 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+  }
+}
+
+.research-stream .section-head .text-link {
+  flex: none;
+}
+
+.research-stream > .home-leaderboard {
+  margin-top: 32px;
+}
+
+.research-stream > .join-network {
+  align-items: center;
+  gap: 24px 48px;
+}
+
+.research-stream .join-copy h2 {
+  margin-bottom: 12px;
+}
+
+.research-stream .institution-group + .institution-group {
+  border-top: 0;
+}
+
+.research-stream .institution-track {
+  border: 0;
+}
+
+@media (forced-colors: active) {
+  .research-stream .section-head h2,
+  .research-stream .join-copy h2,
+  #research-content .network-heading h2 {
+    background: none;
+    color: CanvasText;
+  }
+}
+
+/* Native scroll timelines keep the enhancement off the JavaScript scroll path. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .research-stream > .section,
+    #research-content .network-heading {
+      view-timeline-name: --research-section;
+      view-timeline-axis: block;
+    }
+
+    .research-stream > .section::before,
+    #research-content .network-heading::before {
+      animation: research-field-arrival 1ms linear both;
+      animation-timeline: --research-section;
+      animation-range: entry 0% cover 35%;
+    }
+
+    .research-stream .section-head h2,
+    .research-stream .join-copy h2,
+    #research-content .network-heading h2 {
+      animation: research-title-arrival 1ms linear both;
+      animation-timeline: --research-section;
+      animation-range: entry 0% cover 25%;
+    }
+
+    @keyframes research-field-arrival {
+      from { opacity: .25; }
+      to { opacity: 1; }
+    }
+
+    @keyframes research-title-arrival {
+      from { opacity: .72; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  }
+}
+
+@media (max-width: 1100px) {
+  #research-content {
+    --research-gutter: 32px;
+  }
+}
+
+@media (max-width: 780px) {
+  #research-content {
+    --research-gutter: 20px;
+    --research-section-gap: 36px;
+    --research-heading-gap: 20px;
+  }
+
+  .research-stream > .home-leaderboard {
+    margin-top: 28px;
+  }
+
+  .research-stream > .section::before,
+  #research-content .network-heading::before {
+    height: 220px;
+    background: radial-gradient(ellipse at 12% 38%, rgb(var(--section-tint) / .17), transparent 74%);
+  }
+
+  .research-stream .section-head .text-link {
+    font-size: 11px;
+  }
+
+  .research-stream > .join-network {
+    gap: 24px;
+  }
+}
+
+@media (max-width: 360px) {
+  #research-content {
+    --research-gutter: 16px;
+  }
+}

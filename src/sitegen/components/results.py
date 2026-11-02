@@ -1,6 +1,6 @@
 """Result tables, rankings and accessible cohort tabs."""
 
-from ..context import ROOT, PUBLIC, DATA, MODELS, esc, root
+from ..context import MODELS, esc
 
 LOGOS = {
     "gpt": "GPT",
@@ -19,19 +19,12 @@ CATEGORY_COLORS = {
 }
 
 
-def table(cohort, preview=False):
+def table(cohort):
     models = sorted(
         [m for m in MODELS if m[cohort] is not None], key=lambda m: -m[cohort]
     )
-    if preview:
-        models = models[:4]
     keys = ["optimization", "safety", "robustness", "multimodal"]
-    names = {
-        "optimization": "Optimization",
-        "safety": "Safety",
-        "robustness": "Robustness",
-        "multimodal": "Multimodal",
-    }
+    names = category_names()
     heads = "".join(f'<th scope="col">{names[k]}</th>' for k in keys)
     rows = ""
     for rank, m in enumerate(models, 1):
@@ -44,13 +37,13 @@ def table(cohort, preview=False):
         )
         rows += f'''<tr {attrs} data-name="{esc(m["name"])}" data-profile="{m["id"]}" data-cohort="{cohort}"><td>{rank:02}</td><th scope="row" class="model-name"><button class="model-button" aria-expanded="false" aria-controls="model-details-{cohort}" aria-label="View details for {esc(m["name"])}">{logo(m)}{esc(m["name"])}<span aria-hidden="true">↗</span></button><small>{esc(m["organization"])}</small></th>
         <td class="score-cell"><span class="score-number">{m[cohort]:.2f}</span><div class="score-track" aria-hidden="true"><div class="score-fill" style="width:{m[cohort]}%"></div></div></td>{scores}</tr>'''
-    return f"""<div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable results table"><table class="results-table" id="table-{cohort}{"-preview" if preview else ""}">
+    return f"""<div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable results table"><table class="results-table" id="table-{cohort}">
     <caption class="sr-only">Study scores from 0 to 100. Rank refers to the aggregate score.</caption>
     <thead><tr><th scope="col">Rank</th><th scope="col">Model</th><th scope="col">Overall / 100</th>{heads}</tr></thead><tbody>{rows}</tbody></table></div>"""
 
 
 def logo(m):
-    return f'<img loading="lazy" decoding="async" src="{root("assets/logos/" + LOGOS[m["id"]] + ".webp")}" alt="{esc(LOGOS[m["id"]])} logo" width="32" height="32">'
+    return f'<img loading="lazy" decoding="async" src="assets/logos/{LOGOS[m["id"]]}.webp" alt="{esc(LOGOS[m["id"]])} logo" width="32" height="32">'
 
 
 def category_names():
@@ -109,13 +102,9 @@ def category_ranking(key):
 
 
 def score_breakdown(cohort):
-    names = {
-        "optimization": "Optimization",
-        "safety": "Safety",
-        "robustness": "Robustness",
-    }
-    if cohort == "full":
-        names["multimodal"] = "Multimodal"
+    names = category_names()
+    if cohort == "shared":
+        names.pop("multimodal")
     options = f'<option value="{cohort}">Overall</option>' + "".join(
         f'<option value="{key}">{label}</option>' for key, label in names.items()
     )

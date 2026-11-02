@@ -73,7 +73,7 @@ print("Built world map:", len(svg), "bytes")
 # City lights are a separate transparent layer, so the terrain's dark colour
 # treatment cannot dim them. Retain the source geography and remove its faint
 # background before adding a tight warm bloom around the actual light pixels.
-night = project(Image.open(ROOT / "public/assets/globe/earth-night-hd.webp").convert("L"))
+night = project(Image.open(ROOT / "design/generated/globe/earth-night-hd.webp").convert("L"))
 # Suppress faint scattered lights while retaining the main city clusters.
 levels = night.point(lambda value: min(255, round(306 * (max(0, value - 26) / 229) ** .72)))
 

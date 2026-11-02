@@ -1,14 +1,6 @@
 """English leaderboard page."""
 
-from ..context import ROOT, PUBLIC, DATA, MODELS, esc, root
-from ..components.ui import link, specs
-from ..components.results import (
-    chart,
-    chart_tabs,
-    category_ranking,
-    category_names,
-    table,
-)
+from ..components.results import chart, category_names, table
 
 
 def leaderboard():
@@ -23,12 +15,7 @@ def leaderboard():
         keys = ["optimization", "safety", "robustness"] + (
             ["multimodal"] if cohort == "full" else []
         )
-        names = {
-            "optimization": "Optimization",
-            "safety": "Safety",
-            "robustness": "Robustness",
-            "multimodal": "Multimodal",
-        }
+        names = category_names()
         options = f'<option value="{cohort}">Overall score</option>' + "".join(
             f'<option value="{k}">{names[k]}</option>' for k in keys
         )

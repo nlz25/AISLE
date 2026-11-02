@@ -10,6 +10,29 @@ from PIL import Image
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "design/originals/assets"
 TARGET = ROOT / "public/assets"
+GENERATED = ROOT / "design/generated"
+
+# Only current delivery assets and the map's authoring input are regenerated.
+# Archived originals must not silently become published files again.
+IMAGE_ASSETS = {
+    "portal/robot-hand.png": (None, 95),
+    "globe/earth-surface-hd.jpg": ((4096, 2048), 86),
+    "globe/earth-detail-hd.jpg": ((4096, 2048), 86),
+    "globe/earth-night-hd.jpg": ((4096, 2048), 90),
+    **{
+        f"logos/{name}.png": ((128, 128), 86)
+        for name in ["Claude", "DeepSeek", "GLM", "GPT", "Gemini", "Kimi", "Qwen"]
+    },
+    **{
+        f"institutions/{name}.png": ((384, 192), 86)
+        for name in ["BEARS", "EPFL", "GreenDynamics", "NTU", "SZU", "UCBerkeley", "UNSW", "UofT"]
+    },
+    **{
+        f"experiments/{name}.jpg": (None, 86)
+        for name in ["bears", "suzhou", "unsw"]
+    },
+}
+FONT_ASSETS = [f"dm-sans-{weight}.ttf" for weight in [400, 500, 600, 700]]
 
 
 def build_land_mask(source, target):
@@ -43,38 +66,34 @@ def build_earth_base_maps(source_dir, target_dir):
 
 def main():
     before = after = 0
-    for source in sorted(SOURCE.rglob("*")):
-        if source.suffix not in {".png", ".jpg", ".ttf"}:
-            continue
-        target = TARGET / source.relative_to(SOURCE)
+    for relative, (size, quality) in IMAGE_ASSETS.items():
+        source = SOURCE / relative
+        # The research map uses this intermediate; the browser uses night tiles.
+        output = GENERATED if relative == "globe/earth-night-hd.jpg" else TARGET
+        target = (output / relative).with_suffix(".webp")
         target.parent.mkdir(parents=True, exist_ok=True)
-        if source.suffix == ".ttf":
-            from fontTools.ttLib import TTFont
-
-            target = target.with_suffix(".woff2")
-            font = TTFont(source)
-            font.flavor = "woff2"
-            font.save(target)
-        else:
-            target = target.with_suffix(".webp")
-            image = Image.open(source)
-            if source.parent.name in {"brand", "logos"}:
-                image.thumbnail((128, 128))
-            elif source.parent.name == "institutions":
-                image.thumbnail((384, 192))
-            elif source.name == "earth-clouds.jpg":
-                image = image.convert("L")
-                image.thumbnail((1024, 512))
-            elif source.parent.name == "globe":
-                image.thumbnail((4096, 2048))
-            quality = 95 if source.name == "robot-hand.png" else 90 if source.name == "earth-night-hd.jpg" else 86
+        with Image.open(source) as image:
+            if size:
+                image.thumbnail(size)
             image.save(target, "WEBP", quality=quality, method=6)
-            if source.name == "earth-detail-hd.jpg":
-                mask_target = target.with_name("earth-land-mask.webp")
-                build_land_mask(source, mask_target)
-                after += mask_target.stat().st_size
         before += source.stat().st_size
         after += target.stat().st_size
+
+    from fontTools.ttLib import TTFont
+
+    for name in FONT_ASSETS:
+        source = SOURCE / "fonts" / name
+        target = (TARGET / "fonts" / name).with_suffix(".woff2")
+        target.parent.mkdir(parents=True, exist_ok=True)
+        with TTFont(source) as font:
+            font.flavor = "woff2"
+            font.save(target)
+        before += source.stat().st_size
+        after += target.stat().st_size
+
+    mask_target = TARGET / "globe/earth-land-mask.webp"
+    build_land_mask(SOURCE / "globe/earth-detail-hd.jpg", mask_target)
+    after += mask_target.stat().st_size
     image = Image.open(ROOT / "design/originals/favicon.png")
     icon = image.copy()
     icon.thumbnail((64, 64))
@@ -82,7 +101,7 @@ def main():
     image.thumbnail((180, 180))
     image.save(ROOT / "public/apple-touch-icon.png", optimize=True)
     after += build_earth_base_maps(SOURCE / "globe", TARGET / "globe/base")
-    print(f"Asset bytes: {before:,} → {after:,}")
+    print(f"Regenerated asset bytes (delivery and authoring): {before:,} → {after:,}")
 
 
 if __name__ == "__main__":

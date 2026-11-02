@@ -10,6 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 from sitegen.context import DIST, PUBLIC
 from sitegen.components.layout import shell
+from sitegen.components.hand import HAND_ATLAS
 from sitegen.pages.home import home
 from sitegen.pages.leaderboard import leaderboard
 from sitegen.pages.tasks import tasks
@@ -20,8 +21,9 @@ def main():
         (ROOT / "src").rglob("*.js")
     ) + sorted((PUBLIC / "assets/vendor").glob("*.js")) + [
         PUBLIC / "assets/globe/night-tiles/manifest.json",
-        PUBLIC / "assets/globe/earth-land-mask.webp"
-    ] + sorted((PUBLIC / "assets/hand-rig").glob("*.webp")) + sorted(
+        PUBLIC / "assets/globe/earth-land-mask.webp",
+        PUBLIC / "assets/hand-rig" / HAND_ATLAS,
+    ] + sorted(
         (PUBLIC / "assets/globe/base").glob("*.webp")
     )
     version = hashlib.sha256(b"".join(p.read_bytes() for p in sources)).hexdigest()[:12]

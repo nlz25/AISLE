@@ -2,10 +2,8 @@ AISLE Earth imagery
 
 Optical flare textures: Three.js r183 lens flare example, credited to ro.me.
 https://threejs.org/examples/webgl_lensflares.html
-https://raw.githubusercontent.com/mrdoob/three.js/r183/examples/textures/lensflare/lensflare0.png
 https://raw.githubusercontent.com/mrdoob/three.js/r183/examples/textures/lensflare/lensflare3.png
-Stored as lensflare-glare.png and lensflare-ghost.png without file changes.
-Only lensflare-ghost.png is used at runtime. The broad glare bitmap is archived.
+Stored as lensflare-ghost.png without file changes.
 The source bloom is a numerical Gaussian texture; the static source is a CSS
 radial gradient. Aperture RGB is converted to additive alpha in memory, and
 optical drawing preserves the canvas's existing alpha instead of covering
@@ -45,7 +43,8 @@ Changes: resized to a 1024 x 512 global base and 2K/4K/8K tiled WebP levels,
 with neighbouring-image gutters for filtering. City lights were not repositioned.
 The complete source remains outside website delivery.
 
-Standard surface, clouds and historical city lights: NASA Goddard Space Flight
+Archived surface, clouds and historical city lights: NASA Goddard Space Flight
 Center; Reto Stockli and Robert Simmon. NASA Earth Observatory, The Blue Marble
-(2002). These are illustrative historical textures, not live satellite data.
+(2002). These originals are preserved outside website delivery; current browser
+textures use the Solar System Scope imagery credited above.
 https://science.nasa.gov/earth/earth-observatory/the-blue-marble-true-color-global-imagery-at-1km-resolution/

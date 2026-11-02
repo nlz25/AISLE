@@ -1,7 +1,7 @@
 """Shared page chrome and metadata."""
 
 import json
-from ..context import ROOT, PUBLIC, DATA, MODELS, esc, root
+from ..context import DATA, esc
 
 
 def header(page):
@@ -17,7 +17,7 @@ def header(page):
     )
     return f'''<a class="skip" href="#main">Skip to content</a>
     <header class="site-header"><div class="wrap header-inner">
-      <a class="brand" href="index.html" aria-label="AISLE home"><img class="brand-logo" src="{root("assets/brand/aisle-logo-white.svg")}" alt="AISLE logo" width="1226" height="222"></a>
+      <a class="brand" href="index.html" aria-label="AISLE home"><img class="brand-logo" src="assets/brand/aisle-logo-white.svg" alt="AISLE logo" width="1226" height="222"></a>
       <nav class="nav-links" id="main-navigation" aria-label="Main navigation">{nav}</nav>
       <div class="nav-side">
       <button class="menu-toggle" aria-controls="main-navigation" aria-expanded="false">Menu +</button></div>

@@ -18,6 +18,8 @@ from sitegen.components.hand import HAND_ATLAS, HAND_ATLAS_SIZE, HAND_PARTS, art
 def main():
     target = ROOT / "public/assets/hand-rig"
     target.mkdir(parents=True, exist_ok=True)
+    parts_target = ROOT / "design/generated/hand-rig"
+    parts_target.mkdir(parents=True, exist_ok=True)
     with Image.open(ROOT / "design/originals/hand-rig" / Path(HAND_ATLAS).with_suffix(".png")) as atlas:
         if atlas.mode != "RGBA" or atlas.size != HAND_ATLAS_SIZE:
             raise ValueError(f"The rig expects the preserved {HAND_ATLAS_SIZE} RGBA painting")
@@ -26,10 +28,10 @@ def main():
     for name, (bounds, _) in HAND_PARTS.items():
         viewbox = " ".join(str(value) for value in bounds)
         definition, reference = hand_part_mask(name, "part")
-        (target / f"{name}.svg").write_text(
+        (parts_target / f"{name}.svg").write_text(
             f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="{viewbox}">'
             f'<defs>{definition}</defs>'
-            f'<image href="{HAND_ATLAS}" width="{width}" height="{height}" {reference}/></svg>\n'
+            f'<image href="../../../public/assets/hand-rig/{HAND_ATLAS}" width="{width}" height="{height}" {reference}/></svg>\n'
         )
 
     # Embed the real joint controller so this preview also works over file://.
@@ -39,7 +41,7 @@ def main():
     for name, (bounds, _) in HAND_PARTS.items():
         definition, reference = hand_part_mask(name, "preview")
         cards.append(
-            f'<a href="../public/assets/hand-rig/{name}.svg">'
+            f'<a href="generated/hand-rig/{name}.svg">'
             f'<svg viewBox="{" ".join(map(str, bounds))}" role="img" aria-label="{name}">'
             f'<defs>{definition}</defs>'
             f'<image href="../public/assets/hand-rig/{HAND_ATLAS}" width="{width}" height="{height}" {reference}/></svg>'
@@ -89,7 +91,7 @@ PREVIEW = """<!doctype html>
   <label>放松 <input aria-label="伸指进度" type="range" min="0" max="1" step="0.001" value="1"> 触碰 <button type="button">播放</button></label>
   <p><button type="button" data-compare aria-pressed="false">对照原图姿态</button></p>
   <p>二维刚性关节试作；无名指与小指暂为一组。原画使用冷色环境光，接近触碰时，指尖与指节会逐渐出现暖色反光。开启减少动态效果时，播放会直接显示触碰姿态，滑块仍可手动使用。</p>
-  <details><summary>查看八件独立素材（SVG 引用同目录图集）</summary><div class="parts">{{PARTS}}</div></details>
+  <details><summary>查看八件独立素材（SVG 引用共享图集）</summary><div class="parts">{{PARTS}}</div></details>
   <details><summary>查看共享分层原画</summary><img class="atlas" src="../public/assets/hand-rig/{{ATLAS}}" alt="用于拆分八个可动层的完整机械手原画"></details>
 </main>
 <script>

@@ -1,18 +1,13 @@
 """Server-rendered, keyboard-accessible research map and experiment films."""
 
-import html, json, hashlib
-from pathlib import Path
-from ..context import ROOT, PUBLIC
+import hashlib
+import json
+
+from ..context import ROOT, PUBLIC, esc
 
 
 def network_hero():
     data = json.loads((ROOT / "data/network.json").read_text())
-
-    def asset(path):
-        return ("") + "assets/" + path
-
-    def esc(s):
-        return html.escape(str(s), quote=True)
 
     first = next(
         (item for item in data["institutions"] if item["country"] == "asia" and item.get("video")),
@@ -43,16 +38,16 @@ def network_hero():
     ).hexdigest()[:10]
     payload = json.dumps(data, ensure_ascii=False).replace("<", "\\u003c")
     return f'''<section class="network-hero" id="network" aria-labelledby="network-title">
-      <h2 class="sr-only" id="network-title" tabindex="-1">Global research network</h2>
       <div class="network-atmosphere" aria-hidden="true"></div>
       <div class="network-shell wrap">
+        <div class="section-head network-heading"><h2 id="network-title" tabindex="-1">Global Research Network</h2></div>
         <div class="network-country-nav" role="group" aria-label="Browse research locations">{"".join(countries)}</div>
         <div class="network-stage">
-          <div class="network-map-plane" data-active-country="{first['country']}" style="--selection-x:{initial_x:.3f}%;--selection-y:{initial_y:.3f}%"><div class="world-map" aria-hidden="true"><img class="map-terrain" loading="lazy" decoding="async" src="{asset("map/world.svg")}?v={map_version}" alt="" width="1200" height="560"><img class="map-illumination" loading="lazy" decoding="async" src="{asset("map/world-lights.svg")}?v={map_version}" alt="" width="1200" height="560"><svg class="network-arcs" viewBox="0 0 1200 560" preserveAspectRatio="xMidYMid meet"><g class="network-flow-particles"></g></svg></div><svg class="network-card-link" aria-hidden="true"><path/></svg><div class="map-markers">{"".join(pins)}</div>
+          <div class="network-map-plane" data-active-country="{first['country']}" style="--selection-x:{initial_x:.3f}%;--selection-y:{initial_y:.3f}%"><div class="world-map" aria-hidden="true"><img class="map-terrain" loading="lazy" decoding="async" src="assets/map/world.svg?v={map_version}" alt="" width="1200" height="560"><img class="map-illumination" loading="lazy" decoding="async" src="assets/map/world-lights.svg?v={map_version}" alt="" width="1200" height="560"><svg class="network-arcs" viewBox="0 0 1200 560" preserveAspectRatio="xMidYMid meet"><g class="network-flow-particles"></g></svg></div><svg class="network-card-link" aria-hidden="true"><path/></svg><div class="map-markers">{"".join(pins)}</div>
           <aside id="network-inspector" class="network-inspector" aria-label="Research films">
             <div class="research-options" role="group" aria-label="Choose a research direction" hidden></div>
             <div id="network-pending" class="film-pending" hidden><h3 id="network-pending-location"></h3><p>Video coming soon</p></div>
-            <div id="network-film"><button type="button" class="film-preview" aria-label="Watch experiment film: {esc(first['topic'])}"><img loading="lazy" decoding="async" id="network-poster" src="{asset('experiments/' + first['video'] + '.webp')}" alt="{esc(first['topic'])}" width="960" height="516"><span class="film-play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m9 5 11 7-11 7Z"/></svg></span><span class="film-duration">{esc(first['duration'])}</span></button><div class="film-caption"><div><h3 id="network-topic">{esc(first['topic'])}</h3><p id="network-description">{esc(first['description'])}</p></div><button type="button" class="film-open" aria-label="Watch experiment film: {esc(first['topic'])}"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 12h15m-6-6 6 6-6 6"/></svg></button></div></div>
+            <div id="network-film"><button type="button" class="film-preview" aria-label="Watch experiment film: {esc(first['topic'])}"><img loading="lazy" decoding="async" id="network-poster" src="assets/experiments/{first['video']}.webp" alt="{esc(first['topic'])}" width="960" height="516"><span class="film-play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m9 5 11 7-11 7Z"/></svg></span><span class="film-duration">{esc(first['duration'])}</span></button><div class="film-caption"><div><h3 id="network-topic">{esc(first['topic'])}</h3><p id="network-description">{esc(first['description'])}</p></div><button type="button" class="film-open" aria-label="Watch experiment film: {esc(first['topic'])}"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 12h15m-6-6 6 6-6 6"/></svg></button></div></div>
           </aside><p class="network-selection sr-only" role="status" aria-live="polite"></p></div>
         </div>
       </div>

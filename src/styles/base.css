@@ -207,11 +207,6 @@ button {
   font-size: 12px;
 }
 
-.language {
-  border-left: 1px solid var(--line);
-  padding-left: 18px;
-}
-
 .menu-toggle {
   display: none;
   border: 0;
@@ -757,11 +752,6 @@ button {
 
   .nav-side {
     gap: 12px;
-  }
-
-  .language {
-    border: 0;
-    padding-left: 0;
   }
 
   .menu-toggle {
@@ -1826,11 +1816,6 @@ button {
   .institution>span {
     font-size: 10px;
   }
-}
-
-.nav-side .language {
-  border-left: 0;
-  padding-left: 0;
 }
 
 .institution-grid {

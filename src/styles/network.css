@@ -3,9 +3,9 @@
   position: relative;
   isolation: isolate;
   overflow: clip;
-  padding: 24px 0 18px;
+  padding: 24px 0 0;
   scroll-margin-top: 78px;
-  background: #080e13;
+  background: linear-gradient(180deg, #0b1219, var(--paper) 94%);
 }
 
 .network-atmosphere {
@@ -19,7 +19,12 @@
 
 .network-shell {
   position: relative;
-  width: min(1440px, calc(100% - 96px));
+  width: min(1440px, calc(100% - 2 * var(--research-gutter)));
+}
+
+.network-heading {
+  max-width: 1240px;
+  margin-inline: auto;
 }
 
 .network-stage {
@@ -547,10 +552,6 @@
 }
 
 @media (max-width: 1100px) {
-  .network-shell {
-    width: calc(100% - 64px);
-  }
-
   .network-stage {
     --card-overflow: 160px;
   }
@@ -562,12 +563,8 @@
 
 @media (max-width: 780px) {
   .network-hero {
-    padding: 20px 0 16px;
+    padding: 20px 0 0;
     scroll-margin-top: 70px;
-  }
-
-  .network-shell {
-    width: calc(100% - 40px);
   }
 
   .network-stage {
@@ -696,10 +693,6 @@
 }
 
 @media (max-width: 360px) {
-  .network-shell {
-    width: calc(100% - 32px);
-  }
-
   .network-map-plane {
     --inspector-width: min(216px, calc(100% - 24px));
   }

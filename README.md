@@ -45,13 +45,18 @@ public/             # files copied into the deployed website
   apple-touch-icon.png
 data/               # study scores and research-network metadata
 scripts/            # build, validation and optional asset tools
-design/             # original artwork, map source and archived demo files
+design/             # originals, authoring previews/intermediates and archives
 docs/               # architecture, content and media provenance
 .github/workflows/  # validation and GitHub Pages deployment
 dist/               # generated output; ignored by Git
 ```
 
 Edit `src/`, `public/` and `data/`. Never edit `dist/`. Every build starts from a clean output directory; only that output is deployed. Original media and design experiments are excluded from publication.
+
+Keep only current browser assets in `public/`. Optional asset tools use explicit
+recipes in `scripts/optimize_assets.py`; archived originals are not regenerated
+into the website. Map intermediates and standalone hand-part SVG previews live
+in `design/generated/`. See [editing content](docs/content-guide.md) for regeneration.
 
 ## Publication
 

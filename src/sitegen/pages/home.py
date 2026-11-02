@@ -1,14 +1,7 @@
 """English home page."""
 
-from ..context import ROOT, PUBLIC, DATA, MODELS, esc, root
 from ..components.ui import link, specs
-from ..components.results import (
-    chart,
-    chart_tabs,
-    category_ranking,
-    category_names,
-    table,
-)
+from ..components.results import chart_tabs, category_ranking
 from ..components.portal import entrance
 from ..components.network import network_hero
 from ..components.institutions import institutions
@@ -89,7 +82,7 @@ def home():
     <noscript><style>#research-content[hidden]{{display:block!important}}</style></noscript>
     <div id="research-content" hidden>
     {network_hero()}
-    <div class="wrap">
+    <div class="wrap research-stream">
       <div class="stats">
         <div class="stat"><strong><span data-count="4079" data-count-digits="1" aria-hidden="true">4,079</span><span class="sr-only">4,079</span></strong><span class="stat-label">Physical experiments</span></div>
         <div class="stat"><strong><span data-count="2" data-count-digits="2" aria-hidden="true">02</span><span class="sr-only">02</span></strong><span class="stat-label">Laboratories</span></div>

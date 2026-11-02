@@ -3,7 +3,7 @@
 The entrance is a conceptual illustration, not footage or a photograph of participating laboratories. Institution logos, experiment footage, scores and locations are unchanged.
 
 - Original scene mode: built-in `image_gen`, transparent background.
-- Original scene: `design/originals/assets/portal/robot-earth.png` (1672 × 941, RGBA; original generated alpha preserved), retained as an archive. Its `robot-earth.webp` delivery copy has no runtime references.
+- Original scene: `design/originals/assets/portal/robot-earth.png` (1672 × 941, RGBA; original generated alpha preserved), retained outside deployment. Its unused WebP delivery copy has been removed.
 - Replacement hand: `design/originals/assets/portal/robot-hand.png` (1672 × 941, RGBA), an unchanged copy of the user-supplied `design/explorations/resources.png`. No image generation, background removal or repainting was used for this replacement.
 - The original generated image is retained separately. No API/CLI generation or raster repainting was used.
 - HTML supplies all text and the entrance link. CSS supplies light, grain and interaction. The supplied hand's source fingertip at pixel (1578, 294) anchors to the shared atmospheric contact. Its width follows that point so the forearm reaches the left viewport edge at full extension, where the supplied image retains its 2° rotation.
@@ -33,8 +33,10 @@ same coherent painting, including the connections on both sides of a joint.
 The complete upper cap of the middle index joint follows the middle phalanx;
 its tiny bright top edge is no longer left in the palm mask when bending.
 The curled fingers use small secondary rotations because their occluded
-surfaces are fixed in the painting. The eight sibling SVG files expose each
-view and reference the same image in their directory.
+surfaces are fixed in the painting. The eight standalone SVG files under
+`design/generated/hand-rig/` expose each view and reference the current
+`public/assets/hand-rig/hand-v4.webp` painting. They are authoring previews and
+are not deployed.
 `scripts/build_hand_assets.py` converts only the delivery format and exports
 native SVG masks and viewports; it does not repaint or remove backgrounds.
 
@@ -89,7 +91,7 @@ A short horizontal lens streak and a compact source bloom appear as proximity
 increases. The live view uses the official Three.js `Lensflare` addon with a
 128 × 128 procedural Gaussian source and the example's aperture-ghost texture.
 The source sits four projected pixels above the limb, within the sunrise cap.
-The broad tinted diffraction disc is retained only as an archived asset.
+The unused broad tinted diffraction bitmap is excluded from delivery.
 The addon positions ghosts along the optical axis and uses a small depth probe.
 `scripts/globe-vendor/build.mjs` applies a guarded patch to its element material:
 RGB remains additive while destination alpha is preserved. Adding optical light
@@ -156,8 +158,8 @@ Preserved earlier standard imagery: [NASA Earth Observatory — The Blue Marble 
 The close orbital composition places the sphere centre outside the bottom-right of the viewport. The renderer draws only the viewport. The atmosphere mesh extends to 1.06 times Earth's radius. Exponential density decays almost to transparency before a final smooth tail at 1.04–1.06 radii; bounded optical depth avoids exposing the mesh silhouette as a cutoff. Blue rim scattering and a localized warm sunrise complete the horizon. The sunrise direction is stored relative to the camera so its warmth follows the screen-anchored CSS sun during rotation. Earth retains three scene draws at rest; the active optical flare brings the total to ten. Very low ambient light keeps the night side dark, while a separate cloud layer and rough ocean reflections preserve depth. The stock-video preview supplied as a visual reference is not a website asset.
 
 The active optical bitmap is an unchanged copy of `lensflare3.png` (4,822 bytes)
-from the Three.js r183 example, credited to ro.me. `lensflare0.png` (78,758 bytes)
-remains archived but has no runtime references. Source URLs and credit are in
+from the Three.js r183 example, credited to ro.me. The unused
+`lensflare0.png` delivery copy has been removed. Source URLs and credit are in
 `public/assets/globe/credits.txt`; the Three.js MIT license is included in
 `public/assets/vendor/globe.LICENSES.txt`. The smooth source bloom is generated
 numerically in `globe-flare.js`, without an external image request.
@@ -185,8 +187,9 @@ is preserved at `design/originals/globe/earth-night-8k.jpg`, under the same
 CC BY 4.0 license. `scripts/build_night_tiles.py` resizes and tiles that original,
 with eight-pixel gutters that wrap at the antimeridian and extend at the poles.
 It does not reposition, simplify or synthesize city lights. The homepage footer
-credits the imagery. Existing 4K night assets are retained as earlier delivery
-sources; the live renderer requests the small base and view-dependent tiles.
+credits the imagery. The 4K night WebP used to generate the research map lives
+at `design/generated/globe/earth-night-hd.webp`, outside deployment; the live
+renderer requests the small base and view-dependent tiles.
 
 ## Generation prompt
 
@@ -211,6 +214,11 @@ The moving lights on map connections are decorative representations of the resea
 
 ## Delivery assets
 
-The browser uses optimized WebP copies in `public/assets/portal/`. Originals above are preserved outside the deployment output. `scripts/optimize_assets.py` regenerates these copies. The replacement hand retains its full 1672 × 941 resolution and transparency, using WebP quality 95 to preserve mechanical detail. Typography and the interactive core remain HTML/CSS.
+The browser uses the current fallback hand in `public/assets/portal/`; unused
+Earth artwork and earlier textures are excluded from delivery. Originals above
+are preserved outside the deployment output. `scripts/optimize_assets.py`
+regenerates the fallback hand from its explicit recipe. It retains its full
+1672 × 941 resolution and transparency, using WebP quality 95 to preserve
+mechanical detail. Typography and the interactive core remain HTML/CSS.
 
 The fallback posters in `public/assets/globe/` are transparent browser captures of the current renderer and CSS sunrise: `earth-poster.webp` is 1440 × 821 (60,704 bytes), and `earth-poster-mobile.webp` is 390 × 773 (19,460 bytes). CSS selects the mobile capture at widths up to 500 pixels; a responsive picture provides the same choice without JavaScript. These are captured renderings, not generated artwork, and are absent during normal WebGL loading.
