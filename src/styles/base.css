@@ -69,6 +69,7 @@ body {
   font-family: var(--sans);
   font-size: 16px;
   line-height: 1.65;
+  font-variant-numeric: lining-nums tabular-nums;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -233,11 +234,11 @@ button {
 }
 
 .stat strong {
-  font-family: var(--serif);
+  font-family: var(--sans);
   font-size: 49px;
   line-height: 1.1;
-  font-weight: 400;
-  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  font-variant-numeric: lining-nums tabular-nums;
 }
 
 .stat span {

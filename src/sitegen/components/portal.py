@@ -18,7 +18,7 @@ def entrance():
       <div class="portal-stars" aria-hidden="true"></div>
       <div class="portal-grain network-grain" aria-hidden="true"></div>
       <div class="portal-heading wrap">
-        <h1 id="portal-title">AI Scientists<span class="portal-apostrophe">'</span> <span class="portal-title-ending">Last Exam</span></h1>
+        <h1 id="portal-title">AI Scientists' <span class="portal-title-ending">Last Exam</span></h1>
         {experiment_quotation()}
       </div>
         <div class="portal-globe" data-texture="assets/globe/base/earth-surface.webp" data-texture-hd="assets/globe/earth-surface-hd.webp" data-detail-base="assets/globe/base/earth-detail.webp" data-land-mask="assets/globe/earth-land-mask.webp" data-night="assets/globe/night-tiles/base.webp" data-night-tiles="assets/globe/night-tiles/manifest.json" data-detail="assets/globe/earth-detail-hd.webp">
