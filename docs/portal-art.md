@@ -119,7 +119,20 @@ response eases through requestAnimationFrame only
 while changing; it stops once settled and while the entrance or tab is hidden.
 The bounded Earth render loop is unchanged. “Touch to enter” stays hidden on
 mouse-driven visits until proximity exceeds 0.55, then fades to full opacity
-at contact. Touch and script-free visits keep a visible cue.
+at contact. Narrow layouts and coarse-pointer devices show a translucent
+circular target around the shared final fingertip and horizon light position.
+The circle is the clickable entrance; “Touch to enter” remains a separate,
+visible caption below it, followed by the tagline and counter. The outline
+and faint tint use the existing target without another blur or animation loop.
+
+Single-finger taps and drags anywhere in the entrance guide the same proximity
+response. The last touch position remains after release, so a tap's pose can
+settle visibly without hover. Passive touch listeners preserve scrolling and
+continue to follow native pans; the globe's existing controls remain available.
+Multi-touch, cancellation, leaving the entrance and hiding the tab clear the
+touch pose. A drag exceeding 12 CSS pixels cannot activate the entrance through
+a synthesized click. No additional animation loop or repeating hint is added.
+Script-free visits retain the same entry link and visible cue.
 
 Keyboard focus brings the hand to the light. Touch activation completes the
 contact with one tap. Reduced motion holds the hand at contact and changes the

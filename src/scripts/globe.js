@@ -7,6 +7,7 @@ import {
 import { createNightTiles } from './globe-tiles.js?v=__ASSET_VERSION__';
 import { createSunriseFlare } from './globe-flare.js?v=__ASSET_VERSION__';
 import { contactLight, earthGeometry, layoutEntrance } from './portal-scene.js?v=__ASSET_VERSION__';
+import { globeClippingPlanes, globePixelRatio, selectGlobeQuality } from './globe-quality.js?v=__ASSET_VERSION__';
 
 const globe = document.querySelector('.portal-globe');
 const host = globe?.querySelector('.portal-globe-view');
@@ -22,7 +23,11 @@ if (host && portal) initialize().catch(error => {
 async function initialize() {
   const loader = new TextureLoader();
   const connection = navigator.connection;
-  const useHD = innerWidth > 900 && (!connection?.effectiveType || connection.effectiveType === '4g');
+  let quality = selectGlobeQuality({
+    width: innerWidth, cores: navigator.hardwareConcurrency, memory: navigator.deviceMemory,
+    saveData: connection?.saveData, effectiveType: connection?.effectiveType
+  });
+  globe.dataset.quality = quality.name;
   // The first complete scene needs only small, global images. Larger surface
   // and cloud detail are optional upgrades after the entrance has been visible.
   let [surface, cloudMap, night, landMask] = await Promise.all([
@@ -38,12 +43,12 @@ async function initialize() {
   try {
     world = new Globe(host, {
       animateIn: false, waitForGlobeReady: false,
-      rendererConfig: { alpha: true, antialias: true, powerPreference: 'low-power' }
+      rendererConfig: { alpha: true, antialias: quality.name !== 'low', powerPreference: 'low-power' }
     })
       .backgroundColor('rgba(0,0,0,0)')
       .enablePointerInteraction(false)
       .showPointerCursor(false)
-      .globeCurvatureResolution(1)
+      .globeCurvatureResolution(quality.curvature)
       .showAtmosphere(false);
   } catch (error) {
     [surface, cloudMap, night, landMask].forEach(texture => texture.dispose());
@@ -82,6 +87,8 @@ async function initialize() {
   });
   const nightTiles = createNightTiles({
     renderer, camera, radius: world.getGlobeRadius(), url: globe.dataset.nightTiles,
+    enabled: quality.tiles, maxLevel: quality.name === 'high' ? 3 : 2,
+    anisotropy: quality.anisotropy,
     reduced, onChange: requestDraw,
     onStats: stats => {
       globe.dataset.nightTilesResident = String(stats.resident);
@@ -90,6 +97,7 @@ async function initialize() {
       globe.dataset.nightTilesPending = String(stats.pending);
     }
   });
+  material.customProgramCacheKey = () => `earth-tiles-${nightTiles.enabled}`;
   // Use an illustrative orbital exposure: readable terrain, selective water
   // reflections, a soft dusk transition and a warm contact on the limb.
   let surfaceCompiled = false;
@@ -169,10 +177,11 @@ async function initialize() {
   world.globeMaterial(material);
 
   const radius = world.getGlobeRadius();
-  globe.dataset.nightRenderer = 'tiles';
+  globe.dataset.nightRenderer = nightTiles.enabled ? 'tiles' : 'base';
   const cloudMaterial = new MeshPhongMaterial({
     color: 0xdceaff, alphaMap: cloudMap, transparent: true,
-    opacity: .76, depthWrite: false, shininess: 0
+    opacity: .76, depthWrite: false, shininess: 0,
+    polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -1
   });
   cloudMaterial.onBeforeCompile = shader => {
     shader.fragmentShader = shader.fragmentShader.replace('#include <alphamap_fragment>',
@@ -184,7 +193,7 @@ async function initialize() {
   scene.add(clouds);
   // The mesh extends well beyond the visible scattering tail. Its silhouette
   // must never be visible as the edge of a translucent shell.
-  const atmosphere = new Mesh(new SphereGeometry(radius * 1.06, 192, 96), new ShaderMaterial({
+  const atmosphere = new Mesh(new SphereGeometry(radius * 1.06, quality.atmosphereSegments, quality.atmosphereSegments / 2), new ShaderMaterial({
     side: BackSide, transparent: true, depthWrite: false,
     uniforms: {
       uSunDirection: { value: sunDirection },
@@ -227,16 +236,18 @@ async function initialize() {
   }));
   atmosphere.renderOrder = 3;
   scene.add(atmosphere);
-  const sunriseFlare = createSunriseFlare({
+  const sunriseFlare = quality.flare ? createSunriseFlare({
     scene, renderer, radius, onChange: requestDraw,
     onState: state => { globe.dataset.lensflareState = state; }
-  });
-  const anisotropy = Math.min(16, renderer.capabilities.getMaxAnisotropy());
+  }) : { update() {} };
+  if (!quality.flare) globe.dataset.lensflareState = 'fallback';
+  let anisotropy = Math.min(quality.anisotropy, renderer.capabilities.getMaxAnisotropy());
   [surface, cloudMap, night, landMask].forEach(texture => { texture.anisotropy = anisotropy; });
 
   let ready = false, presented = false, inView = true, paused = false, dragging = false;
-  let frame = 0, last = 0, inputFrame = 0, resumeAt = 0;
-  let fadeTimer = 0, detailTimer = 0, detailDone = false, detailRequest;
+  let frame = 0, last = 0, resumeAt = 0, needsDraw = false;
+  let detailTimer = 0, detailDone = false, detailRequest;
+  let sampleStart = 0, sampleFrames = 0;
   let geometry;
   world.pointOfView({ lat: 14, lng: 175 });
   const visible = () => ready && inView && !portal.hidden && !document.hidden && !renderer.getContext().isContextLost();
@@ -244,6 +255,13 @@ async function initialize() {
 
   function draw() {
     if (!visible() || !geometry) return;
+    // Globe.gl's deferred sky setup can reset far after resize. Keep the
+    // actual submitted projection tight, including after context recovery.
+    const clipping = globeClippingPlanes(camera.position.length(), radius);
+    if (camera.near !== clipping.near || camera.far !== clipping.far) {
+      Object.assign(camera, clipping);
+      camera.updateProjectionMatrix();
+    }
     // Globe.gl's initial bumpImageUrl update clears a custom material's map.
     // Restore our shared terrain/cloud map before the first visible frame so
     // HD loading changes texels, not the shader's feature set.
@@ -256,7 +274,7 @@ async function initialize() {
     sunDirection.set(-.8, .4, -.95).normalize().applyQuaternion(camera.quaternion);
     sunriseDirection.copy(sunriseLocal).applyQuaternion(camera.quaternion);
     sun.position.copy(sunDirection).multiplyScalar(1000);
-    sunriseFlare.update(sunriseDirection, geometry, contactLight.value);
+    sunriseFlare.update(sunriseDirection, geometry, quality.flare ? contactLight.value : 0);
     nightTiles.update(performance.now(), sunDirection);
     renderer.render(scene, camera);
     if (!surfaceCompiled) {
@@ -270,22 +288,19 @@ async function initialize() {
       globe.dataset.globeState = 'ready';
       globe.dataset.globeRenderer = 'globe.gl';
     }
-    clearTimeout(fadeTimer);
-    if (nightTiles.fading && !canAnimate()) fadeTimer = setTimeout(requestDraw, 50);
   }
 
   function requestDraw() {
-    if (inputFrame || !visible()) return;
-    inputFrame = requestAnimationFrame(() => { inputFrame = 0; draw(); });
+    if (!visible()) return;
+    needsDraw = true;
+    if (!frame) frame = requestAnimationFrame(tick);
   }
 
   function resize() {
     if (portal.hidden) return;
     const { width, height } = host.getBoundingClientRect();
     if (!width || !height) return;
-    const mobile = width <= 500;
-    // Native resolution on ordinary screens, with a pixel budget on large/retina displays.
-    const ratio = Math.min(devicePixelRatio || 1, mobile ? 1.5 : 2, Math.sqrt(4_500_000 / (width * height)));
+    const ratio = globePixelRatio(quality, width, height, devicePixelRatio);
     renderer.setPixelRatio(ratio);
     world.width(width).height(height);
     const { radius: projectedRadius, center } = earthGeometry(width, height);
@@ -298,6 +313,7 @@ async function initialize() {
     const focalLength = height / (2 * Math.tan(camera.fov * Math.PI / 360));
     const distance = radius * Math.sqrt(1 + (focalLength / projectedRadius) ** 2);
     world.pointOfView({ altitude: distance / radius - 1 });
+    Object.assign(camera, globeClippingPlanes(distance, radius));
     camera.updateProjectionMatrix();
     controls.update();
     camera.updateMatrixWorld();
@@ -308,44 +324,78 @@ async function initialize() {
       .unproject(camera).sub(camera.position).normalize();
     sunriseDirection.copy(camera.position).addScaledVector(viewRay, -camera.position.dot(viewRay)).normalize();
     sunriseLocal.copy(sunriseDirection).applyQuaternion(camera.quaternion.clone().invert());
-    // Kapsule applies size changes asynchronously; draw after its update has flushed.
-    requestAnimationFrame(() => { if (ready) draw(); });
+    // Kapsule's batched setters flush before the next scene frame.
+    requestDraw();
   }
 
   function tick(now) {
     frame = 0;
-    if (!canAnimate()) return;
-    if (now - last >= 1000 / (dragging ? 30 : 20)) {
+    if (!visible()) return;
+    const animate = canAnimate();
+    const interval = 1000 / (dragging ? quality.dragFps : quality.fps);
+    if (!last || now - last >= interval) {
       const dt = last ? Math.min((now - last) / 1000, .1) : 0;
-      if (!dragging && now >= resumeAt) {
+      if (animate && !dragging && now >= resumeAt) {
         const { lat, lng } = world.pointOfView();
         world.pointOfView({ lat, lng: lng + dt * 1.3 });
         controls.update();
         clouds.rotation.y += dt * .0003;
       }
+      needsDraw = false;
       draw();
+      // Measure sustained delivery, including GPU stalls. Ignore first-frame
+      // compilation, visibility changes and manual interaction when sampling.
+      if (animate && !dragging && now >= resumeAt && quality.name !== 'low') {
+        if (!sampleStart) sampleStart = now;
+        sampleFrames++;
+        if (now - sampleStart >= 4000) {
+          if ((now - sampleStart) / Math.max(1, sampleFrames - 1) > 100) lowerQuality();
+          sampleStart = sampleFrames = 0;
+        }
+      } else sampleStart = sampleFrames = 0;
       last = now;
     }
-    frame = requestAnimationFrame(tick);
+    if (!frame && (canAnimate() || needsDraw || nightTiles.fading)) frame = requestAnimationFrame(tick);
+  }
+
+  function lowerQuality() {
+    quality = selectGlobeQuality({ cores: 2 });
+    globe.dataset.quality = quality.name;
+    clearTimeout(detailTimer);
+    detailTimer = 0;
+    detailRequest?.abort();
+    nightTiles.setEnabled(false);
+    globe.dataset.nightRenderer = 'base';
+    // Recompile once to remove tile lookups from every subsequent pixel.
+    material.needsUpdate = true;
+    anisotropy = Math.min(quality.anisotropy, renderer.capabilities.getMaxAnisotropy());
+    [surface, cloudMap, night, landMask].forEach(texture => {
+      texture.anisotropy = anisotropy;
+      texture.needsUpdate = true;
+    });
+    globe.dataset.lensflareState = 'fallback';
+    world.globeCurvatureResolution(quality.curvature);
+    atmosphere.geometry.dispose();
+    atmosphere.geometry = new SphereGeometry(radius * 1.06, quality.atmosphereSegments, quality.atmosphereSegments / 2);
+    resize();
   }
 
   function syncAnimation() {
     cancelAnimationFrame(frame);
     frame = 0;
     last = 0;
-    clearTimeout(fadeTimer);
+    sampleStart = sampleFrames = 0;
     nightTiles.setActive(visible());
     if (!visible()) {
       clearTimeout(detailTimer);
       detailTimer = 0;
       detailRequest?.abort();
-    } else if (useHD && !detailDone && !detailTimer && !detailRequest) {
+    } else if (quality.detail && !detailDone && !detailTimer && !detailRequest) {
       detailTimer = setTimeout(upgradeDetail, 3000);
     }
     controls.enabled = visible();
     globe.dataset.rotating = String(canAnimate() && !dragging);
-    if (canAnimate()) frame = requestAnimationFrame(tick);
-    else requestDraw();
+    requestDraw();
   }
 
   controls.addEventListener('change', () => {
@@ -415,7 +465,7 @@ async function initialize() {
 
   async function upgradeDetail() {
     detailTimer = 0;
-    if (!visible() || dragging || detailDone || detailRequest) return;
+    if (!visible() || !quality.detail || dragging || detailDone || detailRequest) return;
     const request = detailRequest = new AbortController();
     const load = async (url, colorSpace) => {
       const response = await fetch(url, { signal: request.signal });
@@ -432,11 +482,11 @@ async function initialize() {
       load(globe.dataset.textureHd, SRGBColorSpace), load(globe.dataset.detail)
     ]);
     detailRequest = null;
-    if (!visible() || request.signal.aborted || dragging) {
+    if (!visible() || !quality.detail || request.signal.aborted || dragging) {
       for (const result of results) if (result.status === 'fulfilled') {
         result.value.dispose(); result.value.image.close();
       }
-      if (visible() && !dragging && !detailTimer) detailTimer = setTimeout(upgradeDetail, 3000);
+      if (visible() && quality.detail && !dragging && !detailTimer) detailTimer = setTimeout(upgradeDetail, 3000);
       return;
     }
     detailDone = true;
@@ -457,7 +507,5 @@ async function initialize() {
   await new Promise(resolve => setTimeout(resolve, 0));
   ready = true;
   resize();
-  await new Promise(requestAnimationFrame);
-  draw();
   syncAnimation();
 }

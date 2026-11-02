@@ -13,9 +13,10 @@ import { portalCounter } from './counter.js?v=__ASSET_VERSION__';
   const heading = document.getElementById('network-title');
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
   const poseHand = createHandRig(portal);
-  const pointer = { known: false, x: 0, y: 0 };
+  const pointer = { known: false, touch: false, x: 0, y: 0 };
   let center, strength = 0, target = 0, frame = 0, lastTime = 0, lastNotified = -1;
   let keyboardFocus = false, pressing = false, transitionTimer, viewTransition;
+  let touchId = null, touchOrigin, touchMoved = false;
 
   function paint(value) {
     strength = value;
@@ -68,6 +69,28 @@ import { portalCounter } from './counter.js?v=__ASSET_VERSION__';
     updateProximity();
   }
 
+  function trackPointer(point, touch = false) {
+    pointer.known = true;
+    pointer.touch = touch;
+    pointer.x = point.clientX;
+    pointer.y = point.clientY;
+    keyboardFocus = false;
+    updateProximity();
+  }
+
+  function resetTouch() {
+    touchId = null;
+    if (!pointer.touch) return;
+    pointer.known = pressing = false;
+    updateProximity();
+  }
+
+  function trackTouch(point) {
+    touchMoved ||= Math.hypot(point.clientX - touchOrigin.x, point.clientY - touchOrigin.y) > 12;
+    if (touchMoved) pressing = false;
+    trackPointer(point, true);
+  }
+
   const resize = new ResizeObserver(layout);
   resize.observe(portal.querySelector('.portal-scene'));
   resize.observe(portal);
@@ -78,12 +101,34 @@ import { portalCounter } from './counter.js?v=__ASSET_VERSION__';
   window.addEventListener('scroll', () => { if (!portal.hidden) layout(); }, { passive: true });
   window.addEventListener('pointermove', event => {
     if (event.pointerType !== 'mouse' && event.pointerType !== 'pen') return;
-    pointer.known = true;
-    pointer.x = event.clientX;
-    pointer.y = event.clientY;
-    keyboardFocus = false;
-    updateProximity();
+    trackPointer(event);
   }, { passive: true });
+  // Passive Touch Events keep following the finger during native scrolling,
+  // even after the browser cancels its Pointer Events stream to handle a pan.
+  portal.addEventListener('touchstart', event => {
+    if (event.touches.length !== 1) { resetTouch(); return; }
+    const control = event.target.closest('a, button, input, select, textarea');
+    if (control && control !== enter) return;
+    const touch = event.touches[0];
+    touchId = touch.identifier;
+    touchOrigin = { x: touch.clientX, y: touch.clientY };
+    touchMoved = false;
+    trackTouch(touch);
+  }, { passive: true });
+  portal.addEventListener('touchmove', event => {
+    if (event.touches.length !== 1) { resetTouch(); return; }
+    const touch = Array.from(event.touches).find(point => point.identifier === touchId);
+    if (touch) trackTouch(touch);
+  }, { passive: true });
+  portal.addEventListener('touchend', event => {
+    const touch = Array.from(event.changedTouches).find(point => point.identifier === touchId);
+    if (!touch) return;
+    // Keep a tap's pose visible without requiring hover or another timer/loop.
+    pressing = false;
+    trackTouch(touch);
+    touchId = null;
+  }, { passive: true });
+  portal.addEventListener('touchcancel', resetTouch, { passive: true });
   document.addEventListener('pointerout', event => {
     if (event.relatedTarget || event.pointerType !== 'mouse') return;
     pointer.known = false;
@@ -106,6 +151,7 @@ import { portalCounter } from './counter.js?v=__ASSET_VERSION__';
   enter.addEventListener('pointercancel', () => { pressing = false; updateProximity(); });
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
+      resetTouch();
       cancelAnimationFrame(frame);
       frame = lastTime = 0;
     } else updateProximity();
@@ -129,6 +175,7 @@ import { portalCounter } from './counter.js?v=__ASSET_VERSION__';
       layout();
       if (focus) enter.focus({ preventScroll: true });
     } else {
+      resetTouch();
       approach(0, true);
       let id;
       try { id = decodeURIComponent(location.hash.slice(1)); }
@@ -145,6 +192,11 @@ import { portalCounter } from './counter.js?v=__ASSET_VERSION__';
   }
 
   enter.addEventListener('click', event => {
+    // Some browsers still synthesize a click after dragging within a link.
+    if (touchMoved && event.detail > 0 && event.pointerType !== 'mouse') {
+      event.preventDefault();
+      return;
+    }
     void countClick();
     if (event.defaultPrevented || event.button > 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     event.preventDefault();

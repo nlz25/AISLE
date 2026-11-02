@@ -716,10 +716,23 @@ body:not(.portal-ready) .portal {
   --hand-progress: 1;
 }
 
-/* Touch and script-free visits retain a visible entry cue. */
-@media (hover:none) {
+/* A translucent touch target surrounds the shared fingertip/light position.
+   Its caption stays below the circle, separate from the clickable surface. */
+@media (max-width:780px), (pointer:coarse) {
+  .portal-enter {
+    border: 1px solid rgb(198 226 250 / calc(.3 + var(--proximity) * .25));
+    background: radial-gradient(circle,#c6e2fa05 45%,#c6e2fa12 100%);
+    box-shadow: 0 0 24px #93c9ff14,inset 0 0 14px #93c9ff0a;
+    transition: border-color .18s, background-color .18s;
+  }
+
   .portal-enter-label {
-    opacity: .85;
+    opacity: .9;
+  }
+
+  .portal-enter:active {
+    background-color: #c6e2fa14;
+    border-color: #c6e2fa99;
   }
 }
 

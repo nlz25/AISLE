@@ -48,15 +48,16 @@ export function createNightTiles(options) {
 }
 
 class NightTiles {
-  constructor({ renderer, camera, radius, url, reduced, onChange, onStats }) {
+  constructor({ renderer, camera, radius, url, reduced, onChange, onStats, enabled = true, maxLevel = 3, anisotropy = 8 }) {
     Object.assign(this, { renderer, camera, radius, reduced, onChange, onStats });
     this.url = new URL(url, document.baseURI);
     this.url.searchParams.set('v', '__ASSET_VERSION__');
     const connection = navigator.connection;
-    this.enabled = renderer.capabilities.maxTextureSize >= ATLAS_SIZE &&
+    this.enabled = enabled && renderer.capabilities.maxTextureSize >= ATLAS_SIZE &&
       typeof createImageBitmap === 'function' && !connection?.saveData &&
       !['slow-2g', '2g'].includes(connection?.effectiveType);
-    this.maxLevel = innerWidth > 900 && connection?.effectiveType !== '3g' ? 3 : 2;
+    this.maxLevel = Math.min(maxLevel, innerWidth > 900 && connection?.effectiveType !== '3g' ? 3 : 2);
+    this.anisotropy = anisotropy;
     this.placeholder = new DataTexture(new Uint8Array(4), 1, 1);
     this.placeholder.colorSpace = SRGBColorSpace;
     this.placeholder.needsUpdate = true;
@@ -83,6 +84,7 @@ class NightTiles {
   }
 
   patch(shader) {
+    if (!this.enabled) return;
     Object.assign(shader.uniforms, this.uniforms);
     shader.fragmentShader = shader.fragmentShader.replace('#include <emissivemap_pars_fragment>',
       '#include <emissivemap_pars_fragment>\n' + sampling);
@@ -90,7 +92,17 @@ class NightTiles {
       'totalEmissiveRadiance *= sampleNightTiles(vEmissiveMapUv);');
   }
 
+  setEnabled(enabled) {
+    if (this.enabled === enabled) return;
+    this.enabled = enabled;
+    if (!enabled) {
+      this.setActive(false);
+      this.invalidate();
+    }
+  }
+
   setActive(active) {
+    active = active && this.enabled;
     if (this.active === active) return;
     this.active = active;
     if (!active) {
@@ -229,7 +241,7 @@ class NightTiles {
     this.atlas.minFilter = LinearMipmapLinearFilter;
     this.atlas.magFilter = LinearFilter;
     this.atlas.generateMipmaps = true;
-    this.atlas.anisotropy = Math.min(8, this.renderer.capabilities.getMaxAnisotropy());
+    this.atlas.anisotropy = Math.min(this.anisotropy, this.renderer.capabilities.getMaxAnisotropy());
     this.atlas.needsUpdate = true;
     this.renderer.initTexture(this.atlas);
     this.uniforms.uNightAtlas.value = this.atlas;
