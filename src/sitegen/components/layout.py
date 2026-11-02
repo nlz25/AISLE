@@ -46,6 +46,8 @@ def shell(page, title, description, body, version):
         else ""
     )
     preload = '<link rel="preload" href="assets/fonts/dm-sans-400.woff2" as="font" type="font/woff2" crossorigin>'
+    if portal:
+        preload += '\n  <link rel="preload" href="assets/fonts/source-serif-4-latin-variable.woff2" as="font" type="font/woff2" crossorigin>'
     return f'''<!doctype html>
 <html lang="en">
 <head>

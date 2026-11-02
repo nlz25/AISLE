@@ -31,11 +31,11 @@
 }
 
 @font-face  {
-  font-family: "Libre Caslon Display";
+  font-family: "Source Serif 4";
   font-style: normal;
-  font-weight: 400;
+  font-weight: 200 900;
   font-display: swap;
-  src: url(../fonts/libre-caslon-display.woff2) format("woff2");
+  src: url(../fonts/source-serif-4-latin-variable.woff2) format("woff2");
 }
 
 :root {
@@ -49,8 +49,10 @@
   --gold: #e4bd76;
   --blue: #5d83a0;
   --purple: #9a82ad;
-  --serif: "Libre Caslon Display",Georgia,"Songti SC",serif;
+  /* DM Sans carries the interface; Source Serif 4 sets quotations and the tagline. */
+  --serif: "Source Serif 4",Georgia,"Songti SC",serif;
   --sans: "DM Sans",-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+  --section-heading-size: clamp(28px,3vw,32px);
 }
 
 * {
@@ -69,8 +71,19 @@ body {
   font-family: var(--sans);
   font-size: 16px;
   line-height: 1.65;
+  font-optical-sizing: auto;
   font-variant-numeric: lining-nums tabular-nums;
   -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--sans);
+  font-weight: 600;
 }
 
 a {
@@ -161,8 +174,9 @@ button {
 }
 
 .wordmark {
-  font-family: var(--serif);
+  font-family: var(--sans);
   font-size: 37px;
+  font-weight: 500;
   letter-spacing: -1.8px;
   line-height: 1;
 }
@@ -172,7 +186,7 @@ button {
   align-items: center;
   gap: 28px;
   font-size: 13px;
-  font-weight: 550;
+  font-weight: 500;
 }
 
 .nav-links a {
@@ -213,39 +227,39 @@ button {
 
 .stats {
   display: grid;
-  grid-template-columns: repeat(4,1fr);
-  border-top: 1px solid var(--line);
-  border-bottom: 1px solid var(--line);
-  padding: 26px 0 30px;
-  gap: 30px;
+  grid-template-columns: repeat(4,minmax(0,1fr));
+  padding: 26px 0 0;
+  gap: 16px;
 }
 
 .stat {
-  border-right: 1px solid var(--line);
-  padding: 0 24px;
-}
-
-.stat:first-child {
-  padding-left: 0;
-}
-
-.stat:last-child {
-  border: 0;
+  container-type: inline-size;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 16px;
+  min-width: 0;
+  min-height: 144px;
+  padding: 18px;
+  border-radius: 8px;
 }
 
 .stat strong {
-  font-family: var(--sans);
-  font-size: 49px;
-  line-height: 1.1;
-  font-weight: 500;
+  display: block;
+  font: 500 clamp(32px,24cqw,48px)/1 var(--sans);
   font-variant-numeric: lining-nums tabular-nums;
+  letter-spacing: -.055em;
 }
 
-.stat span {
-  display: block;
-  font-size: 11px;
-  margin-top: 8px;
-  color: var(--muted);
+.stat-label {
+  align-self: flex-end;
+  max-width: 100%;
+  font-size: clamp(17px,12cqw,24px);
+  font-weight: 500;
+  line-height: 1.05;
+  letter-spacing: -.04em;
+  text-align: right;
+  text-wrap: balance;
 }
 
 .scope-note {
@@ -268,8 +282,8 @@ button {
 }
 
 .section-head h2 {
-  font: clamp(36px,4vw,53px)/1.08 var(--serif);
-  letter-spacing: -1.2px;
+  font: 600 var(--section-heading-size)/1.3 var(--sans);
+  letter-spacing: -.6px;
   margin: 18px 0 0;
 }
 
@@ -305,7 +319,7 @@ button {
   font-size: 16px;
   line-height: 1.4;
   margin: 26px 0 10px;
-  font-weight: 550;
+  font-weight: 600;
 }
 
 .loop p {
@@ -355,7 +369,7 @@ button {
 .tab[aria-selected=true] {
   color: var(--green);
   border-bottom-color: var(--green);
-  font-weight: 650;
+  font-weight: 600;
 }
 
 .tab:hover {
@@ -374,7 +388,7 @@ button {
 }
 
 .task-panel h3 {
-  font: 35px/1.15 var(--serif);
+  font: 600 35px/1.3 var(--sans);
   margin: 18px 0 18px;
   letter-spacing: -.5px;
 }
@@ -442,7 +456,7 @@ button {
 }
 
 .page-hero h1 {
-  font: clamp(48px,6vw,72px)/1.08 var(--serif);
+  font: 600 clamp(48px,6vw,72px)/1.15 var(--sans);
   letter-spacing: -2px;
   margin: 20px 0;
 }
@@ -480,7 +494,7 @@ button {
 .board-top h2 {
   font-size: 15px;
   margin: 0;
-  font-weight: 550;
+  font-weight: 600;
 }
 
 .board-top p {
@@ -554,7 +568,7 @@ button {
 }
 
 .score-number {
-  font-weight: 650;
+  font-weight: 600;
   color: var(--green);
 }
 
@@ -644,7 +658,7 @@ button {
 }
 
 .doc-section h2 {
-  font: 35px/1.15 var(--serif);
+  font: 600 var(--section-heading-size)/1.3 var(--sans);
   letter-spacing: -.6px;
   margin: 0 0 20px;
 }
@@ -773,25 +787,22 @@ button {
   }
 
   .stats {
-    grid-template-columns: 1fr 1fr;
-    gap: 24px;
-    padding: 24px 0;
+    grid-template-columns: repeat(2,minmax(0,1fr));
+    gap: 12px;
+    padding-top: 20px;
   }
 
   .stat {
-    padding: 0;
-  }
-
-  .stat:nth-child(2) {
-    border: 0;
+    min-height: 132px;
+    padding: 16px;
   }
 
   .stat strong {
-    font-size: 40px;
+    font-size: clamp(32px,24cqw,44px);
   }
 
-  .stat span {
-    font-size: 10px;
+  .stat-label {
+    font-size: clamp(15px,12cqw,22px);
   }
 
   .section {
@@ -803,10 +814,6 @@ button {
     align-items: start;
     gap: 20px;
     margin-bottom: 28px;
-  }
-
-  .section-head h2 {
-    font-size: 39px;
   }
 
   .section-head>p {
@@ -897,10 +904,6 @@ button {
     font-size: 11px;
   }
 
-  .doc-section h2 {
-    font-size: 30px;
-  }
-
   .doc-section .specs>div {
     grid-template-columns: 105px 1fr;
     gap: 15px;
@@ -976,19 +979,6 @@ button {
 
 /* MVP: ALE neutral background; ASI-style chart and ranked summary. */
 
-.stats {
-  padding: 18px 0;
-  gap: 20px;
-}
-
-.stat strong {
-  font-size: 36px;
-}
-
-.stat span {
-  margin-top: 4px;
-}
-
 .section {
   padding: 60px 0;
 }
@@ -1003,8 +993,6 @@ button {
 
 .home-leaderboard h2 {
   margin: 0;
-  font: 600 28px/1.3 var(--sans);
-  letter-spacing: -.6px;
 }
 
 .leaderboard-card {
@@ -1040,28 +1028,6 @@ button {
 }
 
 @media (max-width:780px) {
-  .stats {
-    grid-template-columns: repeat(4,1fr);
-    gap: 10px;
-    padding: 16px 0;
-  }
-
-  .stat {
-    border-right: 1px solid var(--line) !important;
-  }
-
-  .stat:last-child {
-    border-right: 0 !important;
-  }
-
-  .stat strong {
-    font-size: 29px;
-  }
-
-  .stat span {
-    font-size: 9px;
-  }
-
   .home-leaderboard {
     padding-top: 28px;
   }
@@ -1070,10 +1036,6 @@ button {
     flex-direction: row;
     align-items: center;
     gap: 12px;
-  }
-
-  .home-leaderboard h2 {
-    font-size: 26px;
   }
 
   .home-leaderboard .text-link {
@@ -1672,8 +1634,6 @@ button {
 }
 
 .institutions .section-head h2 {
-  font: 600 28px/1.3 var(--sans);
-  letter-spacing: -.6px;
   margin: 0;
 }
 
@@ -1793,10 +1753,6 @@ button {
 }
 
 @media (max-width:780px) {
-  .institutions .section-head h2 {
-    font-size: 26px;
-  }
-
   .institution-grid {
     gap: 16px;
     padding-right: 16px;
@@ -1926,7 +1882,7 @@ button {
 .tip-model {
   display: block;
   font-size: 14px;
-  font-weight: 650;
+  font-weight: 600;
 }
 
 .tip-org {

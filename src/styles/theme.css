@@ -119,24 +119,19 @@ body {
   border-color: var(--line);
 }
 
-/* Data stays legible below the immersive first screen. */
+/* Quiet graphite cards frame the figures; labels sit against the lower edge. */
 
-.stats {
-  padding: 26px 0;
-  border-top: 0;
-  gap: 24px;
+.stat {
+  background: #191f27;
+  box-shadow: inset 0 0 0 1px #ffffff04;
 }
 
 .stat strong {
-  font: 500 44px/1.1 var(--sans);
-  font-variant-numeric: lining-nums tabular-nums;
-  letter-spacing: -.035em;
-  color: #e1e7f1;
+  color: #edf1f5;
 }
 
-.stat span {
-  color: #a0adc2;
-  font-size: 11px;
+.stat-label {
+  color: #7e8998;
 }
 
 .scope-note {
@@ -145,10 +140,6 @@ body {
 
 .home-leaderboard {
   padding-top: 40px;
-}
-
-.home-leaderboard h2 {
-  font-size: 32px;
 }
 
 .section-head h2,
@@ -393,47 +384,16 @@ body {
     background: #10171e;
   }
 
-  .stats {
-    grid-template-columns: repeat(4,1fr);
-    gap: 12px;
-    padding-top: 20px;
-  }
-
-  .stat {
-    padding: 0 10px 0 0;
-  }
-
-  .stat:nth-child(2) {
-    border-right: 1px solid var(--line);
-  }
-
-  .stat strong {
-    font-size: 34px;
-  }
-
-  .stat span {
-    font-size: 9px;
-  }
-
   .home-leaderboard {
     padding-top: 32px;
-  }
-
-  .home-leaderboard h2 {
-    font-size: 28px;
   }
 }
 
 @media (max-width:450px) {
-
-  .stat strong {
-    font-size: 29px;
+  .stat {
+    min-height: 120px;
+    padding: 14px;
   }
-
-  .stat span {
-    font-size: 8px;
-  }
-
 }
 
 @media (prefers-reduced-motion:reduce) {
