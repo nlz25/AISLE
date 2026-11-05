@@ -190,6 +190,10 @@
   text-shadow: 0 1px 3px #03070a, 0 0 8px #03070a, 0 0 18px #03070a;
 }
 
+.pin-singapore .pin-label {
+  display: none;
+}
+
 .pin-asia .pin-label,
 .pin-singapore .pin-label,
 .pin-oceania .pin-label {

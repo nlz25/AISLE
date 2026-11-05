@@ -33,9 +33,11 @@
       const rect = node.getBoundingClientRect();
       return { left: rect.left - bounds.left, top: rect.top - bounds.top, right: rect.right - bounds.left, bottom: rect.bottom - bounds.top };
     };
-    const pin = localBox(selectedPin), label = localBox(selectedPin.querySelector('.pin-label'));
+    const pin = localBox(selectedPin);
+    const labelNode = selectedPin.querySelector('.pin-label');
+    const label = labelNode?.getClientRects().length ? localBox(labelNode) : pin;
     const point = { x: (pin.left + pin.right) / 2, y: (pin.top + pin.bottom) / 2 };
-    const obstacles = [...plane.querySelectorAll('.map-pin, .pin-label')].map(node => {
+    const obstacles = [...plane.querySelectorAll('.map-pin, .pin-label')].filter(node => node.getClientRects().length).map(node => {
       const rect = localBox(node);
       const padding = node.classList.contains('map-pin') ? 8 : 6;
       return { left: rect.left - padding, right: rect.right + padding, top: rect.top - padding, bottom: rect.bottom + padding };
