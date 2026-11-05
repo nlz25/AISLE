@@ -19,7 +19,7 @@
 
 .network-shell {
   position: relative;
-  width: min(1440px, calc(100% - 2 * var(--research-gutter)));
+  width: calc(100% - 2 * clamp(16px, 2vw, 32px));
 }
 
 .network-heading {
@@ -35,7 +35,7 @@
 .network-map-plane {
   /* All geographic layers share this ratio so pins cannot drift or stretch. */
   position: relative;
-  width: min(1280px, 100%);
+  width: 100%;
   min-width: 0;
   margin-inline: auto;
   aspect-ratio: 1200 / 560;
