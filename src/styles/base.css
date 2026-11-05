@@ -1675,7 +1675,7 @@ button {
   text-align: center;
   gap: 12px;
   padding: 12px 8px;
-  width: 164px;
+  width: var(--institution-width, 184px);
   flex-shrink: 0;
   min-width: 0;
 }
@@ -1718,10 +1718,6 @@ button {
   padding: 0;
 }
 
-.institution-grid.industry .institution {
-  width: 260px;
-}
-
 .institution-window:hover .institution-track {
   animation-play-state: paused;
 }
@@ -1748,8 +1744,8 @@ button {
     padding-right: 16px;
   }
 
-  .institution {
-    width: 140px;
+  .institutions {
+    --institution-width: 164px;
   }
 
   .institution-track.loop {
