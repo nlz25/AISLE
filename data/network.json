@@ -20,7 +20,8 @@
       "lat": 22.54,
       "lon": 114.06,
       "institutions": [
-        "suzhou"
+        "suzhou",
+        "csu"
       ]
     },
     {
@@ -78,6 +79,17 @@
       "topic": "Coloured photovoltaics",
       "description": "Experimental research on coloured photovoltaic devices.",
       "duration": "00:25"
+    },
+    {
+      "id": "csu",
+      "name": "Central South University",
+      "short": "Central South University",
+      "city": "Changsha",
+      "country": "asia",
+      "video": "csu",
+      "topic": "Copper-alloy heat treatment",
+      "description": "Experimental heat treatment of copper-based alloys.",
+      "duration": "00:07"
     }
   ]
 }

@@ -144,7 +144,7 @@ for country in countries.values():
 if sorted(members) != sorted(institutions):
     errors.append("Each institution must occur in exactly one country group")
 for item in institutions.values():
-    assets = ["institutions/" + item["logo"]]
+    assets = ["institutions/" + item["logo"]] if item.get("logo") else []
     if item.get("video"):
         assets += [
             "experiments/" + item["video"] + suffix for suffix in [".mp4", ".webp"]
