@@ -734,11 +734,3 @@
     transition: none !important;
   }
 }
-
-@media (min-width: 900px) {
-  .network-map-plane {
-    width: calc(100% - 304px);
-    margin-inline: 0;
-    --inspector-width: 280px;
-  }
-}

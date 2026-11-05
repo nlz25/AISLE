@@ -47,42 +47,42 @@
     const clamp = (value, min, max) => Math.max(min, Math.min(value, max));
     const leftGap = label.right <= point.x ? Math.max(gap, point.x - label.left + 12) : gap;
     const rightGap = label.left >= point.x ? Math.max(gap, label.right - point.x + 12) : gap;
-    let position;
-    if (matchMedia('(min-width: 900px)').matches) {
-      // The reserved column keeps films beside the map, including eastern pins.
-      position = {
-        x: bounds.width + 24,
-        y: clamp(point.y - height / 2, margin, Math.max(margin, bounds.height - height - margin))
-      };
-    } else {
-      const candidates = [];
-      const add = (x, y) => candidates.push({ x: clamp(x, margin, bounds.width - width - margin), y: Math.max(margin, y) });
-      const xs = [point.x - width / 2, point.x - width + 20, point.x - 20, margin, bounds.width - width - margin];
-      for (const x of xs) {
-        add(x, point.y + gap);
-        add(x, point.y + gap + 24);
-        add(x, point.y - height - gap);
-      }
-      for (const y of [point.y - height / 2, point.y - height + 36, point.y + gap, point.y + gap + 24, bounds.height - height - margin, margin]) {
-        add(point.x - leftGap - width, y);
-        add(point.x + rightGap, y);
-      }
-      // Small screens may need space below the geography. Always offer a
-      // collision-free position and reserve that space without stretching it.
-      const belowAllPins = Math.max(...obstacles.map(rect => rect.bottom)) + 16;
-      for (const x of xs) add(x, belowAllPins);
-      const score = ({ x, y }) => {
-        const collisions = obstacles.reduce((sum, rect) => sum +
-          Math.max(0, Math.min(x + width, rect.right) - Math.max(x, rect.left)) *
-          Math.max(0, Math.min(y + height, rect.bottom) - Math.max(y, rect.top)), 0);
-        const dx = Math.max(x - point.x, point.x - x - width, 0);
-        const dy = Math.max(y - point.y, point.y - y - height, 0);
-        const distance = Math.hypot(dx, dy);
-        return collisions * 10000 + Math.max(0, y + height - bounds.height) * 2 +
-          distance + Math.max(0, gap - distance) * 20 + y * .002;
-      };
-      position = candidates.reduce((best, candidate) => score(candidate) < score(best) ? candidate : best);
+    const preferRight = ['asia', 'oceania'].includes(selectedPin.dataset.country);
+    const candidates = [];
+    const add = (x, y) => candidates.push({ x: clamp(x, margin, bounds.width - width - margin), y: Math.max(margin, y) });
+    const xs = [point.x - width / 2, point.x - width + 20, point.x - 20, margin, bounds.width - width - margin];
+    for (const x of xs) {
+      add(x, point.y + gap);
+      add(x, point.y + gap + 24);
+      add(x, point.y - height - gap);
     }
+    for (const y of [point.y - height / 2, point.y - height + 36, point.y + gap, point.y + gap + 24, bounds.height - height - margin, margin]) {
+      add(point.x - leftGap - width, y);
+      add(point.x + rightGap, y);
+    }
+    // Try the free space immediately beside neighbouring markers before
+    // sending a card to a distant edge or below the entire map.
+    for (const obstacle of obstacles) {
+      for (const x of [obstacle.left - width - margin, obstacle.right + margin]) {
+        for (const y of [point.y - height / 2, point.y - height + 36, point.y + gap]) add(x, y);
+      }
+    }
+    // Small screens may need space below the geography. Always offer a
+    // collision-free position and reserve that space without stretching it.
+    const belowAllPins = Math.max(...obstacles.map(rect => rect.bottom)) + 16;
+    for (const x of xs) add(x, belowAllPins);
+    const score = ({ x, y }) => {
+      const collisions = obstacles.reduce((sum, rect) => sum +
+        Math.max(0, Math.min(x + width, rect.right) - Math.max(x, rect.left)) *
+        Math.max(0, Math.min(y + height, rect.bottom) - Math.max(y, rect.top)), 0);
+      const dx = Math.max(x - point.x, point.x - x - width, 0);
+      const dy = Math.max(y - point.y, point.y - y - height, 0);
+      const distance = Math.hypot(dx, dy);
+      return collisions * 10000 + Math.max(0, y + height - bounds.height) * (preferRight ? 8 : 2) +
+        distance + Math.max(0, gap - distance) * 20 + y * .002 +
+        (preferRight ? Math.max(0, bounds.width - margin - x - width) * .15 : 0);
+    };
+    const position = candidates.reduce((best, candidate) => score(candidate) < score(best) ? candidate : best);
     inspector.style.setProperty('--inspector-x', `${position.x.toFixed(1)}px`);
     inspector.style.setProperty('--inspector-y', `${position.y.toFixed(1)}px`);
     stage.style.setProperty('--card-overflow', `${Math.ceil(Math.max(0, position.y + height - bounds.height))}px`);

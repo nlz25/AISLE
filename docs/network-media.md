@@ -4,7 +4,7 @@ The map shows research directions and supplied experiment films, without institu
 
 ## Supplied footage
 
-Asia is selected initially. At widths of 900px and above, the film card occupies a reserved column to the right of the map, connected to the selected pin. On narrower screens it floats near the selection while avoiding pins and labels; selecting a location scrolls an offscreen card into view. Placement updates when the region, film direction or viewport changes. Clicking the map background clears the selection and hides the card and connector; selecting a regional pin or navigation button opens it again. On narrow screens the section reserves room for the card while preserving the map's aspect ratio. The section heading remains available to screen readers; the visible heading and return-to-entrance link are omitted.
+Asia is selected initially. The map retains its full available width. Cards float near the selected pin while avoiding pins and labels; Asia and Oceania prefer positions toward the right edge when space permits. Selecting a location scrolls an offscreen card into view. Placement updates when the region, film direction or viewport changes. Clicking the map background clears the selection and hides the card and connector; selecting a regional pin or navigation button opens it again. On narrow screens the section reserves room for the card while preserving the map's aspect ratio. The section heading remains available to screen readers; the visible heading and return-to-entrance link are omitted.
 
 | Institution | Supplied file | Website copy | Subject indicated by the supplied material |
 | --- | --- | --- | --- |
