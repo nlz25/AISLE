@@ -29,12 +29,38 @@
       "logo": "UofT.webp",
       "en": "University of Toronto",
       "shape": ""
+    },
+    {
+      "logo": "AIML.png",
+      "en": "Australian Institute for Machine Learning",
+      "shape": "wide",
+      "logo_theme": "dark"
+    },
+    {
+      "logo": "AdelaideUniversity.png",
+      "en": "Adelaide University",
+      "shape": "wide"
+    },
+    {
+      "logo": "UCL.png",
+      "en": "UCL",
+      "shape": "wide"
     }
   ],
   "industry": [
     {
       "logo": "GreenDynamics.webp",
       "en": "GreenDynamics",
+      "shape": "wide"
+    },
+    {
+      "logo": "NVIDIA.png",
+      "en": "NVIDIA",
+      "shape": "wide"
+    },
+    {
+      "logo": "MicrosoftResearch.png",
+      "en": "Microsoft Research",
       "shape": "wide"
     }
   ]

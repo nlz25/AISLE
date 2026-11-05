@@ -284,6 +284,15 @@ body {
   box-shadow: 0 5px 20px #0002;
 }
 
+.institution-logo.dark {
+  background: #15212b;
+}
+
+.institution-track.single .institution-grid {
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
 .institution.wide .institution-logo {
   width: 154px;
 }
