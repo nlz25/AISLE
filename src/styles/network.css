@@ -244,6 +244,9 @@
   top: var(--inspector-y, calc(var(--selection-y) + 44px));
   width: var(--inspector-width);
   min-width: 0;
+  max-height: calc(100svh - 120px);
+  overflow-y: auto;
+  scroll-margin-block: 90px 20px;
   padding: 18px;
   border: 1px solid #a4b4c125;
   border-top-color: #b7c5d138;
@@ -729,5 +732,13 @@
   .network-hero *,
   .experiment-dialog * {
     transition: none !important;
+  }
+}
+
+@media (min-width: 900px) {
+  .network-map-plane {
+    width: calc(100% - 304px);
+    margin-inline: 0;
+    --inspector-width: 280px;
   }
 }
