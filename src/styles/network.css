@@ -194,8 +194,16 @@
   display: none;
 }
 
-.pin-asia .pin-label,
-.pin-singapore .pin-label,
+.pin-singapore .pin-core {
+  transform: scale(.7);
+}
+
+.pin-asia .pin-label {
+  top: -6px;
+  left: 40px;
+  text-align: left;
+}
+
 .pin-oceania .pin-label {
   text-align: right;
   right: 47px;
@@ -614,14 +622,7 @@
 
   .pin-asia .pin-label {
     top: -9px;
-    right: 44px;
-    left: auto;
-  }
-
-  .pin-singapore .pin-label {
-    top: 16px;
-    right: 44px;
-    left: auto;
+    left: 34px;
   }
 
   .pin-oceania .pin-label {
