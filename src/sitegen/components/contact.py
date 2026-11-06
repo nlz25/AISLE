@@ -5,7 +5,7 @@ from urllib.parse import quote
 from ..context import esc
 
 
-CONTACT_EMAIL = "linsyshahid@gmail.com"
+CONTACT_EMAIL = "aisle.science@gmail.com"
 
 
 def contact():
