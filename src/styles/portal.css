@@ -798,7 +798,7 @@ body:not(.portal-ready) .portal {
   transform: translateX(-50%);
   pointer-events: none;
   white-space: nowrap;
-  font: 400 clamp(18px, 2.1vw, 26px)/1.1 var(--typeface);
+  font: 400 clamp(18px, 2.1vw, 26px)/1.1 ui-monospace, SFMono-Regular, Consolas, monospace;
   font-variant-numeric: tabular-nums;
   letter-spacing: .16em;
   color: #c7eaff;

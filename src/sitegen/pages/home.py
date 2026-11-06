@@ -86,6 +86,7 @@ def home():
     <div class="wrap research-stream">
       <div class="stats">
         <div class="stat"><strong><span data-count="4079" data-count-digits="1" aria-hidden="true">4,079</span><span class="sr-only">4,079</span></strong><span class="stat-label">Physical experiments</span></div>
+        <div class="stat"><strong><span data-count="44250" data-count-digits="1" aria-hidden="true">44,250</span><span class="sr-only">44,250</span></strong><span class="stat-label">Experiment runtime (min)</span></div>
         <div class="stat"><strong><span data-count="12" data-count-digits="2" aria-hidden="true">12</span><span class="sr-only">12</span></strong><span class="stat-label">Laboratories</span></div>
       </div>
       {team()}
