@@ -332,7 +332,7 @@ const hideModuleScore = () => {
 const showModuleScore = segment => {
   hideModuleScore();
   activeModule = segment;
-  tooltipLabel.textContent = segment.dataset.moduleLabel;
+  tooltipLabel.textContent = `Task · ${segment.dataset.moduleLabel}`;
   tooltipValue.textContent = segment.dataset.moduleValue;
   moduleTooltip.style.setProperty('--module-accent', segment.style.backgroundColor);
   tooltipMeter.firstElementChild.style.width = `${Math.max(0, Math.min(100, Number(segment.dataset.moduleValue)))}%`;
@@ -348,11 +348,24 @@ document.querySelectorAll('[data-module-score]').forEach(segment => {
   segment.addEventListener('pointerleave', hideModuleScore);
   segment.addEventListener('focus', () => showModuleScore(segment));
   segment.addEventListener('blur', hideModuleScore);
+  segment.addEventListener('click', () => showModuleScore(segment));
+  segment.addEventListener('keydown', event => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      showModuleScore(segment);
+    }
+  });
 });
 document.addEventListener('keydown', event => { if (event.key === 'Escape') hideModuleScore(); });
 document.addEventListener('scroll', hideModuleScore, true);
 window.addEventListener('resize', hideModuleScore);
 document.querySelectorAll('[data-experiment-explorer]').forEach(explorer => {
-  explorer.addEventListener('click', hideModuleScore);
+  explorer.addEventListener('click', event => {
+    if (!event.target.closest('[data-module-score]')) hideModuleScore();
+  });
   explorer.addEventListener('change', hideModuleScore);
+});
+
+document.addEventListener('click', event => {
+  if (!event.target.closest('[data-module-score]')) hideModuleScore();
 });
