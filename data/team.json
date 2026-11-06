@@ -1,13 +1,59 @@
 {
-  "leaders": [
-    {"name": "Tong Xie", "affiliation": "University of New South Wales · Green Dynamics"},
-    {"name": "Philippe Schwaller", "affiliation": "EPFL"},
-    {"name": "Zekun Ren", "affiliation": "Berkeley Education Alliance for Research in Singapore (BEARS)"},
-    {"name": "Gerbrand Ceder", "affiliation": "University of California, Berkeley"}
-  ],
-  "contributors": [
-    {"name": "Gan Zhang", "affiliation": "Green Dynamics"},
-    {"name": "Xu Huang", "affiliation": "University of California, Berkeley"},
-    {"name": "Hubert He", "affiliation": "University of New South Wales"}
+  "groups": [
+    {
+      "leader": {
+        "name": "Tong Xie",
+        "affiliation": "University of New South Wales"
+      },
+      "members": [
+        {
+          "name": "Gan Zhang",
+          "affiliation": "Green Dynamics"
+        },
+        {
+          "name": "Hubert He",
+          "affiliation": "University of New South Wales"
+        }
+      ]
+    },
+    {
+      "leader": {
+        "name": "Philippe Schwaller",
+        "affiliation": "École polytechnique fédérale de Lausanne (EPFL)"
+      },
+      "members": [
+        {
+          "name": "David Ming Segura",
+          "affiliation": "École polytechnique fédérale de Lausanne (EPFL)"
+        },
+        {
+          "name": "Gabriel Pescia",
+          "affiliation": "École polytechnique fédérale de Lausanne (EPFL)"
+        },
+        {
+          "name": "Matt Hart",
+          "affiliation": "École polytechnique fédérale de Lausanne (EPFL)"
+        }
+      ]
+    },
+    {
+      "leader": {
+        "name": "Zekun Ren",
+        "affiliation": "Berkeley Education Alliance for Research in Singapore (BEARS)"
+      },
+      "members": []
+    },
+    {
+      "leader": {
+        "name": "Gerbrand Ceder",
+        "affiliation": "University of California, Berkeley"
+      },
+      "members": [
+        {
+          "name": "Xu Huang",
+          "affiliation": "University of California, Berkeley"
+        }
+      ]
+    }
   ]
 }

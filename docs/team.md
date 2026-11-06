@@ -1,18 +1,16 @@
 # Featured team
 
-`data/team.json` maintains the two groups displayed by
-`src/sitegen/components/team.py` on the homepage, between the statistics and
-leaderboard. The header links directly to `index.html#team` on every page.
+`data/team.json` stores four groups rendered by `src/sitegen/components/team.py`.
+Members precede the highlighted lead in each group. The homepage has a single
+Team section, without separate Leaders or Core Contributors sections.
 
-This is a featured team, not the manuscript's full author list or author order.
-Roles and display order follow the site owner's November 6, 2026 instructions:
-Leaders / Corresponding authors: Tong Xie, Philippe Schwaller, Zekun Ren,
-Gerbrand Ceder. Contributors / Co-authors: Gan Zhang, Xu Huang, Hubert He.
-The visible group headings are Leaders and Core Contributors; authorship role
-subtitles are omitted at the owner's request.
+Display order follows the November 6 site-owner instructions:
+- Gan Zhang, Hubert He, then Tong Xie (UNSW only for Tong Xie).
+- David Ming Segura, Gabriel Pescia, Matt Hart, then Philippe Schwaller.
+- Zekun Ren.
+- Xu Huang, then Gerbrand Ceder.
 
-Names and affiliations were supplied in the owner's `authors.md`.
-Gerbrand Ceder was added by explicit instruction; his UC Berkeley affiliation
-was checked against https://vcresearch.berkeley.edu/faculty/gerbrand-ceder.
-Authors marked TBC in the source file are not included in this featured section.
-No manuscript author file is modified by the website build.
+EPFL names and the full affiliation are taken from the owner's authors.md.
+This is a website grouping, not the manuscript author order or a change to roles.
+Gerbrand Ceder's affiliation was checked against
+https://vcresearch.berkeley.edu/faculty/gerbrand-ceder.
