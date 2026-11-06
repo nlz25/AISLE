@@ -7,7 +7,7 @@ Team section, without separate Leaders or Core Contributors sections.
 Display order follows the November 6 site-owner instructions:
 - Hubert He, then Tong Xie (UNSW).
 - David Ming Segura, Gabriel Pescia, Matt Hart, then Philippe Schwaller.
-- Zekun Ren.
+- JiaEn Yee, then Zekun Ren.
 - Xu Huang, then Gerbrand Ceder.
 
 EPFL names and the full affiliation are taken from the owner's authors.md.

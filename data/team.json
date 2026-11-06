@@ -39,7 +39,12 @@
         "name": "Zekun Ren",
         "affiliation": "Berkeley Education Alliance for Research in Singapore (BEARS)"
       },
-      "members": [],
+      "members": [
+        {
+          "name": "JiaEn Yee",
+          "affiliation": "Berkeley Education Alliance for Research in Singapore (BEARS)"
+        }
+      ],
       "logo": "BEARS.webp"
     },
     {
