@@ -10,6 +10,7 @@ def header(page):
         ("index.html", "Home"),
         ("leaderboard.html", "Leaderboard"),
         ("tasks.html", "Tasks"),
+        ("#team" if page == "index.html" else "index.html#team", "Team"),
         ("#join" if page == "index.html" else "index.html#join", "Join us"),
     ]
     nav = "".join(

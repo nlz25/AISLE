@@ -1,0 +1,13 @@
+{
+  "leaders": [
+    {"name": "Tong Xie", "affiliation": "University of New South Wales · Green Dynamics"},
+    {"name": "Philippe Schwaller", "affiliation": "EPFL"},
+    {"name": "Zekun Ren", "affiliation": "Berkeley Education Alliance for Research in Singapore (BEARS)"},
+    {"name": "Gerbrand Ceder", "affiliation": "University of California, Berkeley"}
+  ],
+  "contributors": [
+    {"name": "Gan Zhang", "affiliation": "Green Dynamics"},
+    {"name": "Xu Huang", "affiliation": "University of California, Berkeley"},
+    {"name": "Hubert He", "affiliation": "University of New South Wales"}
+  ]
+}

@@ -6,6 +6,7 @@ from ..components.portal import entrance
 from ..components.network import network_hero
 from ..components.institutions import institutions
 from ..components.contact import contact
+from ..components.team import team
 
 
 def home():
@@ -88,6 +89,7 @@ def home():
         <div class="stat"><strong><span data-count="12" data-count-digits="2" aria-hidden="true">12</span><span class="sr-only">12</span></strong><span class="stat-label">Laboratories</span></div>
       </div>
       <p class="scope-note">AISLE includes physical experiments and simulated tasks.</p>
+      {team()}
       <section class="section home-leaderboard" id="results"><div class="section-head"><h2>Leaderboard</h2>{link("Full leaderboard", "leaderboard.html")}</div>{chart_tabs()}</section>
       <section class="section" id="experiments"><div class="section-head"><div><h2>Task Breakdown</h2></div></div><div data-tabs><div class="tabs" role="tablist" aria-label="Task categories">{tabs}</div>{panels}</div></section>
       {institutions()}
