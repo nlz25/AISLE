@@ -16,4 +16,4 @@ def team():
             f'<div class="team-details"><ul class="team-names">{names}</ul>'
             f'<p>{esc(leader["affiliation"])}</p></div></li>'
         )
-    return '<section class="section team" id="team" aria-labelledby="team-title"><div class="section-head"><h2 id="team-title">Key Contributors</h2></div><ul class="team-grid">' + "".join(rows) + '</ul></section>'
+    return '<section class="section team" id="team" aria-labelledby="team-title"><div class="section-head"><h2 id="team-title">Core Contributors</h2></div><ul class="team-grid">' + "".join(rows) + '</ul></section>'
