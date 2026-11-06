@@ -1,7 +1,7 @@
 """English home page."""
 
 from ..components.ui import link, specs
-from ..components.results import chart_tabs, category_ranking
+from ..components.results import chart_tabs
 from ..components.portal import entrance
 from ..components.network import network_hero
 from ..components.institutions import institutions
@@ -75,7 +75,7 @@ def home():
         for i, (k, name, *_) in enumerate(categories)
     )
     panels = "".join(
-        f'<div class="task-panel task-breakdown" id="panel-{k}" role="tabpanel" aria-labelledby="tab-{k}" {"hidden" if i else ""}><div class="task-brief"><span class="badge">{badge}</span><h3>{heading}</h3><p class="task-summary">{summary}</p>{specs(rows)}{link("Task details", "tasks.html#" + k)}</div>{category_ranking(k)}</div>'
+        f'<div class="task-panel task-overview" id="panel-{k}" role="tabpanel" aria-labelledby="tab-{k}" {"hidden" if i else ""}><div class="task-brief"><span class="badge">{badge}</span><h3>{heading}</h3><p class="task-summary">{summary}</p>{link("Task details", "tasks.html#" + k)}</div>{specs(rows)}</div>'
         for i, (k, name, heading, summary, badge, rows) in enumerate(categories)
     )
     return f"""<main id="main">
@@ -91,7 +91,7 @@ def home():
       </div>
       {team()}
       <section class="section home-leaderboard" id="results"><div class="section-head"><h2>Leaderboard</h2>{link("Full leaderboard", "leaderboard.html")}</div>{chart_tabs()}<p class="leaderboard-update-note">More models and agent harnesses will be added in future updates.</p></section>
-      <section class="section" id="experiments"><div class="section-head"><div><h2>Task Breakdown</h2></div></div><div data-tabs><div class="tabs" role="tablist" aria-label="Task categories">{tabs}</div>{panels}</div></section>
+      <section class="section" id="experiments"><div class="section-head"><div><h2>Tasks</h2></div></div><div data-tabs><div class="tabs" role="tablist" aria-label="Task categories">{tabs}</div>{panels}</div></section>
       {institutions()}
       {contact()}
 </div></div>
