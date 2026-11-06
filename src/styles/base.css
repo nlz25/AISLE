@@ -257,12 +257,6 @@ button {
   text-wrap: balance;
 }
 
-.scope-note {
-  font-size: 10px;
-  color: var(--muted);
-  margin: 12px 0 0;
-}
-
 .section {
   padding: 90px 0;
   border-bottom: 1px solid var(--line);

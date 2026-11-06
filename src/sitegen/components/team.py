@@ -8,9 +8,9 @@ from ..context import ROOT, esc
 def team():
     data = json.loads((ROOT / "data/team.json").read_text())
     groups = []
-    for key, title, role in [
-        ("leaders", "Leaders", "Corresponding authors"),
-        ("contributors", "Contributors", "Co-authors"),
+    for key, title in [
+        ("leaders", "Leaders"),
+        ("contributors", "Core Contributors"),
     ]:
         people = "".join(
             f'<li class="team-person"><h4>{esc(person["name"])}</h4>'
@@ -20,7 +20,7 @@ def team():
         groups.append(
             f'<div class="team-group team-{key}">'
             f'<div class="team-group-heading"><h3 id="team-{key}">{title}</h3>'
-            f'<span>{role}</span></div>'
+            '</div>'
             f'<ul class="team-grid" aria-labelledby="team-{key}">{people}</ul></div>'
         )
     return (

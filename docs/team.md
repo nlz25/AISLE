@@ -8,6 +8,8 @@ This is a featured team, not the manuscript's full author list or author order.
 Roles and display order follow the site owner's November 6, 2026 instructions:
 Leaders / Corresponding authors: Tong Xie, Philippe Schwaller, Zekun Ren,
 Gerbrand Ceder. Contributors / Co-authors: Gan Zhang, Xu Huang, Hubert He.
+The visible group headings are Leaders and Core Contributors; authorship role
+subtitles are omitted at the owner's request.
 
 Names and affiliations were supplied in the owner's `authors.md`.
 Gerbrand Ceder was added by explicit instruction; his UC Berkeley affiliation

@@ -81,11 +81,6 @@
   font-weight: 500;
 }
 
-.team-group-heading > span {
-  color: var(--muted);
-  font-size: 14px;
-}
-
 .team-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -197,7 +192,7 @@ body {
 
 .nav-links {
   gap: 38px;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 400;
   color: #a7b0b9;
 }
@@ -237,10 +232,6 @@ body {
 
 .stat-label {
   color: #7e8998;
-}
-
-.scope-note {
-  color: #94a2b7;
 }
 
 .home-leaderboard {
