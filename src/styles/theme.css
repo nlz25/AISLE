@@ -715,7 +715,6 @@ body {
 .experiment-model img { box-sizing: border-box; padding: 4px; background: #fff; border-radius: 7px; }
 .experiment-table { font-size: 14px; }
 .experiment-table td > strong { font-size: 18px; }
-.module-score { min-width: 110px; }
-.module-score > span:first-child { display: block; font-variant-numeric: tabular-nums; margin-bottom: 9px; }
-.module-track { display: block; width: 100%; height: 6px; border-radius: 3px; background: #ffffff0b; overflow: hidden; }
-.module-track > span { display: block; height: 100%; border-radius: inherit; }
+/* Keep the combined bar; its tooltip lives outside the scrolling table. */
+[data-module-score]:focus-visible { outline: 2px solid white; outline-offset: -2px; }
+.module-score-tooltip { position: fixed; z-index: 1000; pointer-events: none; padding: 8px 12px; border: 1px solid #a3b5c066; border-radius: 6px; background: #10181f; color: #eef2f6; font-size: 14px; box-shadow: 0 4px 16px #0006; }

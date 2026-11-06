@@ -302,3 +302,41 @@ document.querySelectorAll('[data-experiment-explorer]').forEach(explorer => {
   coverage.addEventListener('change', render);
   render();
 });
+
+// Show raw module scores without separating the stacked contribution bar.
+const moduleTooltip = document.createElement('div');
+moduleTooltip.className = 'module-score-tooltip';
+moduleTooltip.id = 'module-score-tooltip';
+moduleTooltip.setAttribute('role', 'tooltip');
+moduleTooltip.hidden = true;
+document.body.append(moduleTooltip);
+let activeModule = null;
+const hideModuleScore = () => {
+  activeModule?.removeAttribute('aria-describedby');
+  activeModule = null;
+  moduleTooltip.hidden = true;
+};
+const showModuleScore = segment => {
+  hideModuleScore();
+  activeModule = segment;
+  moduleTooltip.textContent = segment.dataset.moduleScore;
+  segment.setAttribute('aria-describedby', moduleTooltip.id);
+  moduleTooltip.hidden = false;
+  const box = segment.getBoundingClientRect();
+  const tip = moduleTooltip.getBoundingClientRect();
+  moduleTooltip.style.left = `${Math.max(8, Math.min(box.left + box.width / 2 - tip.width / 2, window.innerWidth - tip.width - 8))}px`;
+  moduleTooltip.style.top = `${box.top >= tip.height + 16 ? box.top - tip.height - 8 : box.bottom + 8}px`;
+};
+document.querySelectorAll('[data-module-score]').forEach(segment => {
+  segment.addEventListener('pointerenter', () => showModuleScore(segment));
+  segment.addEventListener('pointerleave', hideModuleScore);
+  segment.addEventListener('focus', () => showModuleScore(segment));
+  segment.addEventListener('blur', hideModuleScore);
+});
+document.addEventListener('keydown', event => { if (event.key === 'Escape') hideModuleScore(); });
+document.addEventListener('scroll', hideModuleScore, true);
+window.addEventListener('resize', hideModuleScore);
+document.querySelectorAll('[data-experiment-explorer]').forEach(explorer => {
+  explorer.addEventListener('click', hideModuleScore);
+  explorer.addEventListener('change', hideModuleScore);
+});
