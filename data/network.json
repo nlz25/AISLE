@@ -5,7 +5,9 @@
       "en": "North America",
       "lat": 43.66,
       "lon": -79.4,
-      "institutions": []
+      "institutions": [
+        "uoft"
+      ]
     },
     {
       "id": "europe",
@@ -90,6 +92,18 @@
       "topic": "Copper-alloy heat treatment",
       "description": "Experimental heat treatment of copper-based alloys.",
       "duration": "00:07"
+    },
+    {
+      "id": "uoft",
+      "name": "University of Toronto",
+      "short": "University of Toronto",
+      "logo": "UofT.webp",
+      "city": "Toronto",
+      "country": "north-america",
+      "video": "uoft-cds-mpa",
+      "topic": "CdS-MPA quantum dots",
+      "description": "CdS-MPA quantum-dot experiments.",
+      "duration": "00:23"
     }
   ]
 }

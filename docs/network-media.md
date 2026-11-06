@@ -1,6 +1,6 @@
 # Research network and experiment media
 
-The map shows research directions and supplied experiment films, without institution names or logos. North America and Europe remain selectable with a video-pending card. Asia contains the Suzhou colour-matching and Central South University copper-alloy heat-treatment films, Singapore has its own pin and BEARS film, and Oceania contains the Australian film. The Asia regional pin is placed near Shenzhen at 22.54°N, 114.06°E, with its label above and to the right. Singapore uses a smaller circle (70% visual scale) while retaining its 44px click target and accessible name; its map text label is hidden. The other pins retain their original representative coordinates. Regional pins do not indicate a specific laboratory address. Map locations are not claims about where every leaderboard result was measured. The benchmark statistics and scores remain sourced from `data/results.json`.
+The map shows research directions and supplied experiment films, without institution names or logos. North America includes the University of Toronto CdS-MPA quantum-dot film; Europe remains selectable with a video-pending card. Asia contains the Suzhou colour-matching and Central South University copper-alloy heat-treatment films, Singapore has its own pin and BEARS film, and Oceania contains the Australian film. The Asia regional pin is placed near Shenzhen at 22.54°N, 114.06°E, with its label above and to the right. Singapore uses a smaller circle (70% visual scale) while retaining its 44px click target and accessible name; its map text label is hidden. The other pins retain their original representative coordinates. Regional pins do not indicate a specific laboratory address. Map locations are not claims about where every leaderboard result was measured. The benchmark statistics and scores remain sourced from `data/results.json`.
 
 ## Supplied footage
 
@@ -8,6 +8,7 @@ Asia is selected initially. The map retains its full available width. Cards floa
 
 | Institution | Supplied file | Website copy | Subject indicated by the supplied material |
 | --- | --- | --- | --- |
+| University of Toronto | CdS-MPA quantum dots.mov | `public/assets/experiments/uoft-cds-mpa.mp4` | CdS-MPA quantum dots |
 | Suzhou National Laboratory | SZLAB素材.mp4 | `public/assets/experiments/suzhou.mp4` | Colour matching |
 | BEARS | Bears素材.mp4 | `public/assets/experiments/bears.mp4` | Colour matching and resin transfer |
 | Central South University | CSU素材.mp4 | `public/assets/experiments/csu.mp4` | Copper-alloy heat treatment |
@@ -15,7 +16,7 @@ Asia is selected initially. The map retains its full available width. Cards floa
 
 The source package’s named institution folders establish these associations. H.264/AAC copies preserve the supplied sequences and are optimized for web playback at up to 960 px width and 24 fps. The posters are frames from the corresponding recordings (15 seconds for BEARS; 2 seconds for the others), not generated equipment images. Original recordings are not modified.
 
-The four viewing copies are loaded on demand. The initial page only requests the map and selected poster; videos use `preload="none"` and receive a source after an explicit visitor click. Closing or pressing Escape pauses and unloads the video and restores focus to its opener.
+The five viewing copies are loaded on demand. The initial page only requests the map and selected poster; videos use `preload="none"` and receive a source after an explicit visitor click. Closing or pressing Escape pauses and unloads the video and restores focus to its opener.
 
 ## Updating a location
 
