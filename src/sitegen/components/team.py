@@ -1,26 +1,19 @@
-"""Featured team grouped around the corresponding research leads."""
-
+"""Institution rows with inline team members and highlighted leads."""
 import json
 from ..context import ROOT, esc
 
 
 def team():
     data = json.loads((ROOT / "data/team.json").read_text())
-    groups = []
+    rows = []
     for group in data["groups"]:
-        members = "".join(
-            f'<li><h3>{esc(person["name"])}</h3><p>{esc(person["affiliation"])}</p></li>'
-            for person in group["members"]
-        )
         leader = group["leader"]
-        groups.append(
+        names = "".join(f'<li>{esc(p["name"])}</li>' for p in group["members"])
+        names += f'<li class="team-lead">{esc(leader["name"])}</li>'
+        rows.append(
             '<li class="team-cluster">'
-            + (f'<ul class="team-members">{members}</ul>' if members else '')
-            + f'<div class="team-lead"><h3>{esc(leader["name"])}</h3>'
-            + f'<p>{esc(leader["affiliation"])}</p></div></li>'
+            f'<div class="team-logo"><img src="assets/institutions/{esc(group["logo"])}" alt="{esc(leader["affiliation"])}" loading="lazy" decoding="async" width="160" height="84"></div>'
+            f'<div class="team-details"><ul class="team-names">{names}</ul>'
+            f'<p>{esc(leader["affiliation"])}</p></div></li>'
         )
-    return (
-        '<section class="section team" id="team" aria-labelledby="team-title">'
-        '<div class="section-head"><h2 id="team-title">Team</h2></div>'
-        '<ul class="team-grid">' + "".join(groups) + '</ul></section>'
-    )
+    return '<section class="section team" id="team" aria-labelledby="team-title"><div class="section-head"><h2 id="team-title">Team</h2></div><ul class="team-grid">' + "".join(rows) + '</ul></section>'

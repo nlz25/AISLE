@@ -7,14 +7,11 @@
       },
       "members": [
         {
-          "name": "Gan Zhang",
-          "affiliation": "Green Dynamics"
-        },
-        {
           "name": "Hubert He",
           "affiliation": "University of New South Wales"
         }
-      ]
+      ],
+      "logo": "UNSW.webp"
     },
     {
       "leader": {
@@ -34,14 +31,16 @@
           "name": "Matt Hart",
           "affiliation": "École polytechnique fédérale de Lausanne (EPFL)"
         }
-      ]
+      ],
+      "logo": "EPFL.webp"
     },
     {
       "leader": {
         "name": "Zekun Ren",
         "affiliation": "Berkeley Education Alliance for Research in Singapore (BEARS)"
       },
-      "members": []
+      "members": [],
+      "logo": "BEARS.webp"
     },
     {
       "leader": {
@@ -53,7 +52,8 @@
           "name": "Xu Huang",
           "affiliation": "University of California, Berkeley"
         }
-      ]
+      ],
+      "logo": "UCBerkeley.webp"
     }
   ]
 }
