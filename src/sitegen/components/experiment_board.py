@@ -8,8 +8,8 @@ MODES = {'all': 'All experiments', 'wet': 'Wet experiments', 'dry': 'Dry experim
 CATEGORIES = {'all': ['optimization', 'safety', 'robustness', 'multimodal'],
               'wet': ['optimization', 'robustness', 'multimodal'],
               'dry': ['optimization', 'safety']}
-LABELS = {**category_names(), 'suzhou4d': 'Suzhou 4D', 'singapore4d': 'Singapore 4D',
-          'real8d': 'Suzhou 8D', 'optimization_dry': 'Sim-4D',
+LABELS = {**category_names(), 'suzhou4d': 'Platform A 4D', 'singapore4d': 'Platform B 4D',
+          'real8d': 'Platform A 8D', 'optimization_dry': 'Sim-4D',
           'drift': 'Hidden drift', 'resin': 'Resin transfer', 'pka': 'pKa', 'spectrum': 'Spectrum matching'}
 
 
