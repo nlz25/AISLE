@@ -162,6 +162,12 @@ body {
   padding-top: 40px;
 }
 
+.leaderboard-update-note {
+  margin: 20px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+
 .section-head h2,
 .doc-section h2,
 .page-hero h1,

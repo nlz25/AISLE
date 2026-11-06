@@ -90,7 +90,7 @@ def home():
         <div class="stat"><strong><span data-count="12" data-count-digits="2" aria-hidden="true">12</span><span class="sr-only">12</span></strong><span class="stat-label">Laboratories</span></div>
       </div>
       {team()}
-      <section class="section home-leaderboard" id="results"><div class="section-head"><h2>Leaderboard</h2>{link("Full leaderboard", "leaderboard.html")}</div>{chart_tabs()}</section>
+      <section class="section home-leaderboard" id="results"><div class="section-head"><h2>Leaderboard</h2>{link("Full leaderboard", "leaderboard.html")}</div>{chart_tabs()}<p class="leaderboard-update-note">More models and agent harnesses will be added in future updates.</p></section>
       <section class="section" id="experiments"><div class="section-head"><div><h2>Task Breakdown</h2></div></div><div data-tabs><div class="tabs" role="tablist" aria-label="Task categories">{tabs}</div>{panels}</div></section>
       {institutions()}
       {contact()}
