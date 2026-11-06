@@ -117,12 +117,5 @@ def score_breakdown(cohort):
 
 
 def chart_tabs():
-    tabs = ""
-    panels = ""
-    for i, cohort in enumerate(["shared", "full"]):
-        label = (
-            "Shared tasks · 7 models" if cohort == "shared" else "Full tasks · 5 models"
-        )
-        tabs += f'<button class="tab" role="tab" id="home-tab-{cohort}" aria-controls="home-{cohort}" aria-selected="{str(i == 0).lower()}" tabindex="{0 if i == 0 else -1}">{label}</button>'
-        panels += f'<div role="tabpanel" id="home-{cohort}" aria-labelledby="home-tab-{cohort}" {"hidden" if i else ""}>{chart(cohort)}<details class="score-details"><summary>Detailed scores</summary>{score_breakdown(cohort)}</details></div>'
-    return f'<div data-tabs><div class="tabs" role="tablist" aria-label="Evaluation coverage">{tabs}</div>{panels}</div>'
+    from .experiment_board import leaderboard_explorer
+    return leaderboard_explorer()

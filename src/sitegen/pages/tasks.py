@@ -54,8 +54,12 @@ def tasks():
       <p>Category scores use fixed thresholds and task-specific transformations. The highest-scoring observed model is not automatically rescaled to 100. Outcomes, efficiency and repeat stability contribute according to each task’s scoring rules.</p>
       <div class="formula">Shared-task index = (Optimization + Safety + Robustness) / 3</div>
       <div class="formula">Full-task index = (Optimization + Safety + Robustness + Multimodal) / 4</div>
+      <div class="formula">Dry index = (Simulated optimization + Safety) / 2</div>
+      <div class="formula">Wet full index = (Real optimization + Robustness + Multimodal) / 3</div>
+      <div class="formula">Wet shared index = (Real optimization + Robustness) / 2</div>
+      <p>Wet experiments include pKa inference from experimentally measured spectra and spectrum matching. Dry experiments include simulated optimization and safety. Real optimization averages three physical conditions; simulated optimization uses Sim-4D 0-shot. The all-experiment optimization score retains equal weights across its four conditions. Missing categories are never scored as zero; full wet coverage requires all three wet categories.</p>
       <p>Seven models share the first three categories. Five have full four-category coverage. Unmeasured multimodal results are N/A; they are neither zero-filled nor mixed into averages over different subsets. Bayesian optimization is a task-level baseline and is excluded from these indices.</p>
-      <p>Within applicable task groups, targets receive equal weight. Displayed values are rounded; manuscript aggregate scores are preserved from the original calculation. Select a model in the results page to explore the score composition and task coverage.</p>""",
+      <p>Within applicable task groups, targets receive equal weight. Displayed values are rounded; manuscript aggregate scores are preserved from the original calculation. Use the experiment and category filters on the leaderboard to inspect score composition and task coverage.</p>""",
     )
     nav = "".join(f'<a href="#{key}">{title}</a>' for key, title, _ in sections)
     return f"""<main id="main" class="wrap"><section class="page-hero"><h1>Tasks</h1></section><div class="doc-layout"><nav class="doc-nav" aria-label="On this page">{nav}</nav><div>{"".join(s[2] for s in sections)}</div></div></main>"""

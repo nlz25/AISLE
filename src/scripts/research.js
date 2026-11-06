@@ -274,3 +274,31 @@ if (statistics && window.requestAnimationFrame && window.matchMedia) {
     observer.observe(statistics);
   } else start();
 }
+
+// A single visible ranking; category boards always include every eligible model.
+document.querySelectorAll('[data-experiment-explorer]').forEach(explorer => {
+  let mode = 'all', category = 'overall';
+  const available = {all: ['optimization', 'safety', 'robustness', 'multimodal'], wet: ['optimization', 'robustness', 'multimodal'], dry: ['optimization', 'safety']};
+  const modes = [...explorer.querySelectorAll('[data-experiment-mode]')];
+  const categories = [...explorer.querySelectorAll('[data-experiment-category]')];
+  const coverage = explorer.querySelector('[data-experiment-coverage]');
+  const render = () => {
+    if (category !== 'overall' && !available[mode].includes(category)) category = 'overall';
+    const hasCoverage = category === 'overall' && mode !== 'dry';
+    coverage.closest('label').hidden = !hasCoverage;
+    modes.forEach(button => button.setAttribute('aria-pressed', String(button.dataset.experimentMode === mode)));
+    categories.forEach(button => {
+      const key = button.dataset.experimentCategory;
+      button.hidden = key !== 'overall' && !available[mode].includes(key);
+      button.setAttribute('aria-pressed', String(key === category));
+    });
+    explorer.querySelectorAll('[data-ranking-panel]').forEach(panel => {
+      panel.hidden = panel.dataset.mode !== mode || panel.dataset.category !== category || panel.dataset.coverage !== (hasCoverage ? coverage.value : 'full');
+      if (!panel.hidden) explorer.querySelector('[data-ranking-status]').textContent = `${panel.getAttribute('aria-label')} · ${panel.querySelectorAll('tbody tr').length} models`;
+    });
+  };
+  modes.forEach(button => button.addEventListener('click', () => { mode = button.dataset.experimentMode; render(); }));
+  categories.forEach(button => button.addEventListener('click', () => { category = button.dataset.experimentCategory; render(); }));
+  coverage.addEventListener('change', render);
+  render();
+});

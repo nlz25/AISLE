@@ -98,8 +98,8 @@ for path, page in pages.items():
     for model_id, cohort in page.profiles:
         if model_id not in models or models[model_id].get(cohort) is None:
             errors.append(f"{path.name}: invalid model profile {model_id}/{cohort}")
-    if path.name == "leaderboard.html" and len(set(page.profiles)) != 12:
-        errors.append(f"{path}: expected 7 shared + 5 full interactive rows")
+    if path.name in {"index.html", "leaderboard.html"} and path.read_text().count("data-ranking-panel ") != 14:
+        errors.append(f"{path}: expected 14 experiment/category/coverage views")
 
 if len(models) != 7:
     errors.append("Shared cohort must have seven models")
