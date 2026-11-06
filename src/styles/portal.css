@@ -55,18 +55,15 @@
 
 .portal-heading h1 {
   margin: 0;
-  color: #f6faff;
-  font: 400 clamp(18px,6.25vw,94px)/1.12 var(--sans);
+  color: var(--accent-red);
+  font: 400 clamp(18px,6.25vw,94px)/1.12 var(--typeface);
   letter-spacing: -.035em;
   white-space: nowrap;
   text-shadow: 0 0 50px #6ba9ff15;
 }
 
 .portal-title-ending {
-  color: transparent;
-  background: linear-gradient(180deg,#fff 18%,#c7dfff 100%);
-  background-clip: text;
-  -webkit-background-clip: text;
+  color: inherit;
 }
 
 .portal-enter .portal-tagline {
@@ -79,7 +76,7 @@
   pointer-events: none;
   font: 400 25px/1.4 var(--serif);
   letter-spacing: .2px;
-  color: #c2cfdf;
+  color: var(--accent-yellow);
   margin: 0;
 }
 
@@ -798,11 +795,11 @@ body:not(.portal-ready) .portal {
   transform: translateX(-50%);
   pointer-events: none;
   white-space: nowrap;
-  font: 400 clamp(18px, 2.1vw, 26px)/1.1 ui-monospace, SFMono-Regular, Consolas, monospace;
+  font: 400 clamp(18px, 2.1vw, 26px)/1.1 var(--typeface);
   font-variant-numeric: tabular-nums;
   letter-spacing: .16em;
-  color: #c7eaff;
-  text-shadow: 0 0 16px #6cbcff70;
+  color: var(--accent-yellow);
+  text-shadow: 0 0 16px #d9a15c40;
 }
 
 @keyframes portal-orbit {

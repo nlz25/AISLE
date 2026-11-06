@@ -1,11 +1,3 @@
-@font-face {
-  font-family: "Dancing Script";
-  font-style: normal;
-  font-weight: 400 700;
-  font-display: swap;
-  src: url(../fonts/dancing-script.woff2) format("woff2");
-}
-
 .experiment-quotation {
   pointer-events: auto;
   max-width: 800px;
@@ -16,7 +8,7 @@
 
 .experiment-quotation blockquote {
   margin: 0;
-  color: #929eaf;
+  color: var(--muted);
   font-family: var(--serif);
   font-size: clamp(16px, 1.55vw, 21px);
   font-weight: 400;
@@ -29,19 +21,20 @@
 }
 
 .experiment-quotation strong {
-  color: #f3e5ce;
+  color: var(--accent-red);
   font-weight: 700;
 }
 
 .experiment-quotation figcaption {
   text-align: right;
   margin-top: 20px;
-  font-family: "Dancing Script", cursive;
+  font-family: var(--serif);
+  font-style: italic;
   font-size: clamp(24px, 2.4vw, 32px);
   font-weight: 400;
   line-height: 1.35;
   letter-spacing: 0;
-  color: #a4afc0;
+  color: var(--accent-yellow);
 }
 
 .experiment-quotation figcaption span {
@@ -54,7 +47,7 @@
 }
 
 .experiment-quotation a:hover {
-  color: #f3e5ce;
+  color: var(--accent-red);
 }
 
 .experiment-quotation a:focus-visible {
@@ -64,7 +57,7 @@
 
 /* Author hierarchy stays typographic; no portraits or extra media to load. */
 .team {
-  --section-tint: 194 174 148;
+  --section-tint: 191 139 127;
 }
 
 .team-group-heading {
@@ -96,7 +89,7 @@
 
 .team-leaders .team-person {
   padding-top: 20px;
-  border-top: 1px solid #d2b58b66;
+  border-top: 1px solid #bf8b7f66;
 }
 
 .team-person h4 {
@@ -106,7 +99,7 @@
 }
 
 .team-leaders h4 {
-  color: #f3e5ce;
+  color: var(--accent-red);
   font-size: clamp(28px, 3.1vw, 42px);
   font-weight: 500;
   letter-spacing: -.035em;
@@ -132,7 +125,7 @@
 }
 
 .team-contributors h4 {
-  color: var(--ink);
+  color: var(--accent-blue);
   font-size: 24px;
   font-weight: 500;
   letter-spacing: -.02em;
@@ -154,19 +147,23 @@
   }
 }
 
-/* Graphite surfaces, cool grey typography and restrained champagne accents. */
+/* Muted Mondrian primaries: brown-grey red, deep blue and orange ochre.
+   Text uses lighter companions to keep contrast on the graphite background. */
 
 :root {
   color-scheme: dark;
   --paper: #0a0f14;
   --white: #11181e;
-  --ink: #ecefef;
-  --muted: #9aa9b7;
+  --ink: #e7dfd2;
+  --muted: #b4aaa0;
   --line: #c9d6e51a;
-  --green: #b7cbdc;
+  --green: var(--accent-red);
   --mint: #ffffff07;
-  --blue: #92adcc;
-  --gold: #d2b58b;
+  --blue: #29466b;
+  --accent-red: #bf8b7f;
+  --accent-blue: #849dbb;
+  --accent-yellow: #d9a15c;
+  --gold: var(--accent-yellow);
   --surface: #11181e;
 }
 
@@ -175,7 +172,7 @@ body {
 }
 
 ::selection {
-  background: #86a5ff44;
+  background: #29466b;
   color: #fff;
 }
 
@@ -192,14 +189,14 @@ body {
 
 .nav-links {
   gap: 38px;
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 400;
-  color: #a7b0b9;
+  color: var(--accent-blue);
 }
 
 .nav-links a[aria-current=page] {
-  color: var(--ink);
-  text-decoration-color: #c4cdd3;
+  color: var(--accent-red);
+  text-decoration-color: var(--accent-red);
 }
 
 .menu-toggle {
@@ -227,11 +224,11 @@ body {
 }
 
 .stat strong {
-  color: #edf1f5;
+  color: var(--accent-yellow);
 }
 
 .stat-label {
-  color: #7e8998;
+  color: var(--muted);
 }
 
 .home-leaderboard {
@@ -242,7 +239,7 @@ body {
 .doc-section h2,
 .page-hero h1,
 .task-brief h3 {
-  color: var(--ink);
+  color: var(--accent-red);
 }
 
 .leaderboard-card,
@@ -422,7 +419,7 @@ body {
 
 .join-copy h2 {
   margin: 0 0 16px;
-  font: 500 clamp(32px, 4vw, 48px)/1.15 var(--sans);
+  font: 500 clamp(32px, 4vw, 48px)/1.15 var(--typeface);
   letter-spacing: -1px;
 }
 
@@ -446,15 +443,15 @@ body {
   justify-content: center;
   min-height: 46px;
   padding: 10px 30px;
-  border: 1px solid #a0b9ff80;
+  border: 1px solid #849dbb80;
   border-radius: 4px;
-  background: #a0b9ff12;
-  color: #e4ecff;
+  background: var(--blue);
+  color: var(--ink);
 }
 
 .join-email-button:hover {
-  background: #a0b9ff25;
-  border-color: #a0b9ff;
+  background: #34577e;
+  border-color: var(--accent-blue);
 }
 
 .join-email-address {
@@ -473,7 +470,7 @@ body {
 }
 
 .footer-top .wordmark {
-  color: #e0e7f4;
+  color: var(--ink);
 }
 
 @media (max-width:780px) {
@@ -513,7 +510,7 @@ body {
 .stack-score,
 .category-model,
 .category-row>strong {
-  color: #f7faff;
+  color: var(--ink);
 }
 
 .stack-model small,
@@ -521,13 +518,13 @@ body {
 .stack-legend button,
 .stack-columns,
 .category-results-head>span {
-  color: #c0cde1;
+  color: var(--muted);
 }
 
 .stack-rank,
 .stack-scale,
 .category-rank {
-  color: #a9bfdf;
+  color: var(--accent-blue);
 }
 
 .stack-score {
@@ -541,8 +538,8 @@ body {
 
 .stack-legend button[aria-pressed=true] {
   color: #fff;
-  background: #9bbdff23;
-  border-color: #c8dcff60;
+  background: var(--blue);
+  border-color: var(--accent-blue);
 }
 
 .stack-rows .stack-row:first-child {
@@ -565,7 +562,7 @@ body {
 }
 
 .score-number {
-  color: #c3dcff;
+  color: var(--accent-yellow);
 }
 
 /* Soft fields of light carry the reading flow between homepage sections. */
@@ -573,7 +570,7 @@ body {
   --research-gutter: 48px;
   --research-section-gap: 48px;
   --research-heading-gap: 24px;
-  --section-tint: 146 176 198;
+  --section-tint: 41 70 107;
   overflow-x: clip;
 }
 
@@ -609,15 +606,15 @@ body {
 }
 
 .research-stream > #experiments {
-  --section-tint: 192 171 143;
+  --section-tint: 217 161 92;
 }
 
 .research-stream > #institutions {
-  --section-tint: 143 179 173;
+  --section-tint: 41 70 107;
 }
 
 .research-stream > #join {
-  --section-tint: 194 174 148;
+  --section-tint: 191 139 127;
 }
 
 .research-stream .section-head,
@@ -636,20 +633,15 @@ body {
   margin: 0;
   width: fit-content;
   max-width: 100%;
-  font: 500 clamp(27px, 2.7vw, 34px)/1.25 var(--sans);
+  font: 500 clamp(27px, 2.7vw, 34px)/1.25 var(--typeface);
   letter-spacing: -.035em;
   text-wrap: balance;
 }
 
-@supports (background-clip: text) or (-webkit-background-clip: text) {
-  .research-stream .section-head h2,
-  .research-stream .join-copy h2,
-  #research-content .network-heading h2 {
-    background: linear-gradient(110deg, #f4f2ed 8%, #e0e8eb 48%, rgb(var(--section-tint)) 100%);
-    background-clip: text;
-    -webkit-background-clip: text;
-    color: transparent;
-  }
+.research-stream .section-head h2,
+.research-stream .join-copy h2,
+#research-content .network-heading h2 {
+  color: var(--accent-red);
 }
 
 .research-stream .section-head .text-link {
