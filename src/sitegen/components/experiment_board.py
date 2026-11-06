@@ -49,18 +49,25 @@ def panel(mode, category, coverage):
     for row in rows:
         model, score = row['model'], row['score']
         segments = ''.join(f'<span style="width:{value / len(keys):.8f}%;background:{CATEGORY_COLORS[key]}" title="{esc(LABELS[key])}: {value:.2f}"></span>' for key, value in zip(keys, row['values']))
-        cells = ''.join(f'<td>{(category_score(model["id"], mode, key) if overall else SCORES[model["id"]][key]):.2f}</td>' for key in details)
-        body += f'<tr data-ranked-model="{model["id"]}" data-score="{score}"><td>{row["rank"]}</td><th scope="row"><span class="experiment-model">{logo(model)}<span>{esc(model["name"])}<small>{esc(model["organization"])}</small></span></span></th><td><strong>{score:.2f}</strong></td><td class="experiment-bar-cell"><span class="experiment-bar" aria-label="{esc(label)}: {score:.2f} out of 100">{segments}</span></td>{cells}</tr>'
+        cells = ''
+        for key in details:
+            value = category_score(model['id'], mode, key) if overall else SCORES[model['id']][key]
+            color = CATEGORY_COLORS[key if overall else category]
+            cells += f'<td class="module-score"><span>{value:.2f}</span><span class="module-track" aria-hidden="true"><span style="width:{value:.8f}%;background:{color}"></span></span></td>'
+        score_bar = '' if overall else f'<td class="experiment-bar-cell"><span class="experiment-bar" aria-label="{esc(label)}: {score:.2f} out of 100">{segments}</span></td>'
+        body += f'<tr data-ranked-model="{model["id"]}" data-score="{score}"><td>{row["rank"]}</td><th scope="row"><span class="experiment-model">{logo(model)}<span>{esc(model["name"])}<small>{esc(model["organization"])}</small></span></span></th><td><strong>{score:.2f}</strong></td>{score_bar}{cells}</tr>'
     heads = ''.join(f'<th scope="col">{esc(LABELS[key])}</th>' for key in details)
-    note = ('Equal category weights · ' + ' / '.join(LABELS[key] for key in keys)) if overall else {
+    note = '' if overall else {
         'optimization': {'all': 'Four conditions, equal weights.', 'wet': 'Three physical conditions, equal weights.', 'dry': 'Sim-4D, 0-shot; few-shot controls excluded.'}[mode],
         'safety': 'Safe completion 80% · All-repeat success 20%.',
         'robustness': 'Hidden drift 50% · Resin transfer 50%.',
         'multimodal': 'pKa 50% · Spectrum matching 50%.'}[category]
+    note_html = f'<p class="experiment-note">{note}</p>' if note else ''
+    bar_head = '' if overall else '<th scope="col">Score / 100</th>'
     ident = f'experiment-{mode}-{category}-{coverage}'
     visible = mode == 'all' and overall and coverage == 'full'
     return f'''<section id="{ident}" data-ranking-panel data-mode="{mode}" data-category="{category}" data-coverage="{coverage}" aria-label="{MODES[mode]} · {label} · {coverage}" {'' if visible else 'hidden'}>
-    <div class="table-scroll experiment-table-scroll" role="region" tabindex="0" aria-label="{MODES[mode]} {label} scores"><table class="results-table experiment-table"><caption class="sr-only">{MODES[mode]} · {label}. Scores 0–100; equal scores share a rank.</caption><thead><tr><th scope="col">Rank</th><th scope="col">Model</th><th scope="col">Score</th><th scope="col">{'Contributions' if overall else 'Score / 100'}</th>{heads}</tr></thead><tbody>{body}</tbody></table></div><p class="experiment-note">{note}</p></section>'''
+    <div class="table-scroll experiment-table-scroll" role="region" tabindex="0" aria-label="{MODES[mode]} {label} scores"><table class="results-table experiment-table"><caption class="sr-only">{MODES[mode]} · {label}. Scores 0–100; equal scores share a rank.</caption><thead><tr><th scope="col">Rank</th><th scope="col">Model</th><th scope="col">Score</th>{bar_head}{heads}</tr></thead><tbody>{body}</tbody></table></div>{note_html}</section>'''
 
 
 def leaderboard_explorer():
