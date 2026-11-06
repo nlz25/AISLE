@@ -717,4 +717,40 @@ body {
 .experiment-table td > strong { font-size: 18px; }
 /* Keep the combined bar; its tooltip lives outside the scrolling table. */
 [data-module-score]:focus-visible { outline: 2px solid white; outline-offset: -2px; }
-.module-score-tooltip { position: fixed; z-index: 1000; pointer-events: none; padding: 8px 12px; border: 1px solid #a3b5c066; border-radius: 6px; background: #10181f; color: #eef2f6; font-size: 14px; box-shadow: 0 4px 16px #0006; }
+.module-score-tooltip {
+  position: fixed;
+  z-index: 1000;
+  pointer-events: none;
+  box-sizing: border-box;
+  width: 224px;
+  max-width: calc(100vw - 16px);
+  padding: 20px 22px 22px;
+  border: 1px solid color-mix(in srgb, var(--module-accent) 40%, transparent);
+  border-radius: 14px;
+  background: radial-gradient(ellipse at 100% 0%, color-mix(in srgb, var(--module-accent) 16%, transparent), transparent 70%), #101820f5;
+  color: #eef2f6;
+  box-shadow: 0 16px 48px #0009, 0 0 24px color-mix(in srgb, var(--module-accent) 12%, transparent), inset 0 1px 0 #ffffff12;
+  backdrop-filter: blur(16px);
+}
+.module-score-tooltip[hidden] { display: none; }
+.module-score-tooltip::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: 22px;
+  width: 36px;
+  height: 2px;
+  background: var(--module-accent);
+  box-shadow: 0 0 12px var(--module-accent);
+}
+.module-tooltip-label { font-size: 14px; color: var(--module-accent); letter-spacing: .025em; }
+.module-tooltip-reading { display: flex; align-items: baseline; gap: 10px; margin: 10px 0 18px; }
+.module-tooltip-reading strong { font-size: 38px; line-height: 1; font-weight: 500; font-variant-numeric: tabular-nums; letter-spacing: -.04em; }
+.module-tooltip-reading > span { font-size: 12px; color: #9baebc; }
+.module-tooltip-meter { height: 5px; border-radius: 2px; overflow: hidden; background: #ffffff12; position: relative; }
+.module-tooltip-meter > span { display: block; height: 100%; background: var(--module-accent); }
+.module-tooltip-meter::after { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(90deg, transparent 0, transparent calc(10% - 1px), #101820 10%); }
+@media (prefers-reduced-motion: no-preference) {
+  .module-score-tooltip:not([hidden]) { animation: module-tooltip-reveal .16s ease-out; }
+  @keyframes module-tooltip-reveal { from { opacity: 0; } to { opacity: 1; } }
+}

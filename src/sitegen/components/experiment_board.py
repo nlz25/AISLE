@@ -48,7 +48,7 @@ def panel(mode, category, coverage):
     body = ''
     for row in rows:
         model, score = row['model'], row['score']
-        segments = ''.join(f'<span tabindex="0" data-module-score="{esc(LABELS[key])}: {value:.2f} / 100" aria-label="{esc(LABELS[key])}: {value:.2f} out of 100" style="width:{value / len(keys):.8f}%;background:{CATEGORY_COLORS[key]}"></span>' for key, value in zip(keys, row['values']))
+        segments = ''.join(f'<span tabindex="0" data-module-score="{esc(LABELS[key])}: {value:.2f} / 100" data-module-label="{esc(LABELS[key])}" data-module-value="{value:.2f}" aria-label="{esc(LABELS[key])}: {value:.2f} out of 100" style="width:{value / len(keys):.8f}%;background:{CATEGORY_COLORS[key]}"></span>' for key, value in zip(keys, row['values']))
         cells = ''.join(f'<td>{(category_score(model["id"], mode, key) if overall else SCORES[model["id"]][key]):.2f}</td>' for key in details)
         body += f'<tr data-ranked-model="{model["id"]}" data-score="{score}"><td>{row["rank"]}</td><th scope="row"><span class="experiment-model">{logo(model)}<span>{esc(model["name"])}<small>{esc(model["organization"])}</small></span></span></th><td><strong>{score:.2f}</strong></td><td class="experiment-bar-cell"><span class="experiment-bar" aria-label="{esc(label)}: {score:.2f} out of 100">{segments}</span></td>{cells}</tr>'
     heads = ''.join(f'<th scope="col">{esc(LABELS[key])}</th>' for key in details)

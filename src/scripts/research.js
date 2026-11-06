@@ -309,6 +309,19 @@ moduleTooltip.className = 'module-score-tooltip';
 moduleTooltip.id = 'module-score-tooltip';
 moduleTooltip.setAttribute('role', 'tooltip');
 moduleTooltip.hidden = true;
+const tooltipLabel = document.createElement('div');
+tooltipLabel.className = 'module-tooltip-label';
+const tooltipReading = document.createElement('div');
+tooltipReading.className = 'module-tooltip-reading';
+const tooltipValue = document.createElement('strong');
+const tooltipUnit = document.createElement('span');
+tooltipUnit.textContent = '/ 100';
+tooltipReading.append(tooltipValue, tooltipUnit);
+const tooltipMeter = document.createElement('div');
+tooltipMeter.className = 'module-tooltip-meter';
+tooltipMeter.setAttribute('aria-hidden', 'true');
+tooltipMeter.append(document.createElement('span'));
+moduleTooltip.append(tooltipLabel, tooltipReading, tooltipMeter);
 document.body.append(moduleTooltip);
 let activeModule = null;
 const hideModuleScore = () => {
@@ -319,7 +332,10 @@ const hideModuleScore = () => {
 const showModuleScore = segment => {
   hideModuleScore();
   activeModule = segment;
-  moduleTooltip.textContent = segment.dataset.moduleScore;
+  tooltipLabel.textContent = segment.dataset.moduleLabel;
+  tooltipValue.textContent = segment.dataset.moduleValue;
+  moduleTooltip.style.setProperty('--module-accent', segment.style.backgroundColor);
+  tooltipMeter.firstElementChild.style.width = `${Math.max(0, Math.min(100, Number(segment.dataset.moduleValue)))}%`;
   segment.setAttribute('aria-describedby', moduleTooltip.id);
   moduleTooltip.hidden = false;
   const box = segment.getBoundingClientRect();
