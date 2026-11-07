@@ -51,4 +51,43 @@ if (entrance) {
   reduced.addEventListener('change', scheduleGlobe);
 } else if (document.getElementById('results-data')) {
   await import('./research.js?v=__ASSET_VERSION__');
+} else {
+  const catalogueFrame = document.getElementById('task-catalogue-frame');
+  if (catalogueFrame) {
+    let observer;
+    let pendingAnchor = location.hash;
+    const catalogueAnchors = new Set(['#featured-case', '#task-library', '#task-colour', '#task-constraints', '#task-robustness', '#task-spectral', '#task-solid', '#task-quantum-dot', '#task-buchwald-hartwig']);
+    const scrollToCatalogueAnchor = () => {
+      if (!catalogueAnchors.has(pendingAnchor)) return;
+      const target = catalogueFrame.contentDocument?.getElementById(pendingAnchor.slice(1));
+      if (target && !target.getClientRects().length) {
+        const catalogueWindow = catalogueFrame.contentWindow;
+        catalogueFrame.contentDocument.dispatchEvent(new catalogueWindow.CustomEvent('catalog-reveal-task'));
+      }
+      if (target?.getClientRects().length && catalogueFrame.getClientRects().length) {
+        target.scrollIntoView({ block: 'start' });
+        pendingAnchor = '';
+      }
+    };
+    const fitCatalogue = () => {
+      observer?.disconnect();
+      const catalogue = catalogueFrame.contentDocument?.getElementById('app');
+      if (!catalogue?.firstElementChild) return;
+      observer = new ResizeObserver(() => {
+        const height = Math.ceil(catalogue.getBoundingClientRect().height);
+        if (height > 0) catalogueFrame.style.height = `${height}px`;
+        scrollToCatalogueAnchor();
+      });
+      observer.observe(catalogue);
+    };
+    window.addEventListener('hashchange', () => {
+      pendingAnchor = location.hash;
+      if (!catalogueFrame.getClientRects().length) {
+        catalogueFrame.contentDocument?.querySelectorAll('video').forEach(video => video.pause());
+      }
+      scrollToCatalogueAnchor();
+    });
+    catalogueFrame.addEventListener('load', fitCatalogue);
+    fitCatalogue();
+  }
 }
