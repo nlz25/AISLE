@@ -14,7 +14,9 @@
       "en": "Europe",
       "lat": 46.52,
       "lon": 6.57,
-      "institutions": []
+      "institutions": [
+        "epfl"
+      ]
     },
     {
       "id": "asia",
@@ -96,6 +98,17 @@
       "topic": "CdS-MPA quantum dots",
       "description": "CdS-MPA quantum-dot experiments.",
       "duration": "00:23"
+    },
+    {
+      "id": "epfl",
+      "name": "École polytechnique fédérale de Lausanne",
+      "short": "EPFL",
+      "city": "Lausanne",
+      "country": "europe",
+      "video": "epfl-buchwald-hartwig",
+      "topic": "Buchwald–Hartwig cross-coupling",
+      "description": "Buchwald–Hartwig cross-coupling reaction.",
+      "duration": "00:18"
     }
   ]
 }
