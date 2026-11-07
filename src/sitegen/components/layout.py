@@ -55,8 +55,7 @@ def shell(page, title, description, body, version, *, site_prefix="", origin="ht
         '<meta name="robots" content="noindex,nofollow">'
         '<meta name="referrer" content="no-referrer">'
         '<meta http-equiv="Content-Security-Policy" content="default-src \'self\'; '
-        "script-src 'self' https://challenges.cloudflare.com; "
-        "frame-src https://challenges.cloudflare.com; connect-src 'self' https://challenges.cloudflare.com; "
+        "script-src 'self'; frame-src 'none'; connect-src 'self'; "
         "style-src 'self' 'unsafe-inline'; object-src 'none'; base-uri 'none'; form-action 'none'\">"
         f'<script type="module" src="assets/js/contribute.js?v={version}"></script>'
         if workspace else ""

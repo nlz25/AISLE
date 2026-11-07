@@ -52,24 +52,8 @@ def contributor(site_prefix=""):
   <noscript><p>Enable JavaScript to sign in and manage tasks.</p></noscript>
   <section id="login-panel" class="contribute-card contribute-form-panel" aria-labelledby="login-title" hidden>
     <h2 id="login-title">Sign in or register</h2>
-    <p>We’ll email a single-use sign-in link. First-time contributors also need to provide a name and organization.</p>
-    <form id="login-form" method="post" class="contribute-form">
-      <label>Account
-        <select name="mode"><option value="register">New contributor</option><option value="signin">Returning contributor</option></select>
-      </label>
-      <label>Contact email <input name="email" type="email" autocomplete="email" maxlength="254" required></label>
-      <div id="registration-fields" class="contribute-form">
-        <label>Full name <input name="name" autocomplete="name" maxlength="120" required></label>
-        <label>Organization <input name="organization" autocomplete="organization" maxlength="200" required></label>
-      </div>
-      <div id="login-challenge"></div>
-      <button type="submit" disabled>Email me a sign-in link</button>
-    </form>
-  </section>
-  <section id="verify-panel" class="contribute-card contribute-form-panel" hidden>
-    <h2>Finish signing in</h2>
-    <p>Use the link you requested to open your contributor workspace.</p>
-    <button id="verify-login" type="button">Continue to workspace</button>
+    <p>Use your GitHub account to sign in. First-time contributors also provide their name and organization.</p>
+    <button id="github-sign-in" type="button" disabled>Continue with GitHub</button>
   </section>
   <section id="workspace-panel" hidden aria-label="Contributor workspace">
     <div class="contribute-toolbar">
@@ -77,6 +61,16 @@ def contributor(site_prefix=""):
       <a id="admin-link" href="contribute-admin.html" hidden>Admin review</a>
       <button id="sign-out" class="secondary" type="button">Sign out</button>
     </div>
+    <section id="profile-panel" class="contribute-card contribute-form-panel" aria-labelledby="profile-title" hidden>
+      <h2 id="profile-title">Complete your contributor profile</h2>
+      <form id="profile-form" method="post" class="contribute-form">
+        <label>Verified contact email <input name="email" type="email" readonly></label>
+        <label>Full name <input name="name" autocomplete="name" maxlength="120" required></label>
+        <label>Organization <input name="organization" autocomplete="organization" maxlength="200" required></label>
+        <button type="submit">Save profile</button>
+      </form>
+    </section>
+    <div id="task-area" hidden>
     <details class="contribute-card contribute-form-panel" id="new-task-panel">
       <summary>Create a task</summary>
       <form id="new-task" method="post" class="contribute-form">
@@ -90,6 +84,7 @@ def contributor(site_prefix=""):
       <h2 id="my-tasks-title">Your tasks</h2>
       <div id="my-tasks" class="contribute-task-list"></div>
     </section>
+    </div>
   </section>
 </main>'''
 
@@ -102,6 +97,16 @@ def contribute_admin():
   <h1>Contribution review</h1>
   <p id="workspace-message" class="contribute-message" role="status">Verifying administrator access…</p>
   <noscript><p>Enable JavaScript to review contributions.</p></noscript>
+  <section id="admin-mfa" class="contribute-card contribute-form-panel" aria-labelledby="admin-mfa-title" hidden>
+    <h2 id="admin-mfa-title">Verify administrator access</h2>
+    <p>Use an authenticator app to verify your GitHub sign-in before reviewing submissions.</p>
+    <button id="mfa-enroll" type="button" hidden>Set up authenticator</button>
+    <p id="mfa-setup" hidden>Add an account in your authenticator app and enter this setup key <code id="mfa-secret"></code>.</p>
+    <form id="mfa-form" method="post" class="contribute-form" hidden>
+      <label>Six-digit code <input name="code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" required></label>
+      <button type="submit">Verify code</button>
+    </form>
+  </section>
   <section id="admin-panel" hidden aria-label="Administration">
     <div class="contribute-toolbar" role="group" aria-label="Management views">
       <button type="button" data-admin-view="tasks" aria-pressed="true">Submissions</button>

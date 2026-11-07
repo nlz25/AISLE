@@ -8,11 +8,9 @@
   "routes": [{ "pattern": "aisle.science/api/contribute/*", "zone_name": "aisle.science" }],
   "vars": {
     "SITE_ORIGIN": "https://aisle.science",
-    "ACCESS_TEAM_DOMAIN": "",
-    "ACCESS_AUD": "",
-    "ADMIN_EMAILS": "",
-    "MAIL_FROM": "",
-    "TURNSTILE_SITE_KEY": ""
+    "SUPABASE_URL": "",
+    "SUPABASE_PUBLISHABLE_KEY": "",
+    "ADMIN_USER_IDS": ""
   },
   "d1_databases": [
     {
@@ -22,7 +20,6 @@
       "migrations_dir": "migrations"
     }
   ],
-  "r2_buckets": [{ "binding": "PACKAGES", "bucket_name": "aisle-contribute-private" }],
   "triggers": { "crons": ["17 * * * *"] },
   "observability": { "enabled": false }
 }

@@ -1,4 +1,5 @@
 import { access, mkdir, readFile, writeFile } from 'node:fs/promises';
+import { uuid } from './supabase.js';
 
 function requireSetting(name, pattern = /\S/) {
   const value = process.env[name]?.trim();
@@ -33,16 +34,19 @@ database.database_id = requireSetting(
 database.migrations_dir = '../migrations';
 
 Object.assign(config.vars, {
-  ADMIN_EMAILS: requireSetting('ADMIN_EMAILS', /^[^\s@,]+@[^\s@,]+(?:\s*,\s*[^\s@,]+@[^\s@,]+)*$/),
-  ACCESS_TEAM_DOMAIN: requireSetting('ACCESS_TEAM_DOMAIN', /^[-a-z0-9]+\.cloudflareaccess\.com$/),
-  ACCESS_AUD: requireSetting('ACCESS_AUD', /^[a-f0-9]{64}$/),
-  MAIL_FROM: requireSetting('MAIL_FROM'),
-  TURNSTILE_SITE_KEY: requireSetting('TURNSTILE_SITE_KEY'),
+  SUPABASE_URL: requireSetting('SUPABASE_URL', /^https:\/\/[a-z0-9]+\.supabase\.co$/),
+  SUPABASE_PUBLISHABLE_KEY: requireSetting('SUPABASE_PUBLISHABLE_KEY', /^sb_publishable_[-\w]+$/),
 });
 
+const admins = process.env.ADMIN_USER_IDS?.trim();
+if (admins && admins.split(',').some((value) => !uuid.test(value.trim()))) {
+  throw new Error('ADMIN_USER_IDS must contain comma-separated Supabase user IDs');
+}
+config.vars.ADMIN_USER_IDS = admins || '';
+
 const secrets = {
-  RESEND_API_KEY: requireSetting('RESEND_API_KEY'),
-  TURNSTILE_SECRET: requireSetting('TURNSTILE_SECRET'),
+  SUPABASE_STORAGE_SECRET: requireSetting('SUPABASE_STORAGE_SECRET', /^sb_secret_[-\w]+$/),
+  SESSION_ENCRYPTION_KEY: requireSetting('SESSION_ENCRYPTION_KEY', /^[a-f0-9]{64}$/),
 };
 
 const directory = new URL('./.wrangler/', import.meta.url);
