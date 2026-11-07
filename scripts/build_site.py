@@ -14,6 +14,7 @@ from sitegen.components.hand import HAND_ATLAS
 from sitegen.pages.home import home
 from sitegen.pages.leaderboard import leaderboard
 from sitegen.pages.tasks import tasks
+from sitegen.pages.contribute import contribute, contributor, contribute_admin
 
 
 def main():
@@ -36,28 +37,35 @@ def main():
     js.mkdir(parents=True)
     (css / "site.css").write_text(
         "\n".join(
-            (ROOT / "src/styles" / p).read_text() for p in ["base.css", "theme.css"]
-        )
+            (ROOT / "src/styles" / p).read_text(encoding="utf-8") for p in ["base.css", "theme.css"]
+        ),
+        encoding="utf-8",
     )
     shutil.copy2(ROOT / "src/styles/portal.css", css / "portal.css")
     shutil.copy2(ROOT / "src/styles/network.css", css / "network.css")
+    shutil.copy2(ROOT / "src/styles/contribute.css", css / "contribute.css")
     for source in (ROOT / "src/scripts").glob("*.js"):
         (js / source.name).write_text(
-            source.read_text().replace("__ASSET_VERSION__", version)
+            source.read_text(encoding="utf-8-sig").replace("__ASSET_VERSION__", version),
+            encoding="utf-8",
         )
     description = "AISLE evaluates scientific decisions through experimental feedback. Explore benchmark results, experimental tasks and scoring."
-    for filename, title, render in [
+    pages = [
         ("index.html", "AI Scientists' Last Exam", home),
         ("leaderboard.html", "Experimental results", leaderboard),
         ("tasks.html", "Tasks", tasks),
-    ]:
+        ("contribute.html", "Contribute an experiment", contribute),
+        ("contributor.html", "Contributor workspace", contributor),
+        ("contribute-admin.html", "Contribution review", contribute_admin),
+    ]
+    for filename, title, render in pages:
         (DIST / filename).write_text(
-            shell(filename, title, description, render(), version)
+            shell(filename, title, description, render(), version), encoding="utf-8"
         )
     (DIST / "build.json").write_text(
-        json.dumps({"asset_version": version, "pages": 3}) + "\n"
+        json.dumps({"asset_version": version, "pages": len(pages)}) + "\n"
     )
-    print(f"Built 3 English pages into {DIST}; assets {version}.")
+    print(f"Built {len(pages)} English pages into {DIST}; assets {version}.")
 
 
 if __name__ == "__main__":
