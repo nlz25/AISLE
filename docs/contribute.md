@@ -1,8 +1,8 @@
 # Contribute
 
-The site generator builds the public Contribute page, contributor workspace and
-administrator workspace for GitHub Pages. The browser calls the same-origin
-Contribute Worker. D1 holds verified contributor profiles, hashed login and
+GitHub Pages hosts the public Contribute page. The contributor and administrator
+workspaces can run directly on the Contribute Worker's workers.dev address.
+Both workspaces call the API on their own origin. D1 holds verified contributor profiles, hashed login and
 session tokens, task metadata and review history. A private R2 bucket holds the
 original Wet Lab ZIP archives. The counter uses its existing independent Worker.
 
@@ -40,15 +40,16 @@ that test credentials and archives stay local.
 1. In the project Cloudflare account, create a production D1 database named
    aisle-contribute and a private R2 bucket named aisle-contribute-private.
    Keep R2 public access disabled. The deployment workflow applies migrations.
-2. Serve aisle.science through the project's Cloudflare zone while keeping
-   GitHub Pages as the site origin. Proxy the existing website DNS record with
-   valid origin TLS. The Worker route is aisle.science/api/contribute/*.
-   Retain the existing site and DNS records when bringing the zone onto Cloudflare.
-3. Create a Turnstile widget for aisle.science and a Resend sending domain.
-   Verify the domain's DNS records and use a sender from that domain.
+2. For the standalone workspace, use the account's workers.dev subdomain.
+   The origin has the form https://aisle-contribute.<account-subdomain>.workers.dev.
+   For the same-domain deployment, proxy aisle.science through the project's
+   Cloudflare zone with valid GitHub Pages origin TLS and use the
+   aisle.science/api/contribute/* Worker route.
+3. Create a Turnstile widget for the chosen workspace hostname. Use an existing
+   verified Resend sender or verify a sending domain and use a sender from it.
    Disable click tracking for the sending domain so the sign-in URL stays direct.
 4. In Cloudflare Access, create one self-hosted application covering both
-   aisle.science/contribute-admin.html and aisle.science/api/contribute/admin/*.
+   /contribute-admin.html and /api/contribute/admin/* on the chosen workspace hostname.
    Allow the named reviewer emails and require independent MFA with WebAuthn
    security keys or passkeys. Use short Access sessions and limit application
    policies to the reviewers. Record the application's AUD and team domain.
@@ -59,6 +60,7 @@ that test credentials and archives stay local.
 | --- | --- |
 | CLOUDFLARE_ACCOUNT_ID | Project Cloudflare account ID |
 | CLOUDFLARE_D1_DATABASE_ID | Production D1 database ID |
+| CLOUDFLARE_WORKSPACE_ORIGIN | HTTPS workers.dev origin for the standalone workspace, with no trailing slash. Leave empty for the aisle.science API route. |
 | ACCESS_TEAM_DOMAIN | Access team hostname, e.g. project.cloudflareaccess.com |
 | ACCESS_AUD | AUD from the self-hosted Access application |
 | ADMIN_EMAILS | Comma-separated reviewer emails matching the Access policy |
@@ -67,19 +69,27 @@ that test credentials and archives stay local.
 
 | GitHub environment secrets | Value |
 | --- | --- |
-| CLOUDFLARE_API_TOKEN | Token scoped to the project account and zone, with permission to create or edit the Worker, manage its route and run D1 migrations |
+| CLOUDFLARE_API_TOKEN | Token scoped to the project account, with permission to create or edit the Worker and run D1 migrations. The same-domain option also needs Workers Routes Write in the aisle.science zone. |
 | RESEND_API_KEY | Send-only key scoped to the sending domain |
 | TURNSTILE_SECRET | Secret for the configured widget |
 
 Run **Deploy Contribute API** from main once configuration is complete. The
 workflow validates its settings, runs service tests, applies D1 migrations and
-deploys the Worker. The existing Pages workflow continues to publish static
-assets. The standard production smoke check is to request a real link, register
+deploys the Worker. For a standalone deployment, it also packages the two
+workspace pages with the Worker. The production smoke check is to request a real link, register
 and submit a harmless ZIP, then open the reviewer workspace with the configured
 MFA and verify that an unapproved account is denied.
 
+After the standalone workspace passes the smoke check, set the **repository**
+Actions variable CONTRIBUTE_WORKSPACE_ORIGIN to the same origin and run
+**Build and deploy AISLE** from main. This switches the public contribution
+links to the standalone workspace. Pages can then be rebuilt independently
+of the Worker.
+
 Cloudflare setup references:
 [GitHub Actions](https://developers.cloudflare.com/workers/ci-cd/external-cicd/github-actions/),
+[Workers static assets](https://developers.cloudflare.com/workers/static-assets/),
+[Access for Workers](https://developers.cloudflare.com/workers/configuration/cloudflare-access/),
 [Worker routes](https://developers.cloudflare.com/workers/configuration/routing/routes/),
 [Access application paths](https://developers.cloudflare.com/cloudflare-one/access-controls/policies/app-paths/),
 [Access MFA](https://developers.cloudflare.com/cloudflare-one/access-controls/policies/mfa-requirements/).

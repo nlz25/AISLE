@@ -1,8 +1,8 @@
 """Public contribution entry and the two authenticated workspaces."""
 
 
-def contribute():
-    return '''
+def contribute(workspace_prefix=""):
+    return f'''
 <main id="main" class="wrap contribute">
   <section class="contribute-hero">
     <p class="contribute-kicker">AISLE · Contribute</p>
@@ -17,24 +17,35 @@ def contribute():
         <p class="contribute-kicker">01 · Computational</p>
         <h3>Dry Lab</h3>
         <p>Create an AISLE task, include its ID in your GitHub pull request, and link the PR in your workspace.</p>
-        <a class="contribute-button secondary" href="contributor.html?kind=dry">Start a Dry Lab task</a>
+        <a class="contribute-button secondary" href="{workspace_prefix}contributor.html?kind=dry">Start a Dry Lab task</a>
       </article>
       <article class="contribute-card">
         <p class="contribute-kicker">02 · Physical</p>
         <h3>Wet Lab</h3>
         <p>Upload your entire experiment package as one ZIP. Track review and update the lab availability and notices for each task.</p>
-        <a class="contribute-button secondary" href="contributor.html?kind=wet">Start a Wet Lab task</a>
+        <a class="contribute-button secondary" href="{workspace_prefix}contributor.html?kind=wet">Start a Wet Lab task</a>
       </article>
     </div>
   </section>
-  <p class="contribute-links"><a href="contributor.html">Open your workspace</a><a href="tasks.html">Explore existing tasks</a><a href="mailto:gan@greendynamics.com.au">Contact the AISLE team</a></p>
+  <p class="contribute-links"><a href="{workspace_prefix}contributor.html">Open your workspace</a><a href="tasks.html">Explore existing tasks</a><a href="mailto:gan@greendynamics.com.au">Contact the AISLE team</a></p>
 </main>'''
 
 
-def contributor():
-    return '''
-<main id="main" class="wrap contribute contribute-workspace" data-contribute-view="workspace">
+def workspace_moved(url):
+    return f'''
+<main id="main" class="wrap contribute contribute-workspace">
   <a href="contribute.html">← Contribute</a>
+  <p class="contribute-kicker">AISLE · Contribute</p>
+  <h1>Open the contribution workspace</h1>
+  <p>The workspace has a new address.</p>
+  <a class="contribute-button" href="{url}">Continue to workspace</a>
+</main>'''
+
+
+def contributor(site_prefix=""):
+    return f'''
+<main id="main" class="wrap contribute contribute-workspace" data-contribute-view="workspace">
+  <a href="{site_prefix}contribute.html">← Contribute</a>
   <p class="contribute-kicker">AISLE · Contributor</p>
   <h1>Your workspace</h1>
   <p id="workspace-message" class="contribute-message" role="status">Checking your session…</p>

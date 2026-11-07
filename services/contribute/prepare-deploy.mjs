@@ -1,4 +1,4 @@
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { access, mkdir, readFile, writeFile } from 'node:fs/promises';
 
 function requireSetting(name, pattern = /\S/) {
   const value = process.env[name]?.trim();
@@ -10,6 +10,21 @@ const config = JSON.parse(await readFile(new URL('./wrangler.jsonc', import.meta
 config.account_id = requireSetting('CLOUDFLARE_ACCOUNT_ID', /^[a-f0-9]{32}$/);
 config.main = '../worker.js';
 delete config.$schema;
+const workspaceOrigin = process.env.CONTRIBUTE_WORKSPACE_ORIGIN?.trim();
+if (workspaceOrigin) {
+  config.vars.SITE_ORIGIN = requireSetting(
+    'CONTRIBUTE_WORKSPACE_ORIGIN',
+    /^https:\/\/aisle-contribute\.[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.workers\.dev$/,
+  );
+  await access(new URL('./.wrangler/workspace/contributor.html', import.meta.url));
+  delete config.routes;
+  config.workers_dev = true;
+  config.assets = {
+    directory: './workspace',
+    html_handling: 'none',
+    run_worker_first: ['/api/contribute/*'],
+  };
+}
 const [database] = config.d1_databases;
 database.database_id = requireSetting(
   'CLOUDFLARE_D1_DATABASE_ID',

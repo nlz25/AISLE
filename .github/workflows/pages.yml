@@ -29,6 +29,8 @@ jobs:
           npm ci --prefix services/counter
           npm test --prefix services/counter
       - name: Build and check
+        env:
+          CONTRIBUTE_WORKSPACE_ORIGIN: ${{ vars.CONTRIBUTE_WORKSPACE_ORIGIN }}
         run: make check
       - name: Check Contribute
         run: |

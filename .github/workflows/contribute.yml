@@ -25,8 +25,19 @@ jobs:
           node-version: '22'
       - run: npm ci
       - run: npm test
+      - uses: actions/setup-python@v5
+        if: vars.CLOUDFLARE_WORKSPACE_ORIGIN != ''
+        with:
+          python-version: '3.12'
+      - name: Build standalone workspace
+        if: vars.CLOUDFLARE_WORKSPACE_ORIGIN != ''
+        working-directory: .
+        env:
+          CONTRIBUTE_WORKSPACE_ORIGIN: ${{ vars.CLOUDFLARE_WORKSPACE_ORIGIN }}
+        run: python scripts/build_site.py --worker-assets
       - name: Prepare, migrate, and deploy
         env:
+          CONTRIBUTE_WORKSPACE_ORIGIN: ${{ vars.CLOUDFLARE_WORKSPACE_ORIGIN }}
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
           CLOUDFLARE_D1_DATABASE_ID: ${{ vars.CLOUDFLARE_D1_DATABASE_ID }}

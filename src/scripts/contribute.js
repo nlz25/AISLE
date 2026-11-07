@@ -25,7 +25,7 @@ async function api(path, { method = 'GET', data, file } = {}) {
   const payload = await response.json().catch(() => null);
   if (!response.ok || !payload) {
     const message = response.status === 404 || (response.ok && !payload)
-      ? 'The contribution service is unavailable on this address. Open the AISLE production site or a configured preview.'
+      ? 'The contribution service is unavailable. Please try again later or contact the AISLE team.'
       : 'The request could not be completed. Please try again.';
     throw new ApiError(response.status, payload?.error || message);
   }
