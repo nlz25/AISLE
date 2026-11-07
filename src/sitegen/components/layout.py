@@ -4,12 +4,15 @@ import json
 from ..context import DATA, esc
 from .hand import HAND_ATLAS
 
+CONTRIBUTE_PAGES = {"contribute.html", "contributor.html", "contribute-admin.html"}
+
 
 def header(page):
     items = [
         ("index.html", "Home"),
         ("leaderboard.html", "Leaderboard"),
         ("tasks.html", "Tasks"),
+        ("contribute.html", "Contribute"),
         ("#team" if page == "index.html" else "index.html#team", "Team"),
         ("#join" if page == "index.html" else "index.html#join", "Join us"),
     ]
@@ -41,6 +44,22 @@ def results_data():
 def shell(page, title, description, body, version):
     url = f"https://aisle.science/{page}"
     portal = page == "index.html"
+    contribute_page = page in CONTRIBUTE_PAGES
+    workspace = contribute_page and page != "contribute.html"
+    body_class = ' class="contribute-page"' if contribute_page else (
+        ' class="tasks-page"' if page == "tasks.html" else ""
+    )
+    contribute_style = f'<link rel="stylesheet" href="assets/css/contribute.css?v={version}">' if contribute_page else ""
+    workspace_head = (
+        '<meta name="robots" content="noindex,nofollow">'
+        '<meta name="referrer" content="no-referrer">'
+        '<meta http-equiv="Content-Security-Policy" content="default-src \'self\'; '
+        "script-src 'self' https://challenges.cloudflare.com; "
+        "frame-src https://challenges.cloudflare.com; connect-src 'self' https://challenges.cloudflare.com; "
+        "style-src 'self' 'unsafe-inline'; object-src 'none'; base-uri 'none'; form-action 'none'\">"
+        f'<script type="module" src="assets/js/contribute.js?v={version}"></script>'
+        if workspace else ""
+    )
     portal_style = (
         f'<link rel="stylesheet" href="assets/css/portal.css?v={version}"><link rel="stylesheet" href="assets/css/network.css?v={version}">'
         if portal
@@ -54,6 +73,7 @@ def shell(page, title, description, body, version):
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
+  {workspace_head}
   <title>{esc(title)} · AISLE</title>
   <meta name="description" content="{esc(description)}">
   <meta name="theme-color" content="#10131a">
@@ -68,7 +88,8 @@ def shell(page, title, description, body, version):
   {preload}
   <link rel="stylesheet" href="assets/css/site.css?v={version}">
   {portal_style}
+  {contribute_style}
   <script type="module" src="assets/js/main.js?v={version}"></script>
 </head>
-<body{chr(32) + 'class="tasks-page"' if page == "tasks.html" else ""}>{header(page)}{body}{results_data() if page != "tasks.html" else ""}{footer()}</body>
+<body{body_class}>{header(page)}{body}{results_data() if page in {"index.html", "leaderboard.html"} else ""}{footer()}</body>
 </html>'''

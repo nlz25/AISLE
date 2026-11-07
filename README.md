@@ -33,7 +33,7 @@ the entrance's loading and rendering budgets.
 ```text
 src/
   sitegen/
-    pages/          # home, leaderboard and tasks
+    pages/          # home, leaderboard, tasks and Contribute workspaces
     components/     # layout, portal, map, result tables, institutions
     context.py      # build paths, study data and HTML escaping
   styles/           # base components, dark theme, entrance, research network
@@ -45,6 +45,7 @@ public/             # files copied into the deployed website
   apple-touch-icon.png
 data/               # study scores and research-network metadata
 scripts/            # build, validation and optional asset tools
+services/           # Cloudflare Workers for the counter and Contribute API
 design/             # originals, authoring previews/intermediates and archives
 docs/               # architecture, content and media provenance
 .github/workflows/  # validation and GitHub Pages deployment
@@ -70,6 +71,7 @@ Push to `main` to run `.github/workflows/pages.yml`: build → validate → uplo
 - [Research films](docs/network-media.md)
 - [Entrance artwork](docs/portal-art.md)
 - [Portal click counter](docs/counter.md)
+- [Contribute service and deployment](docs/contribute.md)
 - [Roadmap](docs/roadmap.md)
 
 Scores describe an evaluated research cohort, not a live ranking of current models. The research network's four regions and supplied films do not describe coverage of the scored benchmark. Original logos and laboratory footage retain their respective owners' rights.

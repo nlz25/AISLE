@@ -30,6 +30,10 @@ jobs:
           npm test --prefix services/counter
       - name: Build and check
         run: make check
+      - name: Check Contribute
+        run: |
+          npm ci --prefix services/contribute
+          npm test --prefix services/contribute
       - uses: actions/upload-pages-artifact@v4
         if: github.event_name != 'pull_request'
         with:
