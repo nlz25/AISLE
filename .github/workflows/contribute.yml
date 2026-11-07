@@ -25,18 +25,27 @@ jobs:
           node-version: '22'
       - run: npm ci
       - run: npm test
+      - uses: actions/setup-python@v5
+        if: vars.CLOUDFLARE_WORKSPACE_ORIGIN != ''
+        with:
+          python-version: '3.12'
+      - name: Build standalone workspace
+        if: vars.CLOUDFLARE_WORKSPACE_ORIGIN != ''
+        working-directory: .
+        env:
+          CONTRIBUTE_WORKSPACE_ORIGIN: ${{ vars.CLOUDFLARE_WORKSPACE_ORIGIN }}
+        run: python scripts/build_site.py --worker-assets
       - name: Prepare, migrate, and deploy
         env:
+          CONTRIBUTE_WORKSPACE_ORIGIN: ${{ vars.CLOUDFLARE_WORKSPACE_ORIGIN }}
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
           CLOUDFLARE_D1_DATABASE_ID: ${{ vars.CLOUDFLARE_D1_DATABASE_ID }}
-          ACCESS_TEAM_DOMAIN: ${{ vars.ACCESS_TEAM_DOMAIN }}
-          ACCESS_AUD: ${{ vars.ACCESS_AUD }}
-          ADMIN_EMAILS: ${{ vars.ADMIN_EMAILS }}
-          MAIL_FROM: ${{ vars.MAIL_FROM }}
-          TURNSTILE_SITE_KEY: ${{ vars.TURNSTILE_SITE_KEY }}
-          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
-          TURNSTILE_SECRET: ${{ secrets.TURNSTILE_SECRET }}
+          SUPABASE_URL: ${{ vars.SUPABASE_URL }}
+          SUPABASE_PUBLISHABLE_KEY: ${{ vars.SUPABASE_PUBLISHABLE_KEY }}
+          ADMIN_USER_IDS: ${{ vars.ADMIN_USER_IDS }}
+          SUPABASE_STORAGE_SECRET: ${{ secrets.SUPABASE_STORAGE_SECRET }}
+          SESSION_ENCRYPTION_KEY: ${{ secrets.SESSION_ENCRYPTION_KEY }}
         run: |
           : "${CLOUDFLARE_API_TOKEN:?Configure the Cloudflare deployment token}"
           trap 'rm -f .wrangler/production-secrets.json' EXIT

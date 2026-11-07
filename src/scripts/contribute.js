@@ -25,7 +25,7 @@ async function api(path, { method = 'GET', data, file } = {}) {
   const payload = await response.json().catch(() => null);
   if (!response.ok || !payload) {
     const message = response.status === 404 || (response.ok && !payload)
-      ? 'The contribution service is unavailable on this address. Open the AISLE production site or a configured preview.'
+      ? 'The contribution service is unavailable. Please try again later or contact the AISLE team.'
       : 'The request could not be completed. Please try again.';
     throw new ApiError(response.status, payload?.error || message);
   }
@@ -253,9 +253,9 @@ function ownerCard(task, refresh) {
 
 async function initWorkspace() {
   const loginPanel = byId('login-panel');
-  const verifyPanel = byId('verify-panel');
+  const profilePanel = byId('profile-panel');
   const panel = byId('workspace-panel');
-  const loginForm = byId('login-form');
+  const profileForm = byId('profile-form');
   const newTask = byId('new-task');
   const tasks = byId('my-tasks');
   const preferredKind = new URLSearchParams(location.search).get('kind');
@@ -269,13 +269,31 @@ async function initWorkspace() {
     if (focusTask) byId(focusTask)?.scrollIntoView({ block: 'nearest' });
   };
 
-  async function openWorkspace({ user, admin_eligible: adminEligible }) {
-    byId('account-summary').textContent = user.name + ' · ' + user.organization + ' · ' + user.email;
-    byId('admin-link').hidden = !adminEligible;
-    await refresh();
-    loginPanel.hidden = verifyPanel.hidden = true;
+  async function openWorkspace(session) {
+    const { user, profile_complete: complete, admin_eligible: adminEligible } = session;
+    loginPanel.hidden = true;
     panel.hidden = false;
+    profilePanel.hidden = complete;
+    byId('task-area').hidden = !complete;
+    byId('account-summary').textContent = complete
+      ? user.name + ' · ' + user.organization + ' · ' + user.email
+      : user.email;
+    byId('admin-link').hidden = !complete || !adminEligible;
+    if (complete) {
+      await refresh();
+    } else {
+      profileForm.elements.email.value = user.email;
+      profileForm.elements.name.value = user.name;
+      profileForm.elements.organization.value = user.organization;
+      showMessage('Complete your profile to start a contribution.');
+    }
   }
+
+  bindForm(profileForm, async form => {
+    await openWorkspace(await api('/me/profile', {
+      method: 'PATCH', data: { name: form.get('name'), organization: form.get('organization') },
+    }));
+  });
 
   bindForm(newTask, async form => {
     const { id } = await api('/tasks', { method: 'POST', data: Object.fromEntries(form) });
@@ -297,111 +315,85 @@ async function initWorkspace() {
     }
   });
 
-  const token = new URLSearchParams(location.hash.slice(1)).get('token');
-  window.addEventListener('hashchange', () => {
-    if (new URLSearchParams(location.hash.slice(1)).has('token')) location.reload();
-  });
-  if (token) history.replaceState(null, '', location.pathname + location.search);
-  if (token && /^[a-f0-9]{64}$/.test(token)) {
-    const verify = byId('verify-login');
-    verifyPanel.hidden = false;
-    showMessage('');
-    verify.addEventListener('click', async () => {
-      verify.disabled = true;
-      let verified = false;
-      try {
-        const session = await api('/auth/verify', { method: 'POST', data: { token } });
-        verified = true;
-        await openWorkspace(session);
-      } catch (error) {
-        if (verified) {
-          location.reload();
-        } else {
-          verifyPanel.hidden = true;
-          await openLogin(error.message);
-        }
-      }
-    }, { once: true });
-    return;
+  const query = new URLSearchParams(location.search);
+  const issue = query.get('auth');
+  if (issue) {
+    query.delete('auth');
+    history.replaceState(null, '', location.pathname + (query.size ? '?' + query : ''));
   }
-
-  async function openLogin(message = '') {
-    loginPanel.hidden = false;
-    showMessage(message, Boolean(message));
-    const submit = loginForm.querySelector('button[type=submit]');
-    const mode = loginForm.elements.mode;
-    const registrationFields = byId('registration-fields');
-    mode.addEventListener('change', () => {
-      const registering = mode.value === 'register';
-      registrationFields.hidden = !registering;
-      for (const control of registrationFields.querySelectorAll('input')) control.disabled = !registering;
-    });
-    try {
-      const { turnstileSiteKey } = await api('/config');
-      if (!turnstileSiteKey) throw new Error('Email sign-in is not configured on this site yet.');
-      await loadTurnstile();
-      let token = '';
-      let submitting = false;
-      const challenge = window.turnstile.render(byId('login-challenge'), {
-        sitekey: turnstileSiteKey,
-        action: 'contribute-login',
-        callback: value => { token = value; submit.disabled = submitting; },
-        'expired-callback': () => { token = ''; submit.disabled = true; },
-        'error-callback': () => {
-          token = '';
-          submit.disabled = true;
-          showMessage('Verification failed to load. Refresh the page to try again.', true);
-        },
-      });
-      loginForm.addEventListener('submit', async event => {
-        event.preventDefault();
-        if (!token || submitting) return;
-        submitting = true;
-        submit.disabled = true;
-        const form = new FormData(loginForm);
-        showMessage('Requesting a sign-in link…');
-        try {
-          const { message: result } = await api('/auth/request', {
-            method: 'POST',
-            data: {
-              email: form.get('email'), name: form.get('name'), organization: form.get('organization'),
-              turnstile: token, kind: preferredKind,
-            },
-          });
-          showMessage(result);
-        } catch (error) {
-          showMessage(error.message, true);
-        } finally {
-          token = '';
-          submitting = false;
-          window.turnstile.reset(challenge);
-        }
-      });
-    } catch (error) {
-      showMessage(error.message, true);
-    }
-  }
-
   try {
     await openWorkspace(await api('/me'));
   } catch (error) {
-    if (error.status === 401) await openLogin();
-    else throw error;
+    if (error.status !== 401) throw error;
+    loginPanel.hidden = false;
+    const messages = {
+      failed: 'GitHub sign-in did not complete. Please try again.',
+      account: 'This email is linked to an earlier AISLE account. Contact the team to connect it to GitHub.',
+      disabled: 'Your contributor account is disabled. Contact the AISLE team.',
+    };
+    showMessage(messages[issue] || '', Boolean(messages[issue]));
+    const { github_sign_in: ready } = await api('/config');
+    if (!ready) throw new Error('GitHub sign-in is not configured yet.');
+    const signIn = byId('github-sign-in');
+    signIn.disabled = false;
+    signIn.addEventListener('click', async () => {
+      signIn.disabled = true;
+      try {
+        const { url } = await api('/auth/start', { method: 'POST', data: { kind: preferredKind } });
+        location.assign(url);
+      } catch (err) {
+        showMessage(err.message, true);
+        signIn.disabled = false;
+      }
+    });
   }
 }
 
-function loadTurnstile() {
-  return new Promise((resolve, reject) => {
-    const script = document.createElement('script');
-    script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
-    script.onload = () => window.turnstile.ready(resolve);
-    script.onerror = () => reject(new Error('Could not load security verification.'));
-    document.head.append(script);
+async function verifyAdmin(session) {
+  if (!session.profile_complete) throw new Error('Complete your profile in the contributor workspace first.');
+  if (!session.admin_eligible) throw new Error('Administrator access requires an approved GitHub account.');
+  if (session.admin_verified) return true;
+
+  const { enrolled } = await api('/auth/mfa');
+  const form = byId('mfa-form');
+  const enroll = byId('mfa-enroll');
+  byId('admin-mfa').hidden = false;
+  form.hidden = !enrolled;
+  enroll.hidden = enrolled;
+  showMessage('');
+
+  enroll.addEventListener('click', async () => {
+    enroll.disabled = true;
+    try {
+      const { secret } = await api('/auth/mfa/enroll', { method: 'POST' });
+      byId('mfa-secret').textContent = secret;
+      byId('mfa-setup').hidden = false;
+      enroll.hidden = true;
+      form.hidden = false;
+      form.elements.code.focus();
+    } catch (error) {
+      showMessage(error.message, true);
+      enroll.disabled = false;
+    }
   });
+  bindForm(form, async data => {
+    await api('/auth/mfa/verify', { method: 'POST', data: { code: data.get('code') } });
+    byId('mfa-secret').textContent = '';
+    location.reload();
+  });
+  return false;
 }
 
 async function initAdmin() {
   if (window.top !== window.self) throw new Error('Open the admin workspace in a separate tab.');
+  let session;
+  try {
+    session = await api('/me');
+  } catch (error) {
+    if (error.status === 401) throw new Error('Sign in with GitHub from the contributor workspace first.');
+    throw error;
+  }
+  if (!(await verifyAdmin(session))) return;
   const viewButtons = [...document.querySelectorAll('[data-admin-view]')];
   const previous = byId('admin-previous');
   const next = byId('admin-next');
@@ -432,7 +424,7 @@ async function initAdmin() {
       items.replaceChildren();
       byId('admin-panel').hidden = true;
       showMessage(error.status === 401 ? 'Sign in to AISLE from the contributor workspace first.'
-        : error.status === 403 ? 'Administrator access requires an approved AISLE account and Cloudflare Access verification.'
+        : error.status === 403 ? 'Administrator verification expired. Reload this page and verify your authenticator code.'
         : error.message, true);
     } finally {
       viewButtons.forEach(control => { control.disabled = false; });

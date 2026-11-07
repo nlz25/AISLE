@@ -1,4 +1,14 @@
-import { createRemoteJWKSet, jwtVerify } from 'jose';
+import {
+  authConfigured,
+  authRequest,
+  verifiedClaims,
+  openToken,
+  sealToken,
+  uuid,
+  putPackage,
+  getPackage,
+  deletePackages,
+} from './supabase.js';
 const PREFIX = '/api/contribute',
   COOKIE = '__Host-aisle_session',
   MAX_ZIP = 25 * 1024 * 1024;
@@ -130,56 +140,236 @@ async function rate(env, key, limit) {
     .first();
   if (row.count > limit) fail(429, 'Too many requests. Please try again later.');
 }
-function sessionToken(req) {
-  return req.headers
+const oauthCookie = '__Host-aisle_oauth';
+const secureCookie = (name, value, seconds) =>
+  name + '=' + value + '; Secure; HttpOnly; SameSite=Lax; Path=/; Max-Age=' + seconds;
+
+function cookie(req, name) {
+  const match = req.headers
     .get('Cookie')
     ?.split(';')
-    .map((x) => x.trim())
-    .find((x) => x.startsWith(COOKIE + '='))
-    ?.slice(COOKIE.length + 1);
+    .map((part) => part.trim())
+    .find((part) => part.startsWith(name + '='));
+  const value = match?.slice(name.length + 1);
+  return /^[a-f0-9]{64}$/.test(value || '') ? value : null;
 }
+
 async function user(req, env) {
-  const token = sessionToken(req);
-  if (!token || !/^[a-f0-9]{64}$/.test(token)) fail(401, 'Please sign in.');
+  const token = cookie(req, COOKIE);
+  if (!token) fail(401, 'Please sign in.');
   const u = await env.DB.prepare(
-    'SELECT u.* FROM users u JOIN sessions s ON u.id=s.user_id WHERE s.hash=? AND s.expires_at>? AND u.disabled=0',
+    'SELECT u.*, s.hash AS session_hash, s.expires_at AS session_expiry, s.mfa_until, s.provider_token, s.mfa_enrollment ' +
+      'FROM users u JOIN sessions s ON u.id=s.user_id WHERE s.hash=? AND s.expires_at>? AND u.disabled=0 ' +
+      'AND u.auth_subject IS NOT NULL AND s.provider_token IS NOT NULL',
   )
     .bind(await digest(token), now())
     .first();
   if (!u) fail(401, 'Session expired. Please sign in.');
   return u;
 }
-const jwks = new Map();
+
 function adminEligible(env, u) {
-  const allow = (env.ADMIN_EMAILS || '')
+  return (env.ADMIN_USER_IDS || '')
     .split(',')
-    .map((s) => s.trim().toLowerCase())
-    .filter(Boolean);
-  return Boolean(
-    allow.includes(u.email) &&
-      env.ACCESS_AUD &&
-      /^[-a-z0-9]+\.cloudflareaccess\.com$/.test(env.ACCESS_TEAM_DOMAIN || ''),
-  );
+    .map((id) => id.trim().toLowerCase())
+    .includes(u.auth_subject.toLowerCase());
 }
-async function admin(req, env, u) {
-  if (!adminEligible(env, u)) fail(403, 'Administrator access required.');
-  const token = req.headers.get('Cf-Access-Jwt-Assertion');
-  if (!token) fail(403, 'Cloudflare Access authentication required.');
+
+function userResponse(env, u) {
+  return {
+    user: { id: u.id, email: u.email, name: u.name, organization: u.organization },
+    profile_complete: Boolean(u.name && u.organization),
+    admin_eligible: adminEligible(env, u),
+    admin_verified: adminEligible(env, u) && u.mfa_until > now(),
+  };
+}
+
+function workspaceRedirect(env, track, error, sessionCookie) {
+  const target = new URL('/contributor.html', env.SITE_ORIGIN);
+  if (track) target.searchParams.set('kind', track);
+  if (error) target.searchParams.set('auth', error);
+  const headers = new Headers({
+    Location: target.href,
+    'Cache-Control': 'no-store',
+    'Referrer-Policy': 'no-referrer',
+  });
+  headers.append('Set-Cookie', secureCookie(oauthCookie, '', 0));
+  if (sessionCookie) headers.append('Set-Cookie', sessionCookie);
+  return new Response(null, { status: 303, headers });
+}
+
+async function startLogin(req, env) {
+  if (!authConfigured(env)) fail(503, 'GitHub sign-in is not configured yet.');
+  await rate(env, 'oauth-start:' + req.headers.get('CF-Connecting-IP'), 20);
+  const { kind } = await body(req);
+  const track = ['dry', 'wet'].includes(kind) ? kind : '';
+  const state = random(),
+    verifier = random();
+  const hashed = new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(verifier)));
+  const challenge = btoa(String.fromCharCode(...hashed))
+    .replaceAll('+', '-')
+    .replaceAll('/', '_')
+    .replace(/=+$/, '');
+  const authorize = new URL('/auth/v1/authorize', env.SUPABASE_URL);
+  authorize.search = new URLSearchParams({
+    provider: 'github',
+    redirect_to: new URL(PREFIX + '/auth/callback', env.SITE_ORIGIN).href,
+    code_challenge: challenge,
+    code_challenge_method: 's256',
+  });
+  await env.DB.prepare('INSERT INTO oauth_attempts VALUES (?,?,?,?)')
+    .bind(await digest(state), verifier, track, now() + 600)
+    .run();
+  return json({ url: authorize.href }, 200, { 'Set-Cookie': secureCookie(oauthCookie, state, 600) });
+}
+
+async function completeLogin(req, env, url) {
+  const state = cookie(req, oauthCookie);
+  if (!state || !authConfigured(env)) return workspaceRedirect(env, '', 'failed');
+  const attempt = await env.DB.prepare('DELETE FROM oauth_attempts WHERE hash=? AND expires_at>? RETURNING *')
+    .bind(await digest(state), now())
+    .first();
+  if (!attempt) return workspaceRedirect(env, '', 'failed');
+  const code = url.searchParams.get('code');
+  if (url.searchParams.has('error') || !code || code.length > 512) {
+    return workspaceRedirect(env, attempt.track, 'failed');
+  }
   try {
-    const issuer = `https://${env.ACCESS_TEAM_DOMAIN}`;
-    if (!jwks.has(issuer)) jwks.set(issuer, createRemoteJWKSet(new URL(issuer + '/cdn-cgi/access/certs')));
-    const { payload } = await jwtVerify(token, jwks.get(issuer), {
-      issuer,
-      audience: env.ACCESS_AUD,
-      algorithms: ['RS256'],
-      requiredClaims: ['exp', 'iat', 'sub', 'email'],
+    const exchange = await authRequest(env, '/token?grant_type=pkce', {
+      method: 'POST',
+      data: { auth_code: code, code_verifier: attempt.verifier },
     });
-    if (typeof payload.email !== 'string' || payload.email.toLowerCase() !== u.email)
-      throw Error('identity mismatch');
+    if (!exchange.ok) return workspaceRedirect(env, attempt.track, 'failed');
+    const { access_token: token, user: account } = await exchange.json();
+    const claims = await verifiedClaims(env, token);
+    const email = typeof account?.email === 'string' ? account.email.trim().toLowerCase() : '';
+    if (
+      account?.id !== claims.sub ||
+      !account.email_confirmed_at ||
+      email.length > 254 ||
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+    ) {
+      return workspaceRedirect(env, attempt.track, 'failed');
+    }
+    await env.DB.prepare(
+      "INSERT OR IGNORE INTO users (id,email,name,organization,created_at,auth_subject) VALUES (?,?,'','',?,?)",
+    )
+      .bind(crypto.randomUUID(), email, now(), claims.sub)
+      .run();
+    const u = await env.DB.prepare('SELECT id,disabled FROM users WHERE auth_subject=?')
+      .bind(claims.sub)
+      .first();
+    // Existing email-based accounts need an explicit identity mapping, never automatic linking.
+    if (!u) return workspaceRedirect(env, attempt.track, 'account');
+    if (u.disabled) return workspaceRedirect(env, attempt.track, 'disabled');
+    const session = random();
+    const expires = Math.min(claims.exp, now() + 3600);
+    const old = cookie(req, COOKIE);
+    const statements = [
+      env.DB.prepare(
+        'INSERT INTO sessions (hash,user_id,expires_at,provider_token) SELECT ?,id,?,? FROM users WHERE id=? AND disabled=0',
+      ).bind(await digest(session), expires, await sealToken(env, token), u.id),
+    ];
+    if (old) statements.push(env.DB.prepare('DELETE FROM sessions WHERE hash=?').bind(await digest(old)));
+    const [inserted] = await env.DB.batch(statements);
+    if (!inserted.meta.changes) return workspaceRedirect(env, attempt.track, 'disabled');
+    return workspaceRedirect(env, attempt.track, null, secureCookie(COOKIE, session, expires - now()));
   } catch {
-    fail(403, 'Invalid administrator identity.');
+    return workspaceRedirect(env, attempt.track, 'failed');
   }
 }
+
+async function factorsFor(env, u) {
+  const token = await openToken(env, u.provider_token);
+  const response = await authRequest(env, '/user', { token });
+  if (!response.ok) fail(401, 'Your GitHub session expired. Sign in again.');
+  const account = await response.json();
+  if (account.id !== u.auth_subject) fail(403, 'Unexpected account.');
+  const factors = (account.factors || []).filter((f) => f.factor_type === 'totp' && uuid.test(f.id));
+  return { token, factors, verified: factors.find((f) => f.status === 'verified') };
+}
+
+async function adminMfa(req, env, u, path) {
+  if (!adminEligible(env, u)) fail(403, 'Administrator access required.');
+  if (!u.name || !u.organization) fail(403, 'Complete your contributor profile first.');
+  if (req.method === 'GET' && path === '/auth/mfa') {
+    const { verified } = await factorsFor(env, u);
+    return json({ enrolled: Boolean(verified) });
+  }
+  if (req.method !== 'POST') fail(405, 'Method not allowed.');
+  await rate(env, 'mfa:' + u.id, 12);
+  const { token, factors, verified } = await factorsFor(env, u);
+  if (path === '/auth/mfa/enroll') {
+    if (verified) fail(409, 'An authenticator is already set up.');
+    // Discard pending setup for this account. Verified factors are managed by the project owner.
+    for (const factor of factors.filter((f) => f.status === 'unverified')) {
+      const removed = await authRequest(env, '/factors/' + factor.id, { method: 'DELETE', token });
+      if (!removed.ok) fail(409, 'Authenticator setup changed. Reload and try again.');
+    }
+    const result = await authRequest(env, '/factors', {
+      method: 'POST',
+      token,
+      data: { factor_type: 'totp', issuer: 'AISLE' },
+    });
+    if (!result.ok) fail(503, 'Could not start authenticator setup.');
+    const factor = await result.json();
+    if (!uuid.test(factor.id) || !/^[A-Z2-7]+=*$/i.test(factor.totp?.secret || ''))
+      fail(503, 'Unexpected authenticator setup response.');
+    const updated = await env.DB.prepare('UPDATE sessions SET mfa_enrollment=? WHERE hash=? AND expires_at>?')
+      .bind(factor.id, u.session_hash, now())
+      .run();
+    if (!updated.meta.changes) fail(401, 'Session expired. Please sign in.');
+    return json({ secret: factor.totp.secret });
+  }
+  if (path !== '/auth/mfa/verify') fail(404, 'Not found.');
+  const { code } = await body(req);
+  if (typeof code !== 'string' || !/^\d{6}$/.test(code)) fail(400, 'Enter your six-digit code.');
+  const factor = verified || factors.find((f) => f.id === u.mfa_enrollment && f.status === 'unverified');
+  if (!factor) fail(409, 'Set up your authenticator first.');
+  const factorPath = '/factors/' + factor.id;
+  const challenged = await authRequest(env, factorPath + '/challenge', { method: 'POST', token, data: {} });
+  if (!challenged.ok) fail(400, 'Could not verify your code. Try again.');
+  const challenge = await challenged.json();
+  if (!uuid.test(challenge.id)) fail(503, 'Unexpected authenticator challenge.');
+  const result = await authRequest(env, factorPath + '/verify', {
+    method: 'POST',
+    token,
+    data: { challenge_id: challenge.id, code },
+  });
+  if (!result.ok) fail(400, 'Incorrect or expired authenticator code.');
+  const { access_token: elevated } = await result.json();
+  const before = await verifiedClaims(env, token);
+  const after = await verifiedClaims(env, elevated);
+  if (after.sub !== u.auth_subject || after.session_id !== before.session_id || after.aal !== 'aal2') {
+    fail(403, 'Authenticator verification could not be confirmed.');
+  }
+  const session = random();
+  const expires = Math.min(u.session_expiry, after.exp);
+  const [updated] = await env.DB.batch([
+    env.DB.prepare(
+      'UPDATE sessions SET hash=?, provider_token=?, mfa_until=?, expires_at=?, mfa_enrollment=NULL ' +
+        'WHERE hash=? AND expires_at>? AND EXISTS(SELECT 1 FROM users WHERE id=? AND disabled=0)',
+    ).bind(
+      await digest(session),
+      await sealToken(env, elevated),
+      Math.min(expires, now() + 900),
+      expires,
+      u.session_hash,
+      now(),
+      u.id,
+    ),
+    env.DB.prepare('INSERT INTO audit_log SELECT ?,?,?,?,? WHERE changes()=1').bind(
+      crypto.randomUUID(),
+      u.id,
+      'admin.mfa',
+      u.id,
+      now(),
+    ),
+  ]);
+  if (!updated.meta.changes) fail(401, 'Session expired. Please sign in.');
+  return json({ ok: true }, 200, { 'Set-Cookie': secureCookie(COOKIE, session, expires - now()) });
+}
+
 const audit = (env, u, action, id) =>
   env.DB.prepare('INSERT INTO audit_log VALUES (?,?,?,?,?)')
     .bind(crypto.randomUUID(), u.id, action, id, now())
@@ -191,7 +381,6 @@ const safeTask = (t) => ({
   lab: JSON.parse(t.lab_json),
   lab_json: undefined,
 });
-const userResponse = (env, u) => ({ user: u, admin_eligible: adminEligible(env, u) });
 const editableStates = ['draft', 'changes_requested'];
 
 async function route(req, env) {
@@ -202,94 +391,31 @@ async function route(req, env) {
   if (url.origin !== env.SITE_ORIGIN) fail(403, 'Invalid host.');
   if (!['GET', 'HEAD'].includes(method) && req.headers.get('Origin') !== env.SITE_ORIGIN)
     fail(403, 'Invalid request origin.');
-  if (method === 'GET' && p === '/config') return json({ turnstileSiteKey: env.TURNSTILE_SITE_KEY || '' });
-  if (method === 'POST' && p === '/auth/request') {
-    const b = await body(req),
-      email = text(b.email, 254).toLowerCase();
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) fail(400, 'Enter a valid email.');
-    const name = text(b.name ?? '', 120, false),
-      organization = text(b.organization ?? '', 200, false);
-    await rate(env, 'login-ip:' + req.headers.get('CF-Connecting-IP'), 20);
-    await rate(env, 'login-email:' + email, 5);
-    if (!env.RESEND_API_KEY || !env.MAIL_FROM || !env.TURNSTILE_SECRET)
-      fail(503, 'Email login is not configured.');
-    const challenge = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
-      method: 'POST',
-      body: new URLSearchParams({
-        secret: env.TURNSTILE_SECRET,
-        response: text(b.turnstile, 4096),
-        remoteip: req.headers.get('CF-Connecting-IP') || '',
-      }),
-    }).then((r) => r.json());
-    if (
-      !challenge.success ||
-      challenge.hostname !== new URL(env.SITE_ORIGIN).hostname ||
-      challenge.action !== 'contribute-login'
-    )
-      fail(400, 'Verification failed. Please try again.');
-    const existing = await env.DB.prepare('SELECT id,disabled FROM users WHERE email=?').bind(email).first();
-    const generic = () => json({ message: 'If eligible, a sign-in link has been sent. Check your inbox.' });
-    if (existing?.disabled || (!existing && (!name || !organization))) return generic();
-    const token = random(),
-      hash = await digest(token);
-    await env.DB.prepare('INSERT INTO login_tokens VALUES (?,?,?,?,?)')
-      .bind(hash, email, name, organization, now() + 900)
-      .run();
-    const track = ['dry', 'wet'].includes(b.kind) ? `?kind=${b.kind}` : '';
-    const link = `${env.SITE_ORIGIN}/contributor.html${track}#token=${token}`;
-    const sent = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        from: env.MAIL_FROM,
-        to: [email],
-        subject: 'Sign in to AISLE',
-        text: `Use this single-use link within 15 minutes to sign in to AISLE:\n${link}\n\nIf you did not request this, ignore this email.`,
-      }),
-    });
-    if (!sent.ok) {
-      await env.DB.prepare('DELETE FROM login_tokens WHERE hash=?').bind(hash).run();
-      fail(503, 'Email delivery unavailable. Please try later.');
-    }
-    return generic();
-  }
-  if (method === 'POST' && p === '/auth/verify') {
-    await rate(env, 'verify:' + req.headers.get('CF-Connecting-IP'), 30);
-    const b = await body(req);
-    if (typeof b.token !== 'string' || !/^[a-f0-9]{64}$/.test(b.token)) fail(400, 'Invalid login link.');
-    const record = await env.DB.prepare('DELETE FROM login_tokens WHERE hash=? AND expires_at>? RETURNING *')
-      .bind(await digest(b.token), now())
-      .first();
-    if (!record) fail(401, 'Link expired or already used.');
-    await env.DB.prepare('INSERT OR IGNORE INTO users VALUES (?,?,?,?,0,?)')
-      .bind(crypto.randomUUID(), record.email, record.name, record.organization, now())
-      .run();
-    const u = await env.DB.prepare('SELECT * FROM users WHERE email=?').bind(record.email).first();
-    const token = random();
-    const session = await env.DB.prepare(
-      'INSERT INTO sessions (hash,user_id,expires_at) SELECT ?,id,? FROM users WHERE id=? AND disabled=0',
-    )
-      .bind(await digest(token), now() + 28800, u.id)
-      .run();
-    if (!session.meta.changes) fail(403, 'Account unavailable.');
-    return json(userResponse(env, u), 200, {
-      'Set-Cookie': `${COOKIE}=${token}; Secure; HttpOnly; SameSite=Lax; Path=/; Max-Age=28800`,
-    });
-  }
+  if (method === 'GET' && p === '/config') return json({ github_sign_in: authConfigured(env) });
+  if (method === 'POST' && p === '/auth/start') return startLogin(req, env);
+  if (method === 'GET' && p === '/auth/callback') return completeLogin(req, env, url);
   const u = await user(req, env);
   if (method === 'GET' && p === '/me') return json(userResponse(env, u));
   if (method === 'POST' && p === '/auth/logout') {
-    const token = sessionToken(req);
-    await env.DB.prepare('DELETE FROM sessions WHERE hash=?')
-      .bind(await digest(token))
-      .run();
-    return json({ ok: true }, 200, {
-      'Set-Cookie': `${COOKIE}=; Secure; HttpOnly; SameSite=Lax; Path=/; Max-Age=0`,
-    });
+    await env.DB.prepare('DELETE FROM sessions WHERE hash=?').bind(u.session_hash).run();
+    return json({ ok: true }, 200, { 'Set-Cookie': secureCookie(COOKIE, '', 0) });
   }
+  if (method === 'PATCH' && p === '/me/profile') {
+    await rate(env, 'write:' + u.id, 60);
+    const b = await body(req);
+    const name = text(b.name, 120),
+      organization = text(b.organization, 200);
+    await env.DB.prepare('UPDATE users SET name=?,organization=? WHERE id=?')
+      .bind(name, organization, u.id)
+      .run();
+    return json(userResponse(env, { ...u, name, organization }));
+  }
+  if (p === '/auth/mfa' || p === '/auth/mfa/enroll' || p === '/auth/mfa/verify')
+    return adminMfa(req, env, u, p);
+  if (!u.name || !u.organization) fail(403, 'Complete your contributor profile first.');
   if (method !== 'GET') await rate(env, 'write:' + u.id, 60);
   if (p.startsWith('/admin/')) {
-    await admin(req, env, u);
+    if (!adminEligible(env, u) || u.mfa_until <= now()) fail(403, 'Administrator verification required.');
     const page = Math.floor(Math.max(0, Math.min(10000, Number(url.searchParams.get('page')) || 0)));
     if (method === 'GET' && p === '/admin/users') {
       await audit(env, u, 'users.list', '');
@@ -398,14 +524,11 @@ async function route(req, env) {
     const data = await bytes(req, MAX_ZIP);
     if (!hasZipDirectory(data)) fail(400, 'Expected a non-empty ZIP archive.');
     const key = `quarantine/${u.id}/${task.id}/${crypto.randomUUID()}.zip`;
-    // Track incomplete uploads before writing to R2, whose writes are separate from D1.
+    // Track incomplete uploads before writing to object storage, whose writes are separate from D1.
     await env.DB.prepare('INSERT INTO package_gc VALUES (?,?)')
       .bind(key, now() + 86400)
       .run();
-    await env.PACKAGES.put(key, data, {
-      httpMetadata: { contentType: 'application/zip' },
-      customMetadata: { taskId: task.id, userId: u.id, sha256: await digestBytes(data) },
-    });
+    await putPackage(env, key, data);
     const statements = [
       env.DB.prepare(
         "UPDATE tasks SET package_key=?,package_size=?,revision=revision+1,updated_at=? WHERE id=? AND user_id=? AND revision=? AND status IN ('draft','changes_requested')",
@@ -490,13 +613,9 @@ function hasZipDirectory(data) {
   }
   return false;
 }
-const digestBytes = async (bytes) =>
-  Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', bytes)), (x) =>
-    x.toString(16).padStart(2, '0'),
-  ).join('');
 async function download(env, t) {
   if (!t.package_key) fail(404, 'No package.');
-  const object = await env.PACKAGES.get(t.package_key);
+  const object = await getPackage(env, t.package_key);
   if (!object) fail(404, 'Package unavailable.');
   return new Response(object.body, {
     headers: {
@@ -521,7 +640,7 @@ export default {
   },
   async scheduled(event, env) {
     await env.DB.batch(
-      ['login_tokens', 'sessions', 'rate_limits'].map((t) =>
+      ['login_tokens', 'sessions', 'rate_limits', 'oauth_attempts'].map((t) =>
         env.DB.prepare(`DELETE FROM ${t} WHERE expires_at<?`).bind(now()),
       ),
     );
@@ -531,7 +650,10 @@ export default {
       .bind(now())
       .all();
     if (results.length) {
-      await env.PACKAGES.delete(results.map(({ key }) => key));
+      await deletePackages(
+        env,
+        results.map(({ key }) => key),
+      );
       await env.DB.batch(
         results.map(({ key }) => env.DB.prepare('DELETE FROM package_gc WHERE key=?').bind(key)),
       );
