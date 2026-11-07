@@ -70,5 +70,5 @@ def shell(page, title, description, body, version):
   {portal_style}
   <script type="module" src="assets/js/main.js?v={version}"></script>
 </head>
-<body>{header(page)}{body}{results_data() if page != "tasks.html" else ""}{footer()}</body>
+<body{chr(32) + 'class="tasks-page"' if page == "tasks.html" else ""}>{header(page)}{body}{results_data() if page != "tasks.html" else ""}{footer()}</body>
 </html>'''

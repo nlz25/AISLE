@@ -62,4 +62,12 @@ def tasks():
       <p>Within applicable task groups, targets receive equal weight. Displayed values are rounded; manuscript aggregate scores are preserved from the original calculation. Use the experiment and category filters on the leaderboard to inspect score composition and task coverage.</p>""",
     )
     nav = "".join(f'<a href="#{key}">{title}</a>' for key, title, _ in sections)
-    return f"""<main id="main" class="wrap"><section class="page-hero"><h1>Tasks</h1></section><div class="doc-layout"><nav class="doc-nav" aria-label="On this page">{nav}</nav><div>{"".join(s[2] for s in sections)}</div></div></main>"""
+    return f"""<main id="main">
+    <section id="task-cards" class="task-catalogue" aria-label="Scientific tasks">
+      <iframe id="task-catalogue-frame" src="task-cards/index.html?embed=1&amp;v=cards-open-v2" title="Interactive AISLE task catalogue" allowfullscreen></iframe>
+      <noscript><p class="wrap"><a href="#task-protocols">Protocols &amp; scoring</a></p></noscript>
+    </section>
+    <section id="task-protocols" class="task-protocols wrap" aria-labelledby="protocols-title">
+      <div class="page-hero"><h1 id="protocols-title">Protocols &amp; scoring</h1><a href="#task-cards">← Back to tasks</a></div>
+      <div class="doc-layout"><nav class="doc-nav" aria-label="On this page">{nav}</nav><div>{"".join(s[2] for s in sections)}</div></div>
+    </section></main>"""
